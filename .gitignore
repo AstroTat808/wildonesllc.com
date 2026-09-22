@@ -1,0 +1,6 @@
+.netlify/
+.sites-runtime/
+node_modules/
+.env
+.env.*
+!.env.example
