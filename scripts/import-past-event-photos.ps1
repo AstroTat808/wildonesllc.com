@@ -103,13 +103,16 @@ foreach ($job in $jobs) {
   Write-Host "Output : $outputDir"
 
   $existingFull = @{}
+  $existingSources = @{}
   foreach ($photo in @($event.photos)) {
     if ($photo.full) { $existingFull[[string]$photo.full] = $true }
+    if ($photo.source) { $existingSources[[string]$photo.source] = $true }
   }
 
   if ($Rebuild) {
     $event.photos = @()
     $existingFull = @{}
+    $existingSources = @{}
   }
 
   $files = Get-ChildItem -Path $folder -File -Recurse |
@@ -133,6 +136,11 @@ foreach ($job in $jobs) {
 
   $counter = 1
   foreach ($file in $files) {
+    if ($existingSources.ContainsKey($file.Name) -and -not $Rebuild) {
+      Write-Host "Skipping previously imported source: $($file.Name)"
+      continue
+    }
+
     $base = Get-Slug $file.BaseName
     if (-not $base) { $base = "photo" }
 
@@ -163,7 +171,7 @@ foreach ($job in $jobs) {
     if (-not $captionSource) { $captionSource = "Event photo" }
 
     $photoNumber = $newPhotos.Count + 1
-    $layout = @("wide","portrait","standard","half","half","standard")[$photoNumber % 6]
+    $layout = @("wide","portrait","standard","half","half","standard")[($photoNumber - 1) % 6]
 
     $entry = [ordered]@{
       thumb = $thumbWeb
