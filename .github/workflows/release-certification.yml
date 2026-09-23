@@ -1,0 +1,90 @@
+name: Wild Ones Release Certification
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wild-ones-release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-integrity:
+    name: Static integrity + security config
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install QA dependencies
+        run: npm install --no-audit --no-fund
+      - name: Static route, SEO and secret audit
+        run: npm run qa:static
+      - name: Netlify functions and edge syntax audit
+        run: npm run qa:functions
+
+  browser-qa:
+    name: Desktop + mobile browser QA
+    needs: static-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run qa:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wild-ones-playwright-${{ github.run_id }}
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse quality gates
+    needs: static-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npm run qa:lighthouse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wild-ones-lighthouse-${{ github.run_id }}
+          path: lighthouse-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+  release-certification:
+    name: Release Certification - GO
+    needs: [static-integrity, browser-qa, lighthouse]
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "GO - Wild Ones static integrity, browser QA, and Lighthouse gates passed."
+          echo "This workflow performs no Netlify deployment."
