@@ -21,7 +21,7 @@
       memorabilia: ['Memorabilia archive ready','Physical and digital artifacts can be cataloged here.','Tickets, passes, wristbands, merchandise, badges and other surviving event pieces can be documented.']
     }[type];
     const empty = document.createElement('div');
-    empty.className = 'archive-empty';
+    empty.className = type === 'gallery' ? 'archive-empty event-gallery-empty' : 'archive-empty';
     empty.innerHTML = '<span>'+copy[0]+'</span><strong>'+copy[1]+'</strong><p>'+copy[2]+'</p>';
     root.replaceChildren(empty);
     root.dataset.archiveReady = 'true';
