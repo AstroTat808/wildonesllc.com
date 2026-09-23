@@ -165,14 +165,29 @@ test('case-study library exposes NOCTURNE and production inquiry path',async({pa
   await expect(page.locator('.nocturne-cinema-hero a[href="book.html"]')).toBeVisible();
 });
 
+test('past events timeline connects 2022 history to NOCTURNE 2026',async({page})=>{
+  await page.goto('/past-events.html',{waitUntil:'networkidle'});
+  await expect(page.locator('h1')).toContainText('Hawaiʻi Island production');
+  await expect(page.getByRole('heading',{name:'Bass Babes Recruitment Event'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Wild Ones & Bass Babes Take a Groove Cruise'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Wild Ones Takes Flight Event featuring Bass Babes'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'NOCTURNE 2026'})).toBeVisible();
+  await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
+  await expect(page.locator('[data-event-gallery="nocturne-2026"] .event-gallery-item')).toHaveCount(6);
+  await expect(page.locator('[data-event-gallery="bass-babes-recruitment-2022"] .event-gallery-empty')).toBeVisible();
+  await expect(page.locator('[data-event-gallery="groove-cruise-2022"] .event-gallery-empty')).toBeVisible();
+  await expect(page.locator('[data-event-gallery="wild-ones-takes-flight-2022"] .event-gallery-empty')).toBeVisible();
+});
 
-test('past events archive preserves 2022 event details',async({page})=>{
-  await page.goto('/past-events.html');
-  await expect(page.locator('h1')).toContainText('Wild Ones events');
-  await expect(page.getByText('Bass Babes Recruitment Event',{exact:true})).toBeVisible();
-  await expect(page.getByText('Wild Ones Takes Flight Event featuring Bass Babes',{exact:true})).toBeVisible();
-  await expect(page.getByText('Wild Ones & Bass Babes Take a Groove Cruise',{exact:true})).toBeVisible();
-  await expect(page.getByText('Mission Viejo, California',{exact:true})).toBeVisible();
-  await expect(page.getByText('Los Angeles to Cabo',{exact:true})).toBeVisible();
-  await expect(page.getByText('Huntington Beach, California',{exact:true})).toBeVisible();
+test('past event photo lightbox opens and restores focus',async({page})=>{
+  await page.goto('/past-events.html',{waitUntil:'networkidle'});
+  const first=page.locator('[data-event-gallery="nocturne-2026"] [data-event-photo]').first();
+  await first.focus();
+  await first.click();
+  const dialog=page.locator('[data-event-gallery-dialog]');
+  await expect(dialog).toHaveAttribute('open','');
+  await expect(dialog.locator('[data-event-dialog-image]')).toBeVisible();
+  await page.locator('[data-event-dialog-close]').click();
+  await expect(dialog).not.toHaveAttribute('open','');
+  await expect(first).toBeFocused();
 });
