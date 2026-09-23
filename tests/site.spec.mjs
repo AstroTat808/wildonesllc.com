@@ -59,3 +59,81 @@ test('NOCTURNE case-study links are discoverable',async({page})=>{
   await page.goto('/nocturne-2026.html');
   await expect(page.locator('h1')).toContainText('NOCTURNE');
 });
+
+
+test.describe('NOCTURNE media integration', () => {
+  test('gallery media assets resolve and lightbox restores focus', async ({ page, request }) => {
+    await page.goto('/gallery.html', { waitUntil: 'networkidle' });
+
+    const thumbnails = page.locator('[data-nocturne-lightbox]');
+    await expect(thumbnails).toHaveCount(9);
+
+    const assetUrls = await page.locator(
+      '.nocturne-photo-card img, .nocturne-video-tile source, .nocturne-video-tile video'
+    ).evaluateAll((nodes) => {
+      const urls = new Set();
+      for (const node of nodes) {
+        if (node.tagName === 'IMG') {
+          if (node.getAttribute('src')) urls.add(node.getAttribute('src'));
+          const srcset = node.getAttribute('srcset') || '';
+          for (const candidate of srcset.split(',')) {
+            const url = candidate.trim().split(/\s+/)[0];
+            if (url) urls.add(url);
+          }
+        } else if (node.tagName === 'SOURCE' && node.getAttribute('src')) {
+          urls.add(node.getAttribute('src'));
+        }
+      }
+      document.querySelectorAll('.nocturne-video-tile video').forEach((video) => {
+        const poster = video.getAttribute('poster');
+        if (poster) urls.add(poster);
+      });
+      return [...urls];
+    });
+
+    expect(assetUrls.length).toBeGreaterThanOrEqual(30);
+    for (const asset of assetUrls) {
+      const response = await request.get(new URL(asset, 'http://127.0.0.1:4173/').href);
+      expect(response.ok(), asset).toBeTruthy();
+    }
+
+    const first = thumbnails.first();
+    await first.focus();
+    await first.click();
+    const dialog = page.locator('[data-nocturne-dialog]');
+    await expect(dialog).toHaveAttribute('open', '');
+    await expect(dialog.locator('[data-nocturne-dialog-image]')).toBeVisible();
+    await page.locator('[data-nocturne-dialog-close]').click();
+    await expect(dialog).not.toHaveAttribute('open', '');
+    await expect(first).toBeFocused();
+  });
+
+  test('NOCTURNE videos avoid eager media downloads', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    const homeVideo = page.locator('.nocturne-video-card video');
+    await expect(homeVideo).toHaveAttribute('preload', 'none');
+    await expect(homeVideo).not.toHaveAttribute('autoplay', '');
+
+    await page.goto('/gallery.html', { waitUntil: 'domcontentloaded' });
+    const videos = page.locator('.nocturne-video-tile video');
+    await expect(videos).toHaveCount(6);
+    for (let i = 0; i < await videos.count(); i += 1) {
+      await expect(videos.nth(i)).toHaveAttribute('preload', 'none');
+      await expect(videos.nth(i)).not.toHaveAttribute('autoplay', '');
+    }
+  });
+
+  for (const width of [320, 390, 430]) {
+    test(`NOCTURNE pages fit mobile viewport at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      for (const route of ['/', '/events.html', '/gallery.html', '/nocturne-2026.html']) {
+        await page.goto(route, { waitUntil: 'networkidle' });
+        const overflow = await page.evaluate(() =>
+          Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) -
+          document.documentElement.clientWidth
+        );
+        expect(overflow, route).toBeLessThanOrEqual(1);
+      }
+    });
+  }
+});

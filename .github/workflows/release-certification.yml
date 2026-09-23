@@ -5,6 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
+  merge_group:
   workflow_dispatch:
 
 permissions:
@@ -82,9 +83,22 @@ jobs:
 
   release-certification:
     name: Release Certification - GO
+    if: always()
     needs: [static-integrity, browser-qa, lighthouse]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - run: |
+      - name: Enforce required QA results
+        env:
+          STATIC_RESULT: ${{ needs.static-integrity.result }}
+          BROWSER_RESULT: ${{ needs.browser-qa.result }}
+          LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+        run: |
+          echo "Static integrity: $STATIC_RESULT"
+          echo "Browser QA:       $BROWSER_RESULT"
+          echo "Lighthouse:       $LIGHTHOUSE_RESULT"
+          test "$STATIC_RESULT" = "success"
+          test "$BROWSER_RESULT" = "success"
+          test "$LIGHTHOUSE_RESULT" = "success"
           echo "GO - Wild Ones static integrity, browser QA, and Lighthouse gates passed."
           echo "This workflow performs no Netlify deployment."
