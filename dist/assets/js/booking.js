@@ -53,7 +53,7 @@ if (form) {
   );
 
   const minutesFor = (time) => {
-    if (!/^\\d{2}:\\d{2}$/.test(time || '')) return null;
+    if (!/^\d{2}:\d{2}$/.test(time || '')) return null;
     const [hours, minutes] = time.split(':').map(Number);
     return (hours * 60) + minutes;
   };
