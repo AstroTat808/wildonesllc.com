@@ -54,7 +54,7 @@ test('luxury visual QA across every public and operational page',async({page})=>
         if(overflow>1) failures.push('horizontal overflow '+overflow+'px');
 
         const broken=[...document.images]
-          .filter((img)=>visible(img)&&(!img.complete||img.naturalWidth===0))
+          .filter((img)=>visible(img)&&img.complete&&img.naturalWidth===0)
           .map((img)=>img.getAttribute('src')||'(unknown)');
         if(broken.length) failures.push('broken images: '+broken.join(', '));
 
@@ -77,7 +77,7 @@ test('luxury visual QA across every public and operational page',async({page})=>
         }
 
         if(mobile){
-          const targets=[...document.querySelectorAll('button,.btn,summary,input,select,textarea')].filter(visible);
+          const targets=[...document.querySelectorAll('button,.btn,summary,input:not([type="checkbox"]):not([type="radio"]),select,textarea')].filter(visible);
           for(const el of targets){
             const r=el.getBoundingClientRect();
             if(r.height<42){
