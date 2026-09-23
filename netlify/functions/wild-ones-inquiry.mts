@@ -1,5 +1,5 @@
 import type { Config, Context } from '@netlify/functions';
-import { getStore } from '@netlify/blobs';
+import { getDeployStore, getStore } from '@netlify/blobs';
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const CRM_DEFAULT = 'https://koasevents.com/api/crm/inquiries';
@@ -76,7 +76,13 @@ function actionFor(formName: string) {
   return '';
 }
 
-async function storeRider(form: FormData, req: Request) {
+function producerUploadStore(context: Context) {
+  return context.deploy.context === 'production'
+    ? getStore({ name: 'wild-ones-producer-uploads', consistency: 'strong' })
+    : getDeployStore({ name: 'wild-ones-producer-uploads' });
+}
+
+async function storeRider(form: FormData, req: Request, context: Context) {
   const value = form.get('production_rider');
   if (!(value instanceof File) || !value.size) return '';
 
@@ -89,7 +95,7 @@ async function storeRider(form: FormData, req: Request) {
   const bytes = await value.arrayBuffer();
   const id = crypto.randomUUID();
   const key = 'riders/' + id + '.pdf';
-  const store = getStore({ name: 'wild-ones-producer-uploads', consistency: 'strong' });
+  const store = producerUploadStore(context);
   await store.set(key, bytes, {
     metadata: {
       contentType: 'application/pdf',
@@ -206,7 +212,7 @@ export default async (req: Request, context: Context) => {
   }
 
   let riderUrl = '';
-  try { riderUrl = await storeRider(form, req); }
+  try { riderUrl = await storeRider(form, req, context); }
   catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : 'Production rider upload failed.' }, { status: 400 });
   }
