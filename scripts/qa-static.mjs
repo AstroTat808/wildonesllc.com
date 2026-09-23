@@ -35,6 +35,18 @@ for(const rel of ['index.html','about.html','site-map.html','production.html','e
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
 }
 
+const stylesPath=path.join(root,'assets/css/styles.css');
+if(!fs.existsSync(stylesPath)){
+  errors.push('assets/css/styles.css: missing bundled stylesheet');
+}else{
+  const stylesText=fs.readFileSync(stylesPath,'utf8');
+  if(stylesText.includes('\\n')) errors.push('assets/css/styles.css: literal escaped newline found; stylesheet may not parse as intended');
+  if(/@import\s+url\(/i.test(stylesText)) warnings.push('assets/css/styles.css: CSS imports remain; prefer one bundled render-blocking stylesheet');
+  for(const marker of ['.wo-photo-hero','.wo-gallery-grid','.map-board-scroll']){
+    if(!stylesText.includes(marker)) errors.push('assets/css/styles.css: professional visual-system marker missing: '+marker);
+  }
+}
+
 const config=fs.readFileSync('netlify.toml','utf8');
 for(const requiredSetting of ['Content-Security-Policy','/technical-packet.html','producer-access']){
   if(!config.includes(requiredSetting)) warnings.push('netlify.toml does not mention '+requiredSetting);
