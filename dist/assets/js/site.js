@@ -1,3 +1,25 @@
+function ensurePastEventsLinks() {
+  const primaryNav = document.querySelector('[data-nav-links]');
+  if (primaryNav && !primaryNav.querySelector('a[href="past-events.html"]')) {
+    const link = document.createElement('a');
+    link.href = 'past-events.html';
+    link.textContent = 'Past Events';
+    const cta = primaryNav.querySelector('.btn');
+    primaryNav.insertBefore(link, cta || null);
+  }
+
+  const footerLinks = document.querySelector('.footer-links');
+  if (footerLinks && !footerLinks.querySelector('a[href="past-events.html"]')) {
+    const link = document.createElement('a');
+    link.href = 'past-events.html';
+    link.textContent = 'Past Events';
+    const faq = footerLinks.querySelector('a[href="faq.html"]');
+    footerLinks.insertBefore(link, faq || null);
+  }
+}
+
+ensurePastEventsLinks();
+
 const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav-links]');
 
