@@ -383,3 +383,69 @@ body{scroll-padding-top:110px}
   .nav-links .btn{margin-top:6px}
   .navbar{position:relative}
 }
+
+
+/* Mobile booking UX */
+@media(max-width:700px){
+  .form-shell{gap:14px!important}
+  .form-aside{
+    padding:18px!important;
+    border-radius:18px!important;
+  }
+  .form-aside>p:not(.eyebrow){display:none}
+  .form-aside h2{font-size:1.55rem!important;margin-bottom:10px!important}
+  .form-progress{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin-top:12px!important;
+  }
+  .progress-item{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    justify-items:center!important;
+    gap:5px!important;
+    padding:8px 4px!important;
+    text-align:center;
+  }
+  .progress-item span:first-child{width:30px!important;height:30px!important}
+  .progress-item span:last-child{font-size:.58rem;line-height:1.2}
+  .score-preview{
+    margin-top:12px!important;
+    padding:13px 14px!important;
+    grid-template-columns:1fr auto;
+    align-items:end;
+  }
+  .score-preview strong{font-size:1.45rem!important}
+  .score-preview small{display:none}
+  .form-card{border-radius:18px!important}
+  .form-card>h2,.form-step h2{font-size:1.8rem!important}
+  .form-actions{gap:9px!important;margin-top:24px!important;padding-top:18px!important}
+  .form-actions .btn{min-height:50px}
+}
+
+/* Gallery interaction */
+.wo-gallery-item img{cursor:zoom-in}
+.gallery-lightbox{
+  width:min(94vw,1200px);
+  max-width:1200px;
+  padding:0;
+  border:1px solid rgba(216,164,59,.3);
+  border-radius:22px;
+  background:#050505;
+  color:#fff;
+  box-shadow:0 30px 100px rgba(0,0,0,.75);
+}
+.gallery-lightbox::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(8px)}
+.gallery-lightbox__inner{position:relative}
+.gallery-lightbox img{display:block;width:100%;max-height:82vh;object-fit:contain;border-radius:21px}
+.gallery-lightbox__close{
+  position:absolute;top:12px;right:12px;z-index:2;
+  width:44px;height:44px;border-radius:999px;border:1px solid rgba(255,255,255,.22);
+  background:rgba(5,5,5,.78);color:#fff;font-size:1.25rem;line-height:1
+}
+@media(max-width:700px){
+  .wo-gallery-item strong{font-size:1.8rem!important}
+  .wo-gallery-item small{font-size:.7rem!important}
+  .gallery-lightbox{width:96vw;border-radius:16px}
+  .gallery-lightbox img{max-height:78vh;border-radius:15px}
+}
