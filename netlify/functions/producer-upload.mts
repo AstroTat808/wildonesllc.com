@@ -37,11 +37,15 @@ export default async (_req: Request, context: Context) => {
   }
 
   const store = getStore({ name: 'wild-ones-producer-uploads', consistency: 'strong' });
-  const result = await store.getWithMetadata('riders/' + id + '.pdf', { type: 'arrayBuffer' } as any);
-  if (!result) return new Response('File not found.', { status: 404 });
+  const key = 'riders/' + id + '.pdf';
+  const [metadata, data] = await Promise.all([
+    store.getMetadata(key),
+    store.get(key, { type: 'arrayBuffer' }),
+  ]);
+  if (!data) return new Response('File not found.', { status: 404 });
 
-  const originalName = clean((result.metadata as any)?.originalName || 'production-rider.pdf', 240).replace(/[\r\n"]/g, '');
-  return new Response(result.data as ArrayBuffer, {
+  const originalName = clean((metadata as any)?.metadata?.originalName || 'production-rider.pdf', 240).replace(/[\r\n"]/g, '');
+  return new Response(data as ArrayBuffer, {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="' + originalName + '"',
