@@ -121,3 +121,53 @@
   .nocturne-study-hero-media figcaption span{text-align:left}
 }
 @media(max-width:430px){.nocturne-study-stats{grid-template-columns:1fr}}
+
+
+/* NOCTURNE cinematic case-study system */
+.nocturne-cinema-hero{position:relative;min-height:min(88vh,860px);display:flex;align-items:flex-end;overflow:hidden;border-bottom:1px solid rgba(216,164,59,.18);isolation:isolate}
+.nocturne-cinema-hero-media{position:absolute;inset:0;z-index:-2}
+.nocturne-cinema-hero-media img{width:100%;height:100%;object-fit:cover;object-position:center 48%}
+.nocturne-cinema-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(3,3,5,.94) 0%,rgba(3,3,5,.76) 42%,rgba(3,3,5,.25) 73%,rgba(3,3,5,.42) 100%),linear-gradient(0deg,rgba(3,3,5,.96) 0%,transparent 55%);pointer-events:none}
+.nocturne-cinema-hero .container{padding-top:clamp(100px,13vh,150px);padding-bottom:clamp(46px,7vh,78px)}
+.nocturne-cinema-kicker{display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;padding:8px 11px;border:1px solid rgba(216,164,59,.34);border-radius:999px;background:rgba(5,5,7,.48);backdrop-filter:blur(10px);color:#f6dc96;font-size:.7rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase}
+.nocturne-cinema-hero h1{max-width:850px}
+.nocturne-cinema-hero .lede{max-width:690px;color:#e2e4ea;text-shadow:0 2px 18px rgba(0,0,0,.7)}
+.nocturne-cinema-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));max-width:880px;margin-top:34px;border-top:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.12);background:rgba(5,5,7,.22);backdrop-filter:blur(10px)}
+.nocturne-cinema-stats div{padding:16px 18px;border-right:1px solid rgba(255,255,255,.12)}
+.nocturne-cinema-stats div:last-child{border-right:0}
+.nocturne-cinema-stats span,.nocturne-cinema-stats small{display:block;color:#aeb3bd}
+.nocturne-cinema-stats span{font-size:.64rem;text-transform:uppercase;letter-spacing:.12em}
+.nocturne-cinema-stats strong{display:block;margin:5px 0 2px;color:#fff;font-family:Georgia,serif;font-size:1.18rem}
+.nocturne-cinema-stats small{font-size:.72rem}
+.nocturne-story{position:relative}
+.nocturne-story-grid{display:grid;grid-template-columns:minmax(0,.82fr) minmax(440px,1.18fr);gap:clamp(42px,7vw,92px);align-items:start}
+.nocturne-story-steps{display:grid;gap:34px;padding-block:6vh}
+.nocturne-story-step{min-height:52vh;display:flex;flex-direction:column;justify-content:center;padding:30px 0;border-top:1px solid rgba(255,255,255,.08)}
+.nocturne-story-step:first-child{border-top:0}
+.nocturne-story-step>span{color:var(--gold);font-size:.7rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase}
+.nocturne-story-step h2{margin:12px 0 14px;color:#fff;font-family:Georgia,serif;font-size:clamp(2.2rem,4.5vw,4.2rem);line-height:1;letter-spacing:-.04em}
+.nocturne-story-step p{max-width:58ch;margin:0;color:#aab0bb;font-size:1.02rem;line-height:1.78}
+.nocturne-story-visual{position:sticky;top:110px;height:min(72vh,720px);margin-block:6vh;overflow:hidden;border-radius:30px;border:1px solid rgba(216,164,59,.2);background:#07070a;box-shadow:0 34px 100px rgba(0,0,0,.45)}
+.nocturne-story-frame{position:absolute;inset:0;margin:0;opacity:0;transform:scale(1.025);transition:opacity .55s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.nocturne-story-frame.active{opacity:1;transform:scale(1)}
+.nocturne-story-frame img{width:100%;height:100%;object-fit:cover}
+.nocturne-story-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.78))}
+.nocturne-story-frame figcaption{position:absolute;z-index:2;left:22px;right:22px;bottom:20px;display:flex;justify-content:space-between;gap:18px;color:#fff}
+.nocturne-story-frame figcaption span{color:#c1c6cf;font-size:.78rem}
+.nocturne-story-mobile{display:none}
+.nocturne-production-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.nocturne-production-rail article{min-height:240px;padding:26px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.018))}
+.nocturne-production-rail article>span{color:var(--gold);font-size:.68rem;font-weight:900;letter-spacing:.14em}
+.nocturne-production-rail h3{margin:34px 0 9px;color:#fff;font-family:Georgia,serif;font-size:1.45rem}
+.nocturne-production-rail p{margin:0;color:#969da8}
+.nocturne-proof-reel{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}
+.nocturne-proof-reel>figure{margin:0;overflow:hidden;border-radius:24px;border:1px solid rgba(255,255,255,.1);background:#08080a}
+.nocturne-proof-reel .still{min-height:520px}
+.nocturne-proof-reel .still img{width:100%;height:100%;object-fit:cover}
+.nocturne-proof-reel .motion{display:grid;grid-template-rows:1fr auto}
+.nocturne-proof-reel video{width:100%;height:100%;min-height:440px;object-fit:cover}
+.nocturne-proof-reel figcaption{padding:15px 17px;color:#aeb4be}
+@media(max-width:1000px){.nocturne-story-grid{grid-template-columns:1fr}.nocturne-story-visual{display:none}.nocturne-story-steps{padding-block:0}.nocturne-story-step{min-height:0}.nocturne-story-mobile{display:block;margin:24px 0 0;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,.09)}.nocturne-story-mobile img{width:100%;aspect-ratio:4/3;object-fit:cover}.nocturne-production-rail{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.nocturne-cinema-hero{min-height:78vh}.nocturne-cinema-hero::before{background:linear-gradient(0deg,rgba(3,3,5,.97) 0%,rgba(3,3,5,.74) 52%,rgba(3,3,5,.36) 100%)}.nocturne-cinema-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.nocturne-cinema-stats div:nth-child(2){border-right:0}.nocturne-cinema-stats div:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.12)}.nocturne-production-rail,.nocturne-proof-reel{grid-template-columns:1fr}.nocturne-proof-reel .still{min-height:380px}.nocturne-proof-reel video{min-height:360px}}
+@media(max-width:430px){.nocturne-cinema-stats{grid-template-columns:1fr}.nocturne-cinema-stats div{border-right:0;border-bottom:1px solid rgba(255,255,255,.1)!important}.nocturne-cinema-stats div:last-child{border-bottom:0!important}}
+@media(prefers-reduced-motion:reduce){.nocturne-story-frame{transition:none}}

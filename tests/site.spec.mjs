@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
+const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
 
 for(const route of pages){
   test('page renders without console errors: '+route, async({page})=>{
@@ -53,7 +53,7 @@ test('producer technical packet is noindex',async({page})=>{
 
 test('NOCTURNE case-study links are discoverable',async({page})=>{
   await page.goto('/');
-  await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
+  await expect(page.locator('a[href="nocturne-2026.html"]').first()).toBeVisible();
   await page.goto('/gallery.html');
   await expect(page.locator('a[href="nocturne-2026.html"]').first()).toBeVisible();
   await page.goto('/nocturne-2026.html');
@@ -136,4 +136,13 @@ test.describe('NOCTURNE media integration', () => {
       }
     });
   }
+});
+
+
+test('case-study library exposes NOCTURNE and production inquiry path',async({page})=>{
+  await page.goto('/case-studies.html');
+  await expect(page.locator('h1')).toContainText('Real events');
+  await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
+  await page.goto('/nocturne-2026.html');
+  await expect(page.locator('.nocturne-cinema-hero a[href="book.html"]')).toBeVisible();
 });

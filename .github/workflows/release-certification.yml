@@ -59,6 +59,32 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
+  visual-design-qa:
+    name: Visual design QA · 5 viewports
+    needs: static-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Luxury design-system guard
+        run: npm run design:check
+      - name: Full-site visual geometry + screenshot audit
+        run: npm run qa:visual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wild-ones-visual-qa-${{ github.run_id }}
+          path: visual-qa
+          retention-days: 30
+          if-no-files-found: ignore
+
   lighthouse:
     name: Lighthouse quality gates
     needs: static-integrity
@@ -84,7 +110,7 @@ jobs:
   release-certification:
     name: Release Certification - GO
     if: always()
-    needs: [static-integrity, browser-qa, lighthouse]
+    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -93,12 +119,15 @@ jobs:
           STATIC_RESULT: ${{ needs.static-integrity.result }}
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+          VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
         run: |
           echo "Static integrity: $STATIC_RESULT"
           echo "Browser QA:       $BROWSER_RESULT"
           echo "Lighthouse:       $LIGHTHOUSE_RESULT"
+          echo "Visual design QA: $VISUAL_RESULT"
           test "$STATIC_RESULT" = "success"
           test "$BROWSER_RESULT" = "success"
           test "$LIGHTHOUSE_RESULT" = "success"
+          test "$VISUAL_RESULT" = "success"
           echo "GO - Wild Ones static integrity, browser QA, and Lighthouse gates passed."
           echo "This workflow performs no Netlify deployment."

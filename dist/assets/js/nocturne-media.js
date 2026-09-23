@@ -58,4 +58,20 @@
     trigger?.focus();
     trigger = null;
   });
+
+
+  const storySteps = [...document.querySelectorAll('[data-nocturne-story-step]')];
+  const storyFrames = [...document.querySelectorAll('[data-nocturne-story-frame]')];
+  if (storySteps.length && storyFrames.length && 'IntersectionObserver' in window && !reducedMotion) {
+    const setFrame = (index) => {
+      storyFrames.forEach((frame, frameIndex) => frame.classList.toggle('active', frameIndex === index));
+    };
+    const storyObserver = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      const index = Number(visible.target.getAttribute('data-nocturne-story-step'));
+      if (Number.isFinite(index)) setFrame(index);
+    }, { rootMargin: '-28% 0px -42% 0px', threshold: [0,.2,.45,.7] });
+    storySteps.forEach((step) => storyObserver.observe(step));
+  }
 })();

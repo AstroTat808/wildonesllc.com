@@ -32,8 +32,19 @@ for(const file of htmlFiles){
   if(/[ÂÃÊ]|â(?:€”|†’|€™|€œ|€)/u.test(text)) errors.push(rel+': mojibake / encoding artifact found');
 }
 
-for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
+for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','case-studies.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
+}
+
+const transparentLogo=path.join(root,'assets/brand/wild-ones-horizontal-transparent.svg');
+if(!fs.existsSync(transparentLogo)) errors.push('transparent logo asset missing');
+else {
+  const logo=fs.readFileSync(transparentLogo,'utf8');
+  if(!/fill="none"/i.test(logo) || /<rect[^>]+fill="(?:#fff|white)"/i.test(logo)) errors.push('transparent logo asset does not appear to use a transparent canvas');
+}
+for(const file of htmlFiles){
+  const text=fs.readFileSync(file,'utf8');
+  if(text.includes('wild-ones-horizontal-approved.webp')) errors.push(path.relative(root,file)+': opaque legacy logo reference found');
 }
 
 const config=fs.readFileSync('netlify.toml','utf8');
