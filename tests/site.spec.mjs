@@ -70,6 +70,64 @@ test('inquiry adapts lighter event types without dropping CRM production fields'
   await expect(page.locator('[name="lighting_plan"]')).toHaveValue('');
 });
 
+test('operations profile expands for large ticketed after-midnight events',async({page})=>{
+  await page.goto('/book.html');
+  await page.selectOption('[name="event_type"]',{label:'EDM / dance event'});
+  await page.fill('[name="expected_attendance"]','300');
+  await page.fill('[name="preferred_date"]','2027-04-17');
+  await page.selectOption('[name="date_flexibility"]',{label:'± 1 week'});
+  await page.selectOption('[name="event_access"]',{label:'Ticketed public'});
+  await page.fill('[name="start_time"]','16:00');
+  await page.fill('[name="end_time"]','03:00');
+  await page.fill('[name="event_concept"]','Late-night ticketed EDM production');
+  await page.locator('[data-next]').first().click();
+  await page.selectOption('[name="stage_plan"]',{label:'Client-provided stage'});
+  await page.selectOption('[name="audio_plan"]',{label:'Client-provided production'});
+  await page.selectOption('[name="lighting_plan"]',{label:'Client-provided lighting / visuals'});
+  await page.selectOption('[name="power_profile"]',{label:'Generator-based production'});
+  await page.locator('.form-step').nth(1).locator('[data-next]').click();
+  await expect(page.locator('.form-step').nth(2)).toHaveClass(/active/);
+  await expect(page.locator('[data-operations-profile]')).toContainText('High-touch operations profile');
+  await expect(page.locator('input[name="event_duration_hours"]')).toHaveValue('11');
+  await expect(page.locator('input[name="after_midnight_event"]')).toHaveValue('Yes');
+  await expect(page.locator('[data-operations-details]')).toHaveAttribute('open','');
+  for(const key of ['security','parking','insurance','staff','beverage','loadin','loadout','crew','vendors','artists']){
+    await expect(page.locator(`[data-ops-field="${key}"]`)).toBeVisible();
+  }
+});
+
+test('operations profile stays focused for a short private event',async({page})=>{
+  await page.goto('/book.html');
+  await page.selectOption('[name="event_type"]',{label:'Large private production'});
+  await page.fill('[name="expected_attendance"]','60');
+  await page.fill('[name="preferred_date"]','2027-05-08');
+  await page.selectOption('[name="date_flexibility"]',{label:'Fixed date only'});
+  await page.selectOption('[name="event_access"]',{label:'Private / internal'});
+  await page.fill('[name="start_time"]','17:00');
+  await page.fill('[name="end_time"]','21:00');
+  await page.fill('[name="event_concept"]','Private four-hour guest experience');
+  await page.locator('[data-next]').first().click();
+  await page.selectOption('[name="audio_plan"]',{label:'Minimal / speech-level audio'});
+  await page.selectOption('[name="power_profile"]',{label:'Low draw / standard event power'});
+  await page.locator('.form-step').nth(1).locator('[data-next]').click();
+  await expect(page.locator('[data-operations-profile]')).toContainText('Core operations profile');
+  await expect(page.locator('input[name="event_duration_hours"]')).toHaveValue('4');
+  await expect(page.locator('input[name="after_midnight_event"]')).toHaveValue('No');
+  await expect(page.locator('[data-ops-field="security"]')).toBeHidden();
+  await expect(page.locator('[data-ops-field="insurance"]')).toBeHidden();
+  await expect(page.locator('[data-ops-field="parking"]')).toBeHidden();
+  await expect(page.locator('[data-ops-field="staff"]')).toBeHidden();
+});
+
+test('producer decision matrix distinguishes known facts from project review',async({page})=>{
+  await page.goto('/');
+  await expect(page.locator('#why-wild-ones')).toBeVisible();
+  await expect(page.locator('.producer-matrix article')).toHaveCount(6);
+  await expect(page.locator('#why-wild-ones')).toContainText('Known now');
+  await expect(page.locator('#why-wild-ones')).toContainText('Project review');
+  await expect(page.locator('#why-wild-ones')).toContainText('NOCTURNE 2026');
+});
+
 test('conversion funnel exposes real proof and production next steps',async({page})=>{
   await page.goto('/');
   await expect(page.locator('.hero-showcase')).toContainText('NOCTURNE 2026');

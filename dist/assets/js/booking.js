@@ -41,6 +41,99 @@ if (form) {
     'Other': ['Flexible production', 'Start with audio and power, then add stage and show-lighting details if your concept needs them.'],
   };
 
+  const operationsProfile = form.querySelector('[data-operations-profile]');
+  const operationsIntro = form.querySelector('[data-operations-intro]');
+  const operationsDetails = form.querySelector('[data-operations-details]');
+  const operationsSummary = form.querySelector('[data-operations-summary]');
+  const operationsProfileInput = form.elements.operations_profile;
+  const durationInput = form.elements.event_duration_hours;
+  const afterMidnightInput = form.elements.after_midnight_event;
+  const operationsFields = Object.fromEntries(
+    [...form.querySelectorAll('[data-ops-field]')].map((field) => [field.dataset.opsField, field])
+  );
+
+  const minutesFor = (time) => {
+    if (!/^\d{2}:\d{2}$/.test(time || '')) return null;
+    const [hours, minutes] = time.split(':').map(Number);
+    return (hours * 60) + minutes;
+  };
+  const eventTiming = () => {
+    const start = minutesFor(val('start_time'));
+    const end = minutesFor(val('end_time'));
+    if (start == null || end == null) return { duration: 0, afterMidnight: false };
+    const afterMidnight = end < start;
+    let minutes = end - start;
+    if (minutes <= 0) minutes += 24 * 60;
+    return { duration: Math.round((minutes / 60) * 10) / 10, afterMidnight };
+  };
+  const setOpsVisible = (key, visible) => {
+    const field = operationsFields[key];
+    if (!field) return;
+    field.hidden = !visible;
+    field.setAttribute('aria-hidden', String(!visible));
+  };
+  const applyOperationsProfile = () => {
+    const attendance = Number(val('expected_attendance') || 0);
+    const access = val('event_access');
+    const type = val('event_type');
+    const timing = eventTiming();
+    const publicFacing = /Ticketed public|Open public event/.test(access);
+    const largeAudience = attendance >= 200;
+    const midAudience = attendance >= 100;
+    const extended = timing.duration >= 8;
+    const fullProduction = fullProductionPattern.test(type);
+    const artistDriven = /Concert|EDM|Festival/.test(type);
+
+    const active = new Set(['budget','timeline','notes']);
+    if (publicFacing || largeAudience) ['security','parking','insurance','staff','beverage'].forEach((key) => active.add(key));
+    if (midAudience) ['parking','staff','beverage'].forEach((key) => active.add(key));
+    if (extended || timing.afterMidnight) ['staff','beverage','loadin','loadout','parking'].forEach((key) => active.add(key));
+    if (fullProduction) ['vendors','crew','loadin','loadout'].forEach((key) => active.add(key));
+    if (artistDriven) active.add('artists');
+
+    ['vendors','staff','artists','crew','beverage','security','parking','insurance','loadin','loadout','notes']
+      .forEach((key) => setOpsVisible(key, active.has(key)));
+
+    const signals = [];
+    if (largeAudience) signals.push('200+ guests');
+    else if (midAudience) signals.push('100+ guests');
+    if (publicFacing) signals.push('public-facing access');
+    if (extended) signals.push(`${timing.duration}h program`);
+    if (timing.afterMidnight) signals.push('after-midnight');
+    if (fullProduction) signals.push('production build');
+
+    let label = 'Core operations profile';
+    if (timing.afterMidnight || largeAudience || (publicFacing && extended)) label = 'High-touch operations profile';
+    else if (publicFacing || midAudience || extended || fullProduction) label = 'Expanded operations profile';
+
+    if (operationsProfileInput) operationsProfileInput.value = label;
+    if (durationInput) durationInput.value = timing.duration ? String(timing.duration) : '';
+    if (afterMidnightInput) afterMidnightInput.value = timing.duration ? (timing.afterMidnight ? 'Yes' : 'No') : '';
+
+    if (operationsProfile) {
+      const summary = signals.length ? signals.join(' · ') : 'Essential commercial + planning questions';
+      operationsProfile.innerHTML = `<span>${label}</span><strong>${summary}</strong>`;
+    }
+    if (operationsIntro) {
+      operationsIntro.textContent = signals.length
+        ? 'We’ve expanded this step around the audience, access model and operating window you entered.'
+        : 'Start with budget and planning stage. Additional logistics appear as the event footprint becomes more complex.';
+    }
+    if (operationsSummary) {
+      const labels = [];
+      if (active.has('security')) labels.push('security');
+      if (active.has('parking')) labels.push('transport');
+      if (active.has('staff')) labels.push('staffing');
+      if (active.has('crew')) labels.push('crew');
+      if (active.has('loadin')) labels.push('load-in/out');
+      operationsSummary.textContent = labels.length ? labels.slice(0,4).join(', ') : 'optional operating detail';
+    }
+    if (operationsDetails) {
+      const shouldOpen = timing.afterMidnight || largeAudience || (publicFacing && extended);
+      if (shouldOpen) operationsDetails.open = true;
+    }
+  };
+
   const setAutoValue = (name, value) => {
     const input = form.elements[name];
     if (!input || input.value) return;
@@ -90,6 +183,7 @@ if (form) {
       if (productionProfile) productionProfile.innerHTML = `<span>${copy[0]}</span><strong>Audio · power first</strong><button class="production-profile-toggle" type="button" data-expand-production>Show stage + lighting questions</button>`;
     }
     if (advancedProduction && fullProductionPattern.test(type)) advancedProduction.open = false;
+    applyOperationsProfile();
     calc();
   };
 
@@ -118,6 +212,10 @@ if (form) {
     if (/Box truck|Semi/.test(val('largest_production_vehicle'))) complexity += 2;
     if (has('special_elements')) complexity += 2;
     if (Number(val('vendor_count') || 0) >= 8) complexity += 1;
+    const timing = eventTiming();
+    if (timing.afterMidnight) complexity += 1;
+    if (timing.duration >= 10) complexity += 1;
+    if (/Ticketed public|Open public event/.test(val('event_access')) && attendance >= 200) complexity += 1;
     const complexityLabel = complexity >= 6 ? 'High' : complexity >= 3 ? 'Moderate' : 'Standard';
     if (scoreTarget) scoreTarget.textContent = `${score} / 100`;
     if (scoreInput) scoreInput.value = String(score);
@@ -126,6 +224,7 @@ if (form) {
 
   const showStep = (next, { scroll = true } = {}) => {
     current = Math.max(0, Math.min(next, steps.length - 1));
+    if (current === 2) applyOperationsProfile();
     steps.forEach((step, index) => step.classList.toggle('active', index === current));
     progress.forEach((item, index) => {
       item.classList.toggle('active', index === current);
@@ -149,10 +248,16 @@ if (form) {
     return true;
   };
   form.addEventListener('click', (event) => { const next = event.target.closest('[data-next]'); const back = event.target.closest('[data-back]'); if (next && validateStep()) showStep(current + 1); if (back) showStep(current - 1); });
-  form.addEventListener('input', calc);
+  form.addEventListener('input', (event) => {
+    if (['expected_attendance','start_time','end_time'].includes(event.target.name)) applyOperationsProfile();
+    calc();
+  });
   form.addEventListener('change', (event) => {
     if (event.target === eventType) applyProductionProfile();
-    else calc();
+    else if (['expected_attendance','event_access','start_time','end_time'].includes(event.target.name)) {
+      applyOperationsProfile();
+      calc();
+    } else calc();
   });
   form.addEventListener('click', (event) => {
     if (event.target.closest('[data-expand-production]')) revealFullProduction();
@@ -162,5 +267,6 @@ if (form) {
   const params = new URLSearchParams(window.location.search);
   ['utm_source','utm_medium','utm_campaign','utm_content'].forEach((key) => { const target = form.querySelector(`input[name="${key}"]`); if (target && params.get(key)) target.value = params.get(key); });
   applyProductionProfile();
+  applyOperationsProfile();
   showStep(0, { scroll: false });
 }

@@ -160,3 +160,61 @@ input,select,textarea{min-height:52px;border-radius:12px;background:#0a0a0d;bord
   .hero-showcase figure{min-height:330px}
   .production-proof-grid>figure{min-height:360px}
 }
+
+
+/* executive production positioning */
+.hero-home .gradient-text,.page-hero .gradient-text{
+  background:linear-gradient(100deg,#fff7df 0%,#f1d58d 42%,#d8a43b 78%,#fff4d1 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-home .display,.page-hero .display{letter-spacing:-.06em}
+.hero-home .lede{max-width:690px}
+.hero-showcase figure,.production-proof-grid>figure{border-radius:18px}
+.hero-showcase figure{box-shadow:0 42px 120px rgba(0,0,0,.56)}
+.trust-strip{background:#070708;border-color:rgba(225,202,145,.1)}
+.trust-grid{color:#b3b0a7;font-size:.7rem;letter-spacing:.16em}
+.card,.experience-card,.spec-card{
+  background:linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+  border-color:rgba(225,202,145,.12);
+}
+.card::after{opacity:.22;filter:saturate(.35)}
+.section.alt{background:linear-gradient(180deg,rgba(255,255,255,.012),rgba(255,255,255,.004))}
+.executive-why{position:relative;border-block:1px solid rgba(225,202,145,.08);background:#070708}
+.executive-why::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(216,164,59,.045),transparent 38%),radial-gradient(circle at 90% 10%,rgba(216,164,59,.035),transparent 28rem)}
+.executive-why>.container{position:relative}
+.executive-why-head{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr);gap:clamp(28px,6vw,84px);align-items:end;margin-bottom:52px}
+.executive-why-head h2{max-width:760px;margin:0;color:#fff;font-family:Georgia,serif;font-size:clamp(2.6rem,5.7vw,5.4rem);line-height:.96;letter-spacing:-.05em}
+.executive-why-head>p{max-width:520px;margin:0 0 6px;color:#a5a39e;font-size:1rem;line-height:1.78}
+.producer-matrix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid rgba(225,202,145,.16);border-left:1px solid rgba(225,202,145,.08)}
+.producer-matrix article{min-height:300px;padding:30px;border-right:1px solid rgba(225,202,145,.08);border-bottom:1px solid rgba(225,202,145,.08);background:rgba(255,255,255,.008)}
+.producer-matrix article>span{color:#cfa957;font-size:.66rem;font-weight:900;letter-spacing:.16em}
+.producer-matrix h3{margin:38px 0 20px;color:#fff;font-family:Georgia,serif;font-size:1.65rem}
+.producer-matrix p{margin:0 0 14px;color:#8f918f;font-size:.86rem;line-height:1.65}
+.producer-matrix p strong{display:block;margin-bottom:3px;color:#d5d1c8;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase}
+.producer-path{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:24px;border-block:1px solid rgba(225,202,145,.13)}
+.producer-path a{padding:18px 20px;border-right:1px solid rgba(225,202,145,.1)}
+.producer-path a:last-child{border-right:0}
+.producer-path span,.producer-path strong{display:block}
+.producer-path span{margin-bottom:5px;color:#8c8b87;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.producer-path strong{color:#efebe1;font-size:.84rem}
+.producer-path a:hover strong{color:#f1d58d}
+.operations-profile{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin:-8px 0 4px;padding:12px 14px;border:1px solid rgba(216,164,59,.16);border-radius:14px;background:rgba(216,164,59,.03)}
+.operations-profile>span{color:#f0cc73;font-size:.65rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.operations-profile>strong{color:#d9dadd;font-size:.78rem}
+[data-ops-field][hidden]{display:none!important}
+@media(max-width:1000px){
+  .executive-why-head{grid-template-columns:1fr}
+  .producer-matrix{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .producer-path{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .producer-path a:nth-child(2){border-right:0}
+}
+@media(max-width:700px){
+  .executive-why-head{margin-bottom:32px}
+  .producer-matrix{grid-template-columns:1fr}
+  .producer-matrix article{min-height:0;padding:24px}
+  .producer-matrix h3{margin:24px 0 14px}
+  .producer-path{grid-template-columns:1fr}
+  .producer-path a{border-right:0;border-bottom:1px solid rgba(225,202,145,.1)}
+  .producer-path a:last-child{border-bottom:0}
+  .operations-profile{align-items:flex-start;flex-direction:column}
+}
