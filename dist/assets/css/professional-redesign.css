@@ -178,3 +178,104 @@ body{font-family:var(--wo-sans);background:var(--wo-black);color:var(--wo-silver
   .wo-gallery-item,.wo-gallery-item--wide,.wo-gallery-item--tall{grid-column:auto;grid-row:auto}
   .wo-context-grid{grid-template-columns:1fr}
 }
+
+
+/* Shared interior-page refinement */
+.page-hero{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:108px 0 82px!important;
+  border-bottom:1px solid rgba(216,164,59,.13);
+  background:
+    linear-gradient(90deg,rgba(5,5,5,.94) 0%,rgba(5,5,5,.82) 48%,rgba(5,5,5,.58) 100%),
+    url("../media/venue-night-side.webp") center 58%/cover no-repeat!important;
+}
+.page-hero::after{
+  content:"";position:absolute;z-index:-1;inset:0;
+  background:
+    radial-gradient(circle at 14% 42%,rgba(240,57,255,.10),transparent 28rem),
+    linear-gradient(180deg,transparent 35%,rgba(5,5,5,.62));
+}
+.page-hero .container{position:relative;z-index:2}
+.page-hero .breadcrumb{margin-bottom:38px!important;font-size:.64rem!important;font-weight:800!important;letter-spacing:.12em!important;text-transform:uppercase;color:rgba(221,229,245,.44)!important}
+.page-hero .breadcrumb a{color:rgba(221,229,245,.72)}
+.page-hero h1{max-width:920px!important;font-size:clamp(3.7rem,7vw,6.7rem)!important;line-height:.91!important;margin:18px 0 26px!important;color:#fff!important}
+.page-hero .lede{max-width:760px!important;font-size:1.02rem!important;line-height:1.75!important;color:rgba(221,229,245,.68)!important}
+.page-hero .notice{margin-top:30px!important;max-width:830px;background:rgba(8,8,12,.70)!important;border-color:rgba(216,164,59,.24)!important;backdrop-filter:blur(12px)}
+
+.section{padding:96px 0!important;background:#07070a!important}
+.section.alt{background:#0b0b10!important}
+.section-head{margin-bottom:42px!important}
+.section-head h2,.section-title{font-family:var(--wo-display)!important;font-weight:400!important;letter-spacing:-.035em!important;color:#fff!important}
+.section-head h2{font-size:clamp(3rem,4.6vw,4.8rem)!important;line-height:.98!important}
+.section-title{font-size:clamp(3rem,4.4vw,4.6rem)!important;line-height:1!important}
+.section-head>p,.body-lg,.muted-copy{color:rgba(221,229,245,.60)!important}
+.body-lg{font-size:1rem!important;line-height:1.8!important}
+
+.card,.spec-card,.experience-card,.panel-glass,.form-card,.form-aside,.metric,.feature-panel,.feature-row{
+  border-color:rgba(216,164,59,.14)!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.045),rgba(255,255,255,.018))!important;
+  box-shadow:none!important;
+}
+.card,.spec-card{padding:29px!important;border-radius:18px!important}
+.card:hover,.spec-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(216,164,59,.36)!important;
+  box-shadow:0 18px 45px rgba(0,0,0,.26)!important;
+}
+.card h3,.spec-card h3,.experience-card h2,.process-item h3,.form-aside h2,.form-card h2{
+  font-family:var(--wo-display)!important;font-weight:400!important;letter-spacing:-.025em!important;color:#fff!important;
+}
+.card p,.spec-card p,.experience-card p,.experience-card li,.process-item p,.form-aside p{
+  color:rgba(221,229,245,.56)!important;
+}
+.card-index,.status,.process-item::before{letter-spacing:.12em!important}
+.status.verified{background:rgba(31,217,255,.10)!important;color:#8aeaff!important;border-color:rgba(31,217,255,.22)!important}
+.status.pending{background:rgba(216,164,59,.10)!important;color:#f0cc73!important;border-color:rgba(216,164,59,.22)!important}
+
+.spec-summary,.hero-meta{gap:14px!important}
+.metric{border-radius:17px!important;padding:23px!important}
+.metric strong{font-family:var(--wo-display)!important;font-weight:400!important;color:#fff!important}
+.metric span{color:rgba(221,229,245,.50)!important}
+
+.brand-panel{padding:28px!important;border-radius:22px!important;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015))!important}
+.brand-values{color:rgba(221,229,245,.56)!important}
+
+.cta-band{
+  padding:42px!important;border:1px solid rgba(216,164,59,.18)!important;border-radius:24px!important;
+  background:
+    radial-gradient(circle at 0 50%,rgba(240,57,255,.08),transparent 24rem),
+    radial-gradient(circle at 100% 20%,rgba(31,217,255,.07),transparent 24rem),
+    #0b0b10!important;
+}
+.cta-band h2{font-family:var(--wo-display)!important;font-size:clamp(2.8rem,4.7vw,4.8rem)!important;font-weight:400!important;letter-spacing:-.035em!important;color:#fff!important}
+.cta-band p{color:rgba(221,229,245,.55)!important}
+
+.form-shell{gap:20px!important}
+.form-aside,.form-card{border-radius:22px!important}
+.form-aside{padding:30px!important}
+.form-card{padding:34px!important}
+.field label{color:rgba(221,229,245,.80)!important;font-weight:750!important}
+.field input,.field select,.field textarea,.form-card input,.form-card select,.form-card textarea{
+  min-height:49px!important;border-radius:12px!important;border:1px solid rgba(221,229,245,.14)!important;
+  background:#0a0a0f!important;color:#fff!important;box-shadow:none!important;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none!important;border-color:rgba(216,164,59,.72)!important;box-shadow:0 0 0 3px rgba(216,164,59,.10)!important;
+}
+.helper,.optional{color:rgba(221,229,245,.40)!important}
+.choice{border-color:rgba(221,229,245,.11)!important;background:rgba(255,255,255,.02)!important}
+.score-preview{border-color:rgba(216,164,59,.18)!important;background:#0a0a0f!important}
+.score-preview strong{color:#fff!important}
+
+.site-map-board{border-color:rgba(216,164,59,.18)!important;background-color:#09090d!important}
+.map-controls{border-radius:22px!important}
+
+@media(max-width:760px){
+  .page-hero{padding:76px 0 58px!important}
+  .page-hero h1{font-size:clamp(3rem,14vw,4.5rem)!important}
+  .section{padding:70px 0!important}
+  .cta-band{padding:28px!important}
+  .form-card{padding:22px!important}
+}
