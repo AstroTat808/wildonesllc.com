@@ -29,9 +29,10 @@ for(const file of htmlFiles){
     if(!existsLocal(match[1],file)) errors.push(rel+': broken local reference '+match[1]);
   }
   if(text.includes(['WILD','350'].join(''))) errors.push(rel+': prototype producer code found');
+  if(/[ÂÃÊ]|â(?:€”|†’)/.test(text)) errors.push(rel+': mojibake / encoding artifact found');
 }
 
-for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','gallery.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
+for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
 }
 

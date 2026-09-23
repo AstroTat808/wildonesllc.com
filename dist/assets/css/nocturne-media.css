@@ -67,3 +67,57 @@
 @media(max-width:700px){.nocturne-feature-photo{min-height:430px}.nocturne-proof-stack{grid-template-columns:1fr}.nocturne-proof-copy{padding:26px}.nocturne-proof-points{grid-template-columns:1fr}.nocturne-video-card{grid-template-columns:140px 1fr;min-height:270px}.nocturne-video-copy{padding:20px}.nocturne-video-copy h3{font-size:1.35rem}.nocturne-case-list{grid-template-columns:1fr}.nocturne-case-media{min-height:430px}.nocturne-gallery-intro{grid-template-columns:1fr}.nocturne-photo-grid{grid-template-columns:1fr}.nocturne-photo-card.wide,.nocturne-photo-card.tall,.nocturne-photo-card.medium,.nocturne-photo-card.third,.nocturne-photo-card.half{grid-column:1;min-height:0;aspect-ratio:4/5}.nocturne-photo-card.wide,.nocturne-photo-card.half{aspect-ratio:4/3}.nocturne-video-grid{grid-template-columns:1fr 1fr;gap:12px}.nocturne-video-tile figcaption{padding:12px}.nocturne-dialog{width:96vw}.nocturne-feature-photo figcaption,.nocturne-case-media figcaption,.nocturne-photo-card figcaption{left:16px;right:16px;bottom:16px}}
 @media(max-width:430px){.nocturne-video-card{grid-template-columns:1fr}.nocturne-video-card video{aspect-ratio:9/13;max-height:410px}.nocturne-video-grid{grid-template-columns:1fr}.nocturne-video-tile video{aspect-ratio:9/14}.nocturne-photo-card.wide,.nocturne-photo-card.half{aspect-ratio:1/1}}
 @media(prefers-reduced-motion:reduce){.nocturne-photo-card img{transition:none}}
+
+
+/* NOCTURNE case-study + post-merge UX refinements */
+.nocturne-proof-actions,.nocturne-case-actions,.nocturne-study-media-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.nocturne-gallery-actions{margin-top:16px}
+.nocturne-gallery-actions a{display:inline-flex;color:#fff;font-weight:800;font-size:.84rem;border-bottom:1px solid rgba(216,164,59,.55);padding-bottom:4px}
+.nocturne-study-hero{padding-bottom:72px}
+.nocturne-study-hero-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(420px,1.1fr);gap:42px;align-items:center}
+.nocturne-study-hero-media{margin:0;position:relative;overflow:hidden;min-height:520px;border:1px solid rgba(216,164,59,.2);border-radius:32px;background:#07070a;box-shadow:0 30px 90px rgba(0,0,0,.42)}
+.nocturne-study-hero-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.nocturne-study-hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.86))}
+.nocturne-study-hero-media figcaption{position:absolute;z-index:2;left:22px;right:22px;bottom:20px;display:flex;justify-content:space-between;gap:16px;align-items:end;color:#fff}
+.nocturne-study-hero-media figcaption strong{font-family:Georgia,serif;font-size:1.35rem}
+.nocturne-study-hero-media figcaption span{color:#c7ccd6;font-size:.76rem;text-align:right}
+.nocturne-study-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}
+.nocturne-study-stats article{padding:18px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.03)}
+.nocturne-study-stats span,.nocturne-study-stats small{display:block;color:#858c98}
+.nocturne-study-stats span{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em}
+.nocturne-study-stats strong{display:block;margin:6px 0 3px;color:#fff;font-family:Georgia,serif;font-size:1.2rem}
+.nocturne-study-stats small{font-size:.72rem}
+.nocturne-study-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:54px;align-items:start}
+.nocturne-study-copy{color:#abb1bc;font-size:1.08rem;line-height:1.8}
+.nocturne-study-copy p:first-child{margin-top:0}
+.nocturne-study-production-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.nocturne-study-production-grid article{padding:26px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.02))}
+.nocturne-study-production-grid article>span{color:var(--gold);font-size:.7rem;font-weight:900;letter-spacing:.14em}
+.nocturne-study-production-grid h3{margin:30px 0 8px;color:#fff;font-family:Georgia,serif;font-size:1.45rem}
+.nocturne-study-production-grid p{margin:0;color:#939aa6}
+.nocturne-study-timeline{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px;border-top:1px solid rgba(255,255,255,.08)}
+.nocturne-study-timeline>div{display:grid;grid-template-columns:92px minmax(0,1fr);grid-template-areas:"time artist" "time note";gap:1px 18px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.nocturne-study-timeline time{grid-area:time;color:var(--gold);font-weight:850;font-size:.78rem;letter-spacing:.06em}
+.nocturne-study-timeline strong{grid-area:artist;color:#fff}
+.nocturne-study-timeline span{grid-area:note;color:#858c98;font-size:.76rem}
+.nocturne-study-lessons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.nocturne-study-lessons article{padding:24px;border-left:2px solid rgba(216,164,59,.55);background:rgba(255,255,255,.025)}
+.nocturne-study-lessons strong{color:#fff}
+.nocturne-study-lessons p{margin:9px 0 0;color:#9299a5}
+.nocturne-study-media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.nocturne-study-media-grid .nocturne-photo-card{aspect-ratio:4/5;min-height:0}
+.nocturne-study-media-grid .nocturne-video-tile video{aspect-ratio:4/5}
+@media(max-width:1000px){
+  .nocturne-study-hero-grid,.nocturne-study-layout{grid-template-columns:1fr}
+  .nocturne-study-hero-media{min-height:500px}
+  .nocturne-study-production-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nocturne-study-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .nocturne-study-hero-media{min-height:420px}
+  .nocturne-study-production-grid,.nocturne-study-timeline,.nocturne-study-lessons,.nocturne-study-media-grid{grid-template-columns:1fr}
+  .nocturne-study-timeline>div{grid-template-columns:80px minmax(0,1fr)}
+  .nocturne-study-hero-media figcaption{flex-direction:column;align-items:flex-start}
+  .nocturne-study-hero-media figcaption span{text-align:left}
+}
+@media(max-width:430px){.nocturne-study-stats{grid-template-columns:1fr}}
