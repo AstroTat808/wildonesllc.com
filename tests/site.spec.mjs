@@ -53,7 +53,7 @@ test('producer technical packet is noindex',async({page})=>{
 
 test('NOCTURNE case-study links are discoverable',async({page})=>{
   await page.goto('/');
-  await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
+  await expect(page.locator('a[href="nocturne-2026.html"]').first()).toBeVisible();
   await page.goto('/gallery.html');
   await expect(page.locator('a[href="nocturne-2026.html"]').first()).toBeVisible();
   await page.goto('/nocturne-2026.html');
@@ -144,5 +144,5 @@ test('case-study library exposes NOCTURNE and production inquiry path',async({pa
   await expect(page.locator('h1')).toContainText('Real events');
   await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
   await page.goto('/nocturne-2026.html');
-  await expect(page.locator('a[href="book.html"]').first()).toBeVisible();
+  await expect(page.locator('.nocturne-cinema-hero a[href="book.html"]')).toBeVisible();
 });
