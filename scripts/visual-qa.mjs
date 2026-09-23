@@ -94,7 +94,11 @@ async function auditPage(browserName, browser, profileName, viewport, routeName,
     status = response?.status() || 0;
     await page.evaluate(async () => {
       if (document.fonts?.ready) await document.fonts.ready;
+      document.querySelectorAll('img[loading="lazy"]').forEach((img) => {
+        img.loading = 'eager';
+      });
     });
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(180);
   } catch (error) {
     navigationError = String(error);
@@ -106,7 +110,11 @@ async function auditPage(browserName, browser, profileName, viewport, routeName,
     const documentWidth = Math.max(document.body.scrollWidth, document.documentElement.scrollWidth);
 
     const brokenImages = [...document.images]
-      .filter(img => !img.complete || img.naturalWidth === 0 || img.naturalHeight === 0)
+      .filter((img) => {
+        const inClosedDialog = img.closest('dialog:not([open])');
+        if (inClosedDialog && !img.getAttribute('src')) return false;
+        return !img.complete || img.naturalWidth === 0 || img.naturalHeight === 0;
+      })
       .map(img => ({
         src: img.getAttribute('src') || '',
         alt: img.getAttribute('alt') || ''
