@@ -744,3 +744,10 @@ body{scroll-padding-top:110px}
   .wo-hero-visual figcaption{left:17px;right:17px;bottom:16px}
   .wo-hero-visual figcaption strong{max-width:150px}
 }
+
+
+.hero-accent{
+  color:#f0c96b;
+  text-shadow:0 0 28px rgba(216,164,59,.10);
+}
+.wo-photo-hero--split .gradient-text{background:none!important;color:inherit!important}
