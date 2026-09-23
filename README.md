@@ -1,21 +1,36 @@
 # Wild Ones — wildonesllc.com
 
-Producer-facing venue showcase for Wild Ones LLC and Koa’s Events in Mountain View, Hawaiʻi. Built for DJs, music collectives, concert promoters, festival organizers, and production teams.
+Producer-facing venue showcase for Wild Ones LLC / Koa’s Events on Hawaiʻi Island. The site is positioned for concerts, EDM and dance events, festivals, retreats, production-company rentals, brand activations, and other large-format productions.
 
-## Publishing
+## Current site
 
-Static HTML, CSS, and JavaScript. No build dependencies, framework, database, analytics, or credentials required. Connect this repository to Netlify with `main` as the production branch and `dist` as the publish directory. `netlify.toml` sets headers and the publish directory. Updates to `main` publish when continuous deployment is connected.
+Static HTML, CSS and JavaScript. Netlify should publish the `dist` directory from the `main` branch.
 
-## Content and assets
+Primary pages:
+- Home
+- About the Property
+- Interactive Site Map
+- Production Specifications
+- Event Types
+- Gallery
+- FAQ
+- Site Tours
+- Booking / Production Inquiry
+- Producer Access / Technical Packet
+- CRM concept page
 
-- `dist/index.html`: content, email/phone inquiries, native FAQ disclosures.
-- `dist/assets/site.css`: responsive design, focus states, reduced-motion behavior.
-- `dist/assets/site.js`: progressively enhanced mobile navigation.
-- Photography copied from the owner's Koa’s Events site, `/media/koa/pavilion-color-lighting.webp`, `/media/koa/pavilion-day-lush.webp`, and `/media/koa/pavilion-sunset-wide.webp`. Lighting and arrangements shown are illustrative and not sold as included inventory.
-- Contact: the existing published venue contact, `aloha@koasevents.com`, 844-808-5627. Email links open a visitor’s email application; no message is submitted automatically.
+## Capacity language
 
-## Venue claims
+The large-format planning target is up to **350 guests / ticket holders**. Staff, performers, vendors and production personnel are tracked separately during event planning. Final attendance and operational limits remain event-specific and subject to the approved site, safety, parking, sanitation, production, insurance and permitting plan.
 
-Four acres and a 1,500 sq. ft. pavilion are supported by the existing venue page. As of review on September 22, 2026, https://koasevents.com/venue/ publishes a maximum of 100 people. The FAQ preserves that constraint. Do not promise larger attendance, overnight hours, alcohol sales, installed PA/staging, parking capacity, or electrical specifications without owner confirmation and appropriate event approval.
+## CRM direction
 
-The site deliberately excludes wedding, birthday, baby-shower, and social-celebration marketing. No consumer booking, ticket checkout, or ticketed-event details are carried over from the owner's other sites.
+Wild Ones inquiries are intended to feed the existing Koa’s Events CRM as a separate business line rather than creating a disconnected CRM. See `docs/crm-workflow.md`.
+
+## Producer packet
+
+The current technical packet is a working draft. Field-verification items are intentionally labeled as pending until measurements, electrical details, parking counts, access dimensions and operating constraints are confirmed.
+
+## Security note
+
+The producer-access interaction in this static prototype is a UX preview, not a security boundary. Before private technical material is published, replace the client-side gate with authenticated or signed server-side access.

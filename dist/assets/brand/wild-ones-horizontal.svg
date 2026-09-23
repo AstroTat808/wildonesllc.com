@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 420" role="img" aria-labelledby="t">
+<title id="t">Wild Ones LLC — Experiences Beyond the Ordinary</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF2A8"/><stop offset=".22" stop-color="#F6C34D"/><stop offset=".5" stop-color="#D8A43B"/><stop offset=".78" stop-color="#FFF0A0"/><stop offset="1" stop-color="#B66B00"/></linearGradient><linearGradient id="cosmic"><stop stop-color="#F039FF"/><stop offset=".45" stop-color="#7A4CFF"/><stop offset="1" stop-color="#1FD9FF"/></linearGradient></defs>
+<rect width="1500" height="420" fill="none"/>
+<g transform="translate(22,12) scale(.62)"><circle cx="320" cy="320" r="270" fill="#050505"/><circle cx="320" cy="320" r="276" fill="none" stroke="url(#gold)" stroke-width="14"/><circle cx="320" cy="320" r="250" fill="none" stroke="url(#cosmic)" stroke-width="38" opacity=".86"/><path d="M250 162a70 70 0 0 0 140 0 86 86 0 0 1-140 0Z" fill="url(#gold)"/><path d="M145 236h72l58 214 45-142 45 142 58-214h72L408 506h-72l-16-62-16 62h-72Z" fill="url(#gold)" stroke="#3b2200" stroke-width="7"/><path d="M320 70v108M266 124h108M320 178v328" stroke="url(#gold)" stroke-width="8"/><path d="M320 56l10 26 26 10-26 10-10 26-10-26-26-10 26-10Z" fill="url(#gold)"/></g>
+<text x="470" y="178" font-family="Georgia, 'Times New Roman', serif" font-size="126" letter-spacing="4" font-weight="700" fill="url(#gold)" stroke="#6a3300" stroke-width="2">WILD ONES</text>
+<line x1="480" y1="226" x2="835" y2="226" stroke="url(#gold)" stroke-width="6"/><text x="872" y="242" font-family="Arial, Helvetica, sans-serif" font-size="55" font-weight="800" letter-spacing="10" fill="url(#gold)">LLC</text><line x1="1090" y1="226" x2="1450" y2="226" stroke="url(#gold)" stroke-width="6"/>
+<text x="487" y="304" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="14" fill="#DDE5F5">EXPERIENCES BEYOND THE ORDINARY</text>
+<line x1="490" y1="350" x2="1450" y2="350" stroke="url(#cosmic)" stroke-width="5" opacity=".9"/>
+</svg>

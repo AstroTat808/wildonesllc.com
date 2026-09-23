@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="t d">
+<title id="t">Wild Ones LLC emblem</title><desc id="d">Gold W and crescent mark over a magenta, violet and cyan cosmic field.</desc>
+<defs>
+ <radialGradient id="bg"><stop offset="0" stop-color="#050505"/><stop offset=".55" stop-color="#7A4CFF"/><stop offset=".76" stop-color="#F039FF"/><stop offset="1" stop-color="#1FD9FF"/></radialGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF2A8"/><stop offset=".25" stop-color="#F6C34D"/><stop offset=".55" stop-color="#D8A43B"/><stop offset=".8" stop-color="#FFF0A0"/><stop offset="1" stop-color="#B66B00"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<circle cx="320" cy="320" r="270" fill="url(#bg)" opacity=".98"/>
+<circle cx="320" cy="320" r="276" fill="none" stroke="url(#gold)" stroke-width="14"/>
+<g fill="#fff" opacity=".9">
+ <circle cx="150" cy="170" r="4"/><circle cx="492" cy="156" r="5"/><circle cx="130" cy="386" r="5"/><circle cx="506" cy="404" r="4"/><circle cx="204" cy="110" r="3"/><circle cx="436" cy="524" r="4"/>
+</g>
+<g stroke="url(#gold)" fill="none" stroke-width="14" stroke-linecap="round" filter="url(#glow)">
+ <path d="M250 162a70 70 0 0 0 140 0 86 86 0 0 1-140 0Z" fill="url(#gold)" stroke="none"/>
+ <path d="M320 70v108M266 124h108" stroke-width="7"/>
+</g>
+<path d="M145 236h72l58 214 45-142 45 142 58-214h72L408 506h-72l-16-62-16 62h-72Z" fill="url(#gold)" stroke="#3b2200" stroke-width="7" stroke-linejoin="round"/>
+<path d="M320 178v328" stroke="url(#gold)" stroke-width="8"/>
+<g fill="url(#gold)"><path d="M320 56l10 26 26 10-26 10-10 26-10-26-26-10 26-10Z"/><path d="M55 320l8 20 20 8-20 8-8 20-8-20-20-8 20-8Z"/><path d="M585 320l8 20 20 8-20 8-8 20-8-20-20-8 20-8Z"/><path d="M320 584l8 20 20 8-20 8-8 20-8-20-20-8 20-8Z"/></g>
+</svg>

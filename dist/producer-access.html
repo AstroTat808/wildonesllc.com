@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Producer Packet Access | Wild Ones LLC</title>
+  <meta name="description" content="Request qualified producer access to Wild Ones LLC technical and operational information." />
+  <link rel="canonical" href="https://wildonesllc.com/producer-access.html" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="theme-color" content="#050505" />
+</head>
+<body>
+<header class="site-header">
+  <div class="container navbar">
+    <a class="brand" href="index.html" aria-label="Wild Ones LLC home">
+      <img src="assets/brand/wild-ones-emblem.svg" alt="Wild Ones LLC emblem" />
+      <span class="brand-copy"><strong>WILD ONES LLC</strong><span>Experiences Beyond the Ordinary</span></span>
+    </a>
+    <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">Menu</button>
+    <nav class="nav-links" data-nav-links>
+      <a href="about.html">Property</a><a href="site-map.html">Site Map</a><a href="production.html">Production</a><a href="events.html">Event Types</a><a href="gallery.html">Gallery</a>
+      <a class="btn btn-primary btn-small" href="book.html">Plan an Event</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="page-hero"><div class="container"><div class="breadcrumb"><a href="index.html">Home</a> / Producer Packet</div><p class="eyebrow">Qualified Producer Access</p><h1 class="display">Technical information, <span class="gradient-text">controlled.</span></h1><p class="lede">The public website should sell the opportunity without publishing every operating detail. Qualified organizers can request access to the current producer packet after the event concept is reviewed.</p></div></section>
+  <section class="section"><div class="container producer-access-grid">
+    <div class="panel-glass"><p class="eyebrow">Have an access code?</p><h2 class="section-title">Open the technical packet</h2><p class="muted-copy">This prototype uses a browser-only access gate for review. Production launch should replace it with a signed, expiring server-side token tied to the CRM project.</p><form data-producer-unlock class="access-form"><label for="accessCode">Producer access code</label><input id="accessCode" name="access_code" autocomplete="off" placeholder="Enter code" /><button class="btn btn-primary" type="submit">Unlock Packet →</button><p data-access-message class="helper"></p></form></div>
+    <form class="form-card" name="producer-packet-request" method="POST" action="/thank-you" data-netlify="true" netlify-honeypot="bot-field"><input type="hidden" name="form-name" value="producer-packet-request" /><input type="hidden" name="subject" value="Wild Ones Producer Packet Access Request" /><input type="hidden" name="brand" value="wild-ones" /><p class="bot-field"><label>Do not fill: <input name="bot-field" /></label></p><h2>Request producer access</h2><p>Use this when you have a real project but are not yet in the CRM workflow.</p><div class="field-grid"><div class="field"><label>Name</label><input name="name" required /></div><div class="field"><label>Company</label><input name="company" /></div><div class="field"><label>Email</label><input name="email" type="email" required /></div><div class="field"><label>Phone</label><input name="phone" type="tel" /></div><div class="field"><label>Target event date</label><input name="event_date" type="date" /></div><div class="field"><label>Expected attendance</label><input name="expected_attendance" type="number" min="1" max="350" /></div><div class="field full"><label>Event concept</label><textarea name="event_concept" required></textarea></div></div><div class="form-actions"><span></span><button class="btn btn-primary" type="submit">Request Access →</button></div></form>
+  </div></section>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/brand/wild-ones-horizontal.svg" alt="Wild Ones LLC" />
+        <p>Hawaiʻi Island venue and production grounds for concerts, EDM events, festivals, retreats, production rentals and other large-format experiences.</p>
+      </div>
+      <div class="footer-links">
+        <a href="about.html">About the Property</a><a href="site-map.html">Interactive Site Map</a>
+        <a href="production.html">Production Specs</a><a href="gallery.html">Gallery</a>
+        <a href="events.html">Event Types</a><a href="faq.html">Producer FAQ</a>
+        <a href="tours.html">Site Tours</a><a href="producer-access.html">Producer Packet</a>
+        <a href="book.html">Production Inquiry</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span data-year></span> Wild Ones LLC</span><span>People · Places · Purpose</span></div>
+  </div>
+</footer>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/producer-access.js"></script>
+</body>
+</html>

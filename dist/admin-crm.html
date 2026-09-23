@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wild Ones CRM Preview | Internal</title>
+  <meta name="description" content="Internal Wild Ones CRM workflow prototype." />
+  <link rel="canonical" href="https://wildonesllc.com/admin-crm.html" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="theme-color" content="#050505" />
+</head>
+<body>
+<header class="site-header">
+  <div class="container navbar">
+    <a class="brand" href="index.html" aria-label="Wild Ones LLC home">
+      <img src="assets/brand/wild-ones-emblem.svg" alt="Wild Ones LLC emblem" />
+      <span class="brand-copy"><strong>WILD ONES LLC</strong><span>Experiences Beyond the Ordinary</span></span>
+    </a>
+    <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">Menu</button>
+    <nav class="nav-links" data-nav-links>
+      <a href="about.html">Property</a><a href="site-map.html">Site Map</a><a href="production.html">Production</a><a href="events.html">Event Types</a><a href="gallery.html">Gallery</a>
+      <a class="btn btn-primary btn-small" href="book.html">Plan an Event</a>
+    </nav>
+  </div>
+</header>
+<main class="crm-page">
+  <section class="page-hero"><div class="container"><div class="breadcrumb"><a href="index.html">Public Site</a> / Internal CRM Preview</div><p class="eyebrow">Internal Concept · Wild Ones CRM</p><h1 class="display">Same CRM backbone. <span class="gradient-text">Production-specific controls.</span></h1><p class="lede">This prototype mirrors the existing Koa’s Events CRM pattern—projects, tasks, appointments, workflows, templates, activity and booked value—while adding production qualification and show-planning status.</p></div></section>
+  <section class="section crm-section"><div class="container">
+    <div class="crm-stats"><article><span>Open projects</span><strong>12</strong></article><article><span>Qualified</span><strong>7</strong></article><article><span>Tours scheduled</span><strong>3</strong></article><article><span>Proposals open</span><strong>4</strong></article><article><span>Deposits pending</span><strong>2</strong></article><article><span>Booked value</span><strong>$48.5k</strong></article></div>
+    <div class="crm-filters panel-glass"><label>Search<input data-crm-search type="search" placeholder="Client, company, date, event type..." /></label><label>Stage<select data-crm-stage><option value="all">All stages</option><option>inquiry</option><option>lead</option><option>proposal</option><option>booked</option><option>lost</option></select></label><label>Qualification<select data-crm-score><option value="all">All scores</option><option value="priority">80–100 Priority</option><option value="qualified">60–79 Qualified</option><option value="review">40–59 Review</option><option value="nurture">Under 40</option></select></label></div>
+    <div class="crm-workspace"><div class="crm-list panel-glass"><div class="crm-list-head"><div><p class="eyebrow">Projects + contacts</p><h2>Wild Ones pipeline</h2></div><span data-crm-count>3 shown</span></div><div data-crm-projects></div></div><div class="crm-detail panel-glass" data-crm-detail></div></div>
+  </div></section>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/brand/wild-ones-horizontal.svg" alt="Wild Ones LLC" />
+        <p>Hawaiʻi Island venue and production grounds for concerts, EDM events, festivals, retreats, production rentals and other large-format experiences.</p>
+      </div>
+      <div class="footer-links">
+        <a href="about.html">About the Property</a><a href="site-map.html">Interactive Site Map</a>
+        <a href="production.html">Production Specs</a><a href="gallery.html">Gallery</a>
+        <a href="events.html">Event Types</a><a href="faq.html">Producer FAQ</a>
+        <a href="tours.html">Site Tours</a><a href="producer-access.html">Producer Packet</a>
+        <a href="book.html">Production Inquiry</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span data-year></span> Wild Ones LLC</span><span>People · Places · Purpose</span></div>
+  </div>
+</footer>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/crm-demo.js"></script>
+</body>
+</html>

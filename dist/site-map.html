@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Site Map | Wild Ones LLC</title>
+  <meta name="description" content="Explore a conceptual Wild Ones LLC production layout with stage, GA, FOH, VIP, bars, vendors, restrooms, backstage, parking, entrance, load-in and emergency access zones." />
+  <link rel="canonical" href="https://wildonesllc.com/site-map.html" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="theme-color" content="#050505" />
+</head>
+<body>
+<header class="site-header">
+  <div class="container navbar">
+    <a class="brand" href="index.html" aria-label="Wild Ones LLC home">
+      <img src="assets/brand/wild-ones-emblem.svg" alt="Wild Ones LLC emblem" />
+      <span class="brand-copy"><strong>WILD ONES LLC</strong><span>Experiences Beyond the Ordinary</span></span>
+    </a>
+    <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">Menu</button>
+    <nav class="nav-links" data-nav-links>
+      <a href="about.html">Property</a><a class="active" href="site-map.html">Site Map</a><a href="production.html">Production</a><a href="events.html">Event Types</a><a href="gallery.html">Gallery</a>
+      <a class="btn btn-primary btn-small" href="book.html">Plan an Event</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="page-hero"><div class="container"><div class="breadcrumb"><a href="index.html">Home</a> / Site Map</div><p class="eyebrow">Interactive Production Layout</p><h1 class="display">Plan the <span class="gradient-text">whole site.</span></h1><p class="lede">This interactive board illustrates one logical 350-guest event configuration. Select zones for planning notes, turn layers on or off, and drag most production zones to test alternate layouts.</p><div class="notice"><strong>Concept planning tool:</strong> zone positions and scale are illustrative until field measurements, fire access, parking counts, gate widths and technical utilities are verified. Do not use this as a survey, permit drawing or emergency plan.</div></div></section>
+  <section class="section map-section"><div class="container map-layout">
+    <aside class="map-controls panel-glass">
+      <p class="eyebrow">Layers</p><h2>Production zones</h2><p class="muted-copy">Tap a zone name to focus it. Use the checkbox to hide or show that layer.</p>
+      <div class="layer-list" data-layer-list>
+        <label><input type="checkbox" checked data-layer-toggle="stage" /><span class="legend-dot stage"></span>Stage</label>
+        <label><input type="checkbox" checked data-layer-toggle="ga" /><span class="legend-dot ga"></span>GA / Audience</label>
+        <label><input type="checkbox" checked data-layer-toggle="foh" /><span class="legend-dot foh"></span>FOH</label>
+        <label><input type="checkbox" checked data-layer-toggle="vip" /><span class="legend-dot vip"></span>VIP</label>
+        <label><input type="checkbox" checked data-layer-toggle="bar" /><span class="legend-dot bar"></span>Bars</label>
+        <label><input type="checkbox" checked data-layer-toggle="vendors" /><span class="legend-dot vendors"></span>Vendors</label>
+        <label><input type="checkbox" checked data-layer-toggle="restrooms" /><span class="legend-dot restrooms"></span>Restrooms</label>
+        <label><input type="checkbox" checked data-layer-toggle="backstage" /><span class="legend-dot backstage"></span>Backstage</label>
+        <label><input type="checkbox" checked data-layer-toggle="parking" /><span class="legend-dot parking"></span>Parking</label>
+        <label><input type="checkbox" checked data-layer-toggle="entrance" /><span class="legend-dot entrance"></span>Entrance</label>
+        <label><input type="checkbox" checked data-layer-toggle="loadin" /><span class="legend-dot loadin"></span>Load-in</label>
+        <label><input type="checkbox" checked data-layer-toggle="emergency" /><span class="legend-dot emergency"></span>Emergency access</label>
+      </div>
+      <div class="map-actions"><button class="btn btn-secondary btn-small" type="button" data-map-reset>Reset layout</button><button class="btn btn-secondary btn-small" type="button" data-map-save>Save in browser</button></div>
+    </aside>
+    <div>
+      <div class="site-map-board" data-site-map-board aria-label="Conceptual production site map">
+        <div class="property-label">WILD ONES · CONCEPT PRODUCTION PLAN</div>
+        <div class="zone parking" data-zone="parking" style="left:4%;top:7%;width:27%;height:28%;"><strong>PARKING</strong><span>Guest + overflow concept</span></div>
+        <div class="zone entrance" data-zone="entrance" style="left:5%;top:39%;width:16%;height:12%;"><strong>ENTRANCE</strong><span>Ticketing · search · wristband</span></div>
+        <div class="zone vendors" data-zone="vendors" style="left:6%;top:57%;width:23%;height:18%;"><strong>VENDORS</strong><span>Food · merch · activations</span></div>
+        <div class="zone restrooms" data-zone="restrooms" style="left:7%;top:80%;width:18%;height:12%;"><strong>RESTROOMS</strong><span>Guest service zone</span></div>
+        <div class="zone stage" data-zone="stage" style="left:63%;top:9%;width:27%;height:18%;"><strong>STAGE</strong><span>Performance + production</span></div>
+        <div class="zone backstage" data-zone="backstage" style="left:69%;top:31%;width:21%;height:16%;"><strong>BACKSTAGE</strong><span>Artists · green room · tech</span></div>
+        <div class="zone ga" data-zone="ga" style="left:34%;top:26%;width:32%;height:42%;"><strong>GA / AUDIENCE</strong><span>Primary guest field</span></div>
+        <div class="zone foh" data-zone="foh" style="left:43%;top:73%;width:18%;height:12%;"><strong>FOH</strong><span>Audio · lighting · video</span></div>
+        <div class="zone vip" data-zone="vip" style="left:67%;top:53%;width:21%;height:18%;"><strong>VIP</strong><span>Controlled premium zone</span></div>
+        <div class="zone bar" data-zone="bar" style="left:68%;top:76%;width:20%;height:12%;"><strong>BAR</strong><span>Primary beverage service</span></div>
+        <div class="zone bar" data-zone="bar" style="left:27%;top:79%;width:12%;height:11%;"><strong>BAR 2</strong><span>Satellite service</span></div>
+        <div class="zone loadin" data-zone="loadin" style="left:91%;top:9%;width:7%;height:73%;"><strong>LOAD-IN</strong><span>Production route</span></div>
+        <div class="emergency-route" data-zone="emergency"><span>EMERGENCY / FIRE ACCESS — KEEP CLEAR</span></div>
+        <div class="map-compass" aria-hidden="true"><b>N</b><span>↑</span></div>
+      </div>
+      <div class="map-detail panel-glass" data-map-detail><p class="eyebrow">Selected zone</p><h2 data-zone-title>Stage</h2><p data-zone-copy>Place the primary performance position so audience sightlines work without blocking emergency access or backstage/load-in circulation.</p><div class="detail-tags" data-zone-tags><span>Audience sightlines</span><span>Load-in</span><span>Power</span><span>Backstage</span></div></div>
+    </div>
+  </div></section>
+  <section class="section alt"><div class="container"><div class="section-head"><div><p class="eyebrow">Planning logic</p><h2>Why the zones are arranged this way.</h2></div><p>Good site design reduces cross-traffic between guests, production vehicles, artists, vendors and emergency responders.</p></div><div class="spec-grid"><article class="spec-card"><span class="status">Guest flow</span><h3>Entrance feeds directly toward GA</h3><p>Ticketing and security should not force arriving guests through vendor, load-in or backstage lanes.</p></article><article class="spec-card"><span class="status">Production flow</span><h3>Stage + backstage stay close to load-in</h3><p>Large equipment moves should be separated from public circulation whenever possible.</p></article><article class="spec-card"><span class="status">Operations</span><h3>Bars + vendors sit on the perimeter</h3><p>Perimeter services preserve audience space and simplify restocking without cutting through the center of GA.</p></article><article class="spec-card"><span class="status">Safety</span><h3>Emergency access remains continuous</h3><p>The final plan should maintain verified fire/emergency lanes and clear egress paths throughout the event.</p></article></div></div></section>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/brand/wild-ones-horizontal.svg" alt="Wild Ones LLC" />
+        <p>Hawaiʻi Island venue and production grounds for concerts, EDM events, festivals, retreats, production rentals and other large-format experiences.</p>
+      </div>
+      <div class="footer-links">
+        <a href="about.html">About the Property</a><a href="site-map.html">Interactive Site Map</a>
+        <a href="production.html">Production Specs</a><a href="gallery.html">Gallery</a>
+        <a href="events.html">Event Types</a><a href="faq.html">Producer FAQ</a>
+        <a href="tours.html">Site Tours</a><a href="producer-access.html">Producer Packet</a>
+        <a href="book.html">Production Inquiry</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span data-year></span> Wild Ones LLC</span><span>People · Places · Purpose</span></div>
+  </div>
+</footer>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/site-map.js"></script>
+</body>
+</html>

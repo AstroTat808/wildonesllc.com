@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Site Tours | Wild Ones LLC</title>
+  <meta name="description" content="Request a production-focused site tour of Wild Ones LLC for concerts, festivals, EDM events, retreats and professional productions." />
+  <link rel="canonical" href="https://wildonesllc.com/tours.html" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <meta name="theme-color" content="#050505" />
+</head>
+<body>
+<header class="site-header">
+  <div class="container navbar">
+    <a class="brand" href="index.html" aria-label="Wild Ones LLC home">
+      <img src="assets/brand/wild-ones-emblem.svg" alt="Wild Ones LLC emblem" />
+      <span class="brand-copy"><strong>WILD ONES LLC</strong><span>Experiences Beyond the Ordinary</span></span>
+    </a>
+    <button class="mobile-toggle" data-menu-toggle aria-label="Open menu" aria-expanded="false">Menu</button>
+    <nav class="nav-links" data-nav-links>
+      <a href="about.html">Property</a><a href="site-map.html">Site Map</a><a href="production.html">Production</a><a href="events.html">Event Types</a><a href="gallery.html">Gallery</a>
+      <a class="btn btn-primary btn-small" href="book.html">Plan an Event</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="page-hero"><div class="container"><div class="breadcrumb"><a href="index.html">Home</a> / Site Tours</div><p class="eyebrow">Production Site Tours</p><h1 class="display">Walk the property with the <span class="gradient-text">show in mind.</span></h1><p class="lede">Site tours are structured around production questions: where guests arrive, where the stage goes, how gear gets in, how bars are serviced, what FOH needs, and where emergency access must stay clear.</p></div></section>
+  <section class="section"><div class="container form-shell"><aside class="form-aside"><p class="eyebrow">Tour agenda</p><h2>45–60 minute production walkthrough</h2><div class="check-list"><div class="check"><i>1</i><span>Guest arrival + parking</span></div><div class="check"><i>2</i><span>Stage, GA + FOH options</span></div><div class="check"><i>3</i><span>Backstage + load-in</span></div><div class="check"><i>4</i><span>Bars, vendors + restrooms</span></div><div class="check"><i>5</i><span>Power + cable-routing discussion</span></div><div class="check"><i>6</i><span>Emergency-access constraints</span></div></div></aside>
+    <form class="form-card" name="site-tour-request" method="POST" action="/thank-you" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="site-tour-request" /><input type="hidden" name="subject" value="New Wild Ones Site Tour Request" /><input type="hidden" name="brand" value="wild-ones" /><p class="bot-field"><label>Do not fill: <input name="bot-field" /></label></p>
+      <h2>Request a production walkthrough</h2><p>Qualified tour requests can be attached to the same CRM project created by your production inquiry.</p>
+      <div class="field-grid"><div class="field"><label for="tourName">Name</label><input id="tourName" name="name" required /></div><div class="field"><label for="tourCompany">Company / organization</label><input id="tourCompany" name="company" /></div><div class="field"><label for="tourEmail">Email</label><input id="tourEmail" name="email" type="email" required /></div><div class="field"><label for="tourPhone">Phone</label><input id="tourPhone" name="phone" type="tel" required /></div><div class="field"><label for="tourEventDate">Target event date</label><input id="tourEventDate" name="event_date" type="date" /></div><div class="field"><label for="tourGuests">Expected guests / ticket holders</label><input id="tourGuests" name="expected_attendance" type="number" min="1" max="350" /></div><div class="field"><label for="tourChoice1">Preferred tour date</label><input id="tourChoice1" name="preferred_tour_date" type="date" required /></div><div class="field"><label for="tourChoice2">Alternate tour date</label><input id="tourChoice2" name="alternate_tour_date" type="date" /></div><div class="field full"><label for="tourGoals">What do you need to verify on site?</label><textarea id="tourGoals" name="tour_goals" required placeholder="Stage orientation, generator placement, parking, production truck access, VIP, bar footprint, retreat programming, etc."></textarea></div></div><div class="form-actions"><span></span><button class="btn btn-primary" type="submit">Request Site Tour →</button></div>
+    </form>
+  </div></section>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/brand/wild-ones-horizontal.svg" alt="Wild Ones LLC" />
+        <p>Hawaiʻi Island venue and production grounds for concerts, EDM events, festivals, retreats, production rentals and other large-format experiences.</p>
+      </div>
+      <div class="footer-links">
+        <a href="about.html">About the Property</a><a href="site-map.html">Interactive Site Map</a>
+        <a href="production.html">Production Specs</a><a href="gallery.html">Gallery</a>
+        <a href="events.html">Event Types</a><a href="faq.html">Producer FAQ</a>
+        <a href="tours.html">Site Tours</a><a href="producer-access.html">Producer Packet</a>
+        <a href="book.html">Production Inquiry</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span data-year></span> Wild Ones LLC</span><span>People · Places · Purpose</span></div>
+  </div>
+</footer>
+<script src="assets/js/site.js"></script>
+
+</body>
+</html>
