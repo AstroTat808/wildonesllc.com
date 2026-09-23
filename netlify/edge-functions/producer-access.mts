@@ -51,7 +51,7 @@ export default async (req: Request, context: Context) => {
     const response = Response.redirect(cleanUrl, 302);
     response.headers.append(
       'Set-Cookie',
-      COOKIE + '=' + encodeURIComponent(queryToken) + '; Path=/; Max-Age=' + Math.max(60, payload.exp - Math.floor(Date.now() / 1000)) + '; HttpOnly; Secure; SameSite=Strict',
+      COOKIE + '=' + queryToken + '; Path=/; Max-Age=' + Math.max(60, payload.exp - Math.floor(Date.now() / 1000)) + '; HttpOnly; Secure; SameSite=Strict',
     );
     response.headers.set('Cache-Control', 'private, no-store');
     return response;
