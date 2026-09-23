@@ -47,10 +47,19 @@ test('booking wizard advances while keeping CRM scoring internal',async({page})=
 test('inquiry adapts lighter event types without dropping CRM production fields',async({page})=>{
   await page.goto('/book.html');
   await page.selectOption('[name="event_type"]',{label:'Retreat / immersive gathering'});
-  await expect(page.locator('[data-production-field="stage"]')).toBeHidden();
-  await expect(page.locator('[data-production-field="lighting"]')).toBeHidden();
+  await page.fill('[name="expected_attendance"]','120');
+  await page.fill('[name="preferred_date"]','2027-03-13');
+  await page.selectOption('[name="date_flexibility"]',{label:'± 1 month'});
+  await page.selectOption('[name="event_access"]',{label:'Private / internal'});
+  await page.fill('[name="start_time"]','09:00');
+  await page.fill('[name="end_time"]','21:00');
+  await page.fill('[name="event_concept"]','Immersive multi-session retreat program');
   await expect(page.locator('[name="stage_plan"]')).toHaveValue('Not sure yet');
   await expect(page.locator('[name="lighting_plan"]')).toHaveValue('Not sure yet');
+  await page.locator('[data-next]').first().click();
+  await expect(page.locator('.form-step').nth(1)).toHaveClass(/active/);
+  await expect(page.locator('[data-production-field="stage"]')).toBeHidden();
+  await expect(page.locator('[data-production-field="lighting"]')).toBeHidden();
   await expect(page.locator('[data-production-field="audio"]')).toBeVisible();
   await expect(page.locator('[data-production-field="power"]')).toBeVisible();
   await expect(page.locator('[data-production-profile]')).toContainText('Program production');
@@ -64,7 +73,7 @@ test('inquiry adapts lighter event types without dropping CRM production fields'
 test('conversion funnel exposes real proof and production next steps',async({page})=>{
   await page.goto('/');
   await expect(page.locator('.hero-showcase')).toContainText('NOCTURNE 2026');
-  await expect(page.locator('a[href="case-studies.html"]').first()).toBeVisible();
+  await expect(page.locator('.case-study-all-link a[href="case-studies.html"]')).toBeVisible();
   await page.goto('/case-studies.html');
   await expect(page.locator('a[href="production.html"]').last()).toBeVisible();
   await page.goto('/production.html');
