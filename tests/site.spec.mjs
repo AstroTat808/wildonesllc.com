@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
+const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/past-events.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
 
 for(const route of pages){
   test('page renders without console errors: '+route, async({page})=>{
@@ -163,4 +163,16 @@ test('case-study library exposes NOCTURNE and production inquiry path',async({pa
   await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
   await page.goto('/nocturne-2026.html');
   await expect(page.locator('.nocturne-cinema-hero a[href="book.html"]')).toBeVisible();
+});
+
+
+test('past events archive preserves 2022 event details',async({page})=>{
+  await page.goto('/past-events.html');
+  await expect(page.locator('h1')).toContainText('Wild Ones events');
+  await expect(page.getByText('Bass Babes Recruitment Event',{exact:true})).toBeVisible();
+  await expect(page.getByText('Wild Ones Takes Flight Event featuring Bass Babes',{exact:true})).toBeVisible();
+  await expect(page.getByText('Wild Ones & Bass Babes Take a Groove Cruise',{exact:true})).toBeVisible();
+  await expect(page.getByText('Mission Viejo, California',{exact:true})).toBeVisible();
+  await expect(page.getByText('Los Angeles to Cabo',{exact:true})).toBeVisible();
+  await expect(page.getByText('Huntington Beach, California',{exact:true})).toBeVisible();
 });
