@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/past-events.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
+const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/past-events.html','/bass-babes-recruitment-2022.html','/groove-cruise-2022.html','/wild-ones-takes-flight-2022.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
 
 for(const route of pages){
   test('page renders without console errors: '+route, async({page})=>{
@@ -190,4 +190,32 @@ test('past event photo lightbox opens and restores focus',async({page})=>{
   await page.locator('[data-event-dialog-close]').click();
   await expect(dialog).not.toHaveAttribute('open','');
   await expect(first).toBeFocused();
+});
+
+
+test('historical event detail pages expose archive sections',async({page})=>{
+  const routes=[
+    ['/bass-babes-recruitment-2022.html','Bass Babes Recruitment Event'],
+    ['/groove-cruise-2022.html','Wild Ones & Bass Babes Take a Groove Cruise'],
+    ['/wild-ones-takes-flight-2022.html','Wild Ones Takes Flight Event featuring Bass Babes']
+  ];
+  for(const [route,title] of routes){
+    await page.goto(route,{waitUntil:'networkidle'});
+    await expect(page.locator('h1')).toContainText(title);
+    await expect(page.locator('[data-event-artists] .archive-empty')).toBeVisible();
+    await expect(page.locator('[data-event-flyers] .archive-empty')).toBeVisible();
+    await expect(page.locator('[data-event-gallery] .archive-empty')).toBeVisible();
+    await expect(page.locator('[data-event-memorabilia] .archive-empty')).toBeVisible();
+  }
+});
+
+test('past events timeline provides cinematic evolution with reduced-motion-safe structure',async({page})=>{
+  await page.goto('/past-events.html',{waitUntil:'networkidle'});
+  const evolution=page.locator('[data-event-evolution]');
+  await expect(evolution).toBeVisible();
+  await expect(evolution.getByText('California',{exact:true})).toBeVisible();
+  await expect(evolution.getByText('Hawaiʻi Island',{exact:true})).toBeVisible();
+  await expect(page.locator('a[href="bass-babes-recruitment-2022.html"]')).toBeVisible();
+  await expect(page.locator('a[href="groove-cruise-2022.html"]')).toBeVisible();
+  await expect(page.locator('a[href="wild-ones-takes-flight-2022.html"]')).toBeVisible();
 });
