@@ -108,6 +108,7 @@ input,select,textarea{min-height:52px;border-radius:12px;background:#0a0a0d;bord
 
 
 /* cinematic conversion funnel + adaptive inquiry */
+.hero-home .hero-grid{grid-template-columns:minmax(0,.95fr) minmax(420px,1.05fr);gap:clamp(30px,5vw,64px)}
 .hero-showcase{position:relative;display:block;min-width:0;text-decoration:none}
 .hero-showcase figure{position:relative;margin:0;min-height:500px;overflow:hidden;border:1px solid rgba(216,164,59,.24);border-radius:30px;background:#08080a;box-shadow:0 34px 100px rgba(0,0,0,.46)}
 .hero-showcase figure::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 44%,rgba(3,3,5,.9) 100%)}
@@ -141,6 +142,7 @@ input,select,textarea{min-height:52px;border-radius:12px;background:#0a0a0d;bord
 .production-profile-toggle{margin-left:auto;min-height:36px;padding:6px 10px;border:1px solid rgba(255,255,255,.13);border-radius:10px;background:rgba(255,255,255,.035);color:#fff;font-size:.72rem;font-weight:760}
 [data-production-field][hidden]{display:none!important}
 @media(max-width:1000px){
+  .hero-home .hero-grid{grid-template-columns:1fr}
   .hero-showcase figure{min-height:440px}
   .production-proof-grid{grid-template-columns:1fr}
   .production-proof-grid>figure{min-height:500px}
