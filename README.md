@@ -52,6 +52,10 @@ GitHub Actions runs a no-deploy release certification suite:
 - static route, SEO, broken-reference and secret checks
 - Netlify Function and Edge Function module checks
 - Playwright desktop and 390 px mobile browser tests
+- screenshot visual QA across 1440, 1024, 430, 390 and 320 px Chromium viewports
+- WebKit visual spot checks at desktop and 390 px for Home, Gallery, Site Map and Booking
+- automated checks for broken images, horizontal page overflow, HTTP failures, console errors and page exceptions
+- downloadable Visual QA HTML/JSON report plus full-page screenshot artifact for manual review
 - booking-wizard and interactive-map tests
 - Lighthouse performance, accessibility, best-practices and SEO gates
 - final Release Certification - GO job
@@ -83,3 +87,20 @@ Wild Ones inquiries feed the existing Koa’s Events CRM as a separate business 
 ## Producer packet security
 
 The deployed technical-packet route is designed to require a signed, expiring link and then a Secure HttpOnly session cookie. There is no shared producer password. Because this GitHub repository is public, truly confidential security plans, access details, exact infrastructure vulnerabilities or other restricted production information must not be committed here; only appropriate producer-facing material belongs in the repository.
+
+
+## Visual QA
+
+Run locally with:
+
+    npm run qa:visual
+
+The runner starts its own local preview server and writes a `visual-qa/` folder containing:
+- `index.html` — visual contact-sheet style report
+- `summary.md` — automated pass/fail summary
+- `report.json` — machine-readable layout diagnostics
+- `screenshots/` — full-page screenshots for each audited route and viewport
+
+GitHub Actions uploads the same folder as the `wild-ones-visual-qa-<run id>` artifact. This gives both automated layout checks and screenshots that can be reviewed before a pull request is merged.
+
+Do not establish screenshot regression baselines until the visual design is approved. Once approved, the same screenshot matrix can become the baseline set for pixel-diff regression checks.
