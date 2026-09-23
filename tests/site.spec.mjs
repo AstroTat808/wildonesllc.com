@@ -25,6 +25,7 @@ test('mobile navigation opens and exposes booking CTA',async({page})=>{
 
 test('booking wizard advances while keeping CRM scoring internal',async({page})=>{
   await page.goto('/book.html');
+  await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBe(0);
   await page.selectOption('[name="event_type"]',{label:'EDM / dance event'});
   await page.fill('[name="expected_attendance"]','300');
   await page.fill('[name="preferred_date"]','2027-02-13');
@@ -38,6 +39,37 @@ test('booking wizard advances while keeping CRM scoring internal',async({page})=
   await expect(page.locator('.form-optional')).toHaveCount(2);
   await page.locator('[data-next]').first().click();
   await expect(page.locator('.form-step').nth(1)).toHaveClass(/active/);
+  await expect(page.locator('[data-production-field="stage"]')).toBeVisible();
+  await expect(page.locator('[data-production-field="lighting"]')).toBeVisible();
+  await expect(page.locator('[data-production-profile]')).toContainText('Full show-production profile');
+});
+
+test('inquiry adapts lighter event types without dropping CRM production fields',async({page})=>{
+  await page.goto('/book.html');
+  await page.selectOption('[name="event_type"]',{label:'Retreat / immersive gathering'});
+  await expect(page.locator('[data-production-field="stage"]')).toBeHidden();
+  await expect(page.locator('[data-production-field="lighting"]')).toBeHidden();
+  await expect(page.locator('[name="stage_plan"]')).toHaveValue('Not sure yet');
+  await expect(page.locator('[name="lighting_plan"]')).toHaveValue('Not sure yet');
+  await expect(page.locator('[data-production-field="audio"]')).toBeVisible();
+  await expect(page.locator('[data-production-field="power"]')).toBeVisible();
+  await expect(page.locator('[data-production-profile]')).toContainText('Program production');
+  await page.locator('[data-expand-production]').click();
+  await expect(page.locator('[data-production-field="stage"]')).toBeVisible();
+  await expect(page.locator('[data-production-field="lighting"]')).toBeVisible();
+  await expect(page.locator('[name="stage_plan"]')).toHaveValue('');
+  await expect(page.locator('[name="lighting_plan"]')).toHaveValue('');
+});
+
+test('conversion funnel exposes real proof and production next steps',async({page})=>{
+  await page.goto('/');
+  await expect(page.locator('.hero-showcase')).toContainText('NOCTURNE 2026');
+  await expect(page.locator('a[href="case-studies.html"]').first()).toBeVisible();
+  await page.goto('/case-studies.html');
+  await expect(page.locator('a[href="production.html"]').last()).toBeVisible();
+  await page.goto('/production.html');
+  await expect(page.locator('.production-proof')).toContainText('NOCTURNE 2026');
+  await expect(page.locator('a[href="book.html"]').last()).toBeVisible();
 });
 
 test('interactive site map supports pointer, keyboard and mobile containment',async({page})=>{
