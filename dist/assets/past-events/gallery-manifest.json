@@ -3,15 +3,24 @@
   "events": {
     "bass-babes-recruitment-2022": {
       "title": "Bass Babes Recruitment Event",
-      "photos": []
+      "photos": [],
+      "artists": [],
+      "flyers": [],
+      "memorabilia": []
     },
     "groove-cruise-2022": {
       "title": "Wild Ones & Bass Babes Take a Groove Cruise",
-      "photos": []
+      "photos": [],
+      "artists": [],
+      "flyers": [],
+      "memorabilia": []
     },
     "wild-ones-takes-flight-2022": {
       "title": "Wild Ones Takes Flight Event featuring Bass Babes",
-      "photos": []
+      "photos": [],
+      "artists": [],
+      "flyers": [],
+      "memorabilia": []
     },
     "nocturne-2026": {
       "title": "NOCTURNE 2026",
@@ -58,7 +67,10 @@
           "caption": "Artist programming inside the nighttime environment",
           "layout": "standard"
         }
-      ]
+      ],
+      "artists": [],
+      "flyers": [],
+      "memorabilia": []
     }
   }
 }
