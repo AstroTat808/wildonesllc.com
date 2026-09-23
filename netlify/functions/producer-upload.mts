@@ -1,5 +1,5 @@
 import type { Config, Context } from '@netlify/functions';
-import { getStore } from '@netlify/blobs';
+import { getDeployStore, getStore } from '@netlify/blobs';
 
 function clean(value: unknown, max = 1000) {
   return String(value ?? '').trim().slice(0, max);
@@ -22,6 +22,12 @@ async function verify(secret: string, message: string, signature: string) {
   }
 }
 
+function producerUploadStore(context: Context) {
+  return context.deploy.context === 'production'
+    ? getStore({ name: 'wild-ones-producer-uploads', consistency: 'strong' })
+    : getDeployStore({ name: 'wild-ones-producer-uploads' });
+}
+
 export default async (_req: Request, context: Context) => {
   const id = clean(context.params.id, 80);
   const url = new URL(_req.url);
@@ -36,7 +42,7 @@ export default async (_req: Request, context: Context) => {
     return new Response('Link expired or invalid.', { status: 403, headers: { 'Cache-Control': 'no-store' } });
   }
 
-  const store = getStore({ name: 'wild-ones-producer-uploads', consistency: 'strong' });
+  const store = producerUploadStore(context);
   const key = 'riders/' + id + '.pdf';
   const [metadata, data] = await Promise.all([
     store.getMetadata(key),
