@@ -18,7 +18,7 @@ body{font-family:var(--wo-sans);background:var(--wo-black);color:var(--wo-silver
 .eyebrow{font-size:.67rem;font-weight:900;letter-spacing:.21em;text-transform:uppercase;color:#f0cc73}
 .container{width:min(100% - 2.5rem,86rem);margin-inline:auto}
 
-.site-header{position:relative;z-index:50;padding:12px 0;background:#050505;border-bottom:0}
+.site-header{position:sticky;top:0;z-index:50;padding:10px 0;background:rgba(5,5,5,.92);border-bottom:0;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .navbar{
   min-height:78px!important;padding:8px 12px 8px 18px!important;border:1px solid rgba(216,164,59,.24);
   border-radius:18px;background:rgba(10,10,13,.94);box-shadow:0 18px 55px rgba(0,0,0,.38);
@@ -359,4 +359,27 @@ a,button,input,select,textarea,summary{-webkit-tap-highlight-color:rgba(216,164,
     animation-duration:.01ms!important;
     animation-iteration-count:1!important;
   }
+}
+
+
+/* UX polish */
+body{scroll-padding-top:110px}
+.wo-link-arrow,.nav-links a,.footer-links a{transition:color .18s ease,opacity .18s ease,transform .18s ease}
+.wo-link-arrow:hover{color:var(--wo-gold);transform:translateX(2px)}
+.footer-links a:hover{color:#fff}
+.mobile-toggle{font-weight:800;letter-spacing:.04em}
+.mobile-toggle[aria-expanded="true"]{border-color:rgba(216,164,59,.5);background:rgba(216,164,59,.08)}
+@media(max-width:1000px){
+  .nav-links{
+    top:calc(100% + 8px)!important;
+    left:0!important;right:0!important;
+    padding:12px!important;
+    gap:4px!important;
+    border-radius:16px!important;
+    background:rgba(8,8,12,.98)!important;
+  }
+  .nav-links>a:not(.btn){padding:0 12px;border-radius:10px}
+  .nav-links>a:not(.btn):hover,.nav-links>a.active:not(.btn){background:rgba(255,255,255,.045)}
+  .nav-links .btn{margin-top:6px}
+  .navbar{position:relative}
 }
