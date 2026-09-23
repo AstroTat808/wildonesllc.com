@@ -58,6 +58,36 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
+  visual-qa:
+    name: Screenshot visual QA
+    needs: static-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Capture visual QA matrix
+        run: npm run qa:visual
+      - name: Publish visual QA summary
+        if: always()
+        run: |
+          if [ -f visual-qa/summary.md ]; then
+            cat visual-qa/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wild-ones-visual-qa-${{ github.run_id }}
+          path: visual-qa
+          retention-days: 14
+          if-no-files-found: error
+
   lighthouse:
     name: Lighthouse quality gates
     needs: static-integrity
@@ -82,9 +112,9 @@ jobs:
 
   release-certification:
     name: Release Certification - GO
-    needs: [static-integrity, browser-qa, lighthouse]
+    needs: [static-integrity, browser-qa, visual-qa, lighthouse]
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "GO - Wild Ones static integrity, browser QA, and Lighthouse gates passed."
+          echo "GO - Wild Ones static integrity, browser QA, screenshot visual QA, and Lighthouse gates passed."
           echo "This workflow performs no Netlify deployment."
