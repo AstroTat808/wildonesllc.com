@@ -15,8 +15,141 @@
   force = true
 
 [[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about.html"
+  to = "/about"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/site-map.html"
+  to = "/site-map"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/production.html"
+  to = "/production"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/events.html"
+  to = "/events"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/gallery.html"
+  to = "/gallery"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/faq.html"
+  to = "/faq"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tours.html"
+  to = "/tours"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/book.html"
+  to = "/book"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/producer-access.html"
+  to = "/producer-access"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/technical-packet.html"
+  to = "/technical-packet"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/thank-you.html"
+  to = "/thank-you"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/admin-crm.html"
+  to = "/admin-crm"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/site-map"
+  to = "/site-map.html"
+  status = 200
+
+[[redirects]]
+  from = "/production"
+  to = "/production.html"
+  status = 200
+
+[[redirects]]
+  from = "/events"
+  to = "/events.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery"
+  to = "/gallery.html"
+  status = 200
+
+[[redirects]]
+  from = "/faq"
+  to = "/faq.html"
+  status = 200
+
+[[redirects]]
+  from = "/tours"
+  to = "/tours.html"
+  status = 200
+
+[[redirects]]
+  from = "/book"
+  to = "/book.html"
+  status = 200
+
+[[redirects]]
+  from = "/producer-access"
+  to = "/producer-access.html"
+  status = 200
+
+[[redirects]]
   from = "/technical-packet"
   to = "/technical-packet.html"
+  status = 200
+
+[[redirects]]
+  from = "/thank-you"
+  to = "/thank-you.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin-crm"
+  to = "/admin-crm.html"
   status = 200
 
 [[headers]]
@@ -52,13 +185,30 @@
     Cache-Control = "no-store"
 
 [[headers]]
+  for = "/producer-access"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
   for = "/admin-crm.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Cache-Control = "private, no-store"
 
 [[headers]]
+  for = "/admin-crm"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Cache-Control = "private, no-store"
+
+[[headers]]
   for = "/thank-you.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/thank-you"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow, noarchive"
     Cache-Control = "no-store"
