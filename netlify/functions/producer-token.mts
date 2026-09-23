@@ -50,7 +50,7 @@ export default async (req: Request, _context: Context) => {
   const encoded = base64UrlText(JSON.stringify(payload));
   const sig = await hmac(secret, encoded);
   const base = String(Netlify.env.get('URL') || 'https://wildonesllc.com').replace(/\/$/, '');
-  const url = base + '/technical-packet.html?token=' + encodeURIComponent(encoded + '.' + sig);
+  const url = base + '/technical-packet?token=' + encodeURIComponent(encoded + '.' + sig);
 
   return Response.json({ ok: true, url, expiresAt: new Date(payload.exp * 1000).toISOString(), projectId, email }, { headers: { 'Cache-Control': 'no-store' } });
 };
