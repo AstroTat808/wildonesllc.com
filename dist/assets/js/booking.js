@@ -23,6 +23,76 @@ if (form) {
 
   const val = (name) => form.elements[name]?.value || '';
   const has = (name) => [...form.querySelectorAll(`[name="${name}"]:checked`)].length > 0;
+  const eventType = form.elements.event_type;
+  const productionProfile = form.querySelector('[data-production-profile]');
+  const productionIntro = form.querySelector('[data-production-intro]');
+  const advancedProduction = form.querySelector('[data-production-advanced]');
+  const profileFields = {
+    stage: form.querySelector('[data-production-field="stage"]'),
+    audio: form.querySelector('[data-production-field="audio"]'),
+    lighting: form.querySelector('[data-production-field="lighting"]'),
+    power: form.querySelector('[data-production-field="power"]'),
+  };
+  const fullProductionPattern = /Concert|EDM|Festival|Production company/;
+  const profileCopy = {
+    'Retreat / immersive gathering': ['Program production', 'For retreats, we start with audio and power. Stage and show-lighting questions stay optional unless the program needs them.'],
+    'Brand activation / corporate production': ['Activation production', 'For activations, we start with audio and power. Reveal full show-production questions when stage or entertainment is part of the build.'],
+    'Large private production': ['Private production', 'For private productions, we start with audio and power. Stage and show-lighting questions stay optional until they are relevant.'],
+    'Other': ['Flexible production', 'Start with audio and power, then add stage and show-lighting details if your concept needs them.'],
+  };
+
+  const setAutoValue = (name, value) => {
+    const input = form.elements[name];
+    if (!input || input.value) return;
+    input.value = value;
+    input.dataset.profileAutofill = 'true';
+  };
+  const clearAutoValue = (name) => {
+    const input = form.elements[name];
+    if (!input || input.dataset.profileAutofill !== 'true') return;
+    input.value = '';
+    delete input.dataset.profileAutofill;
+  };
+  const setProfileFieldVisibility = (key, visible) => {
+    const wrapper = profileFields[key];
+    if (!wrapper) return;
+    wrapper.hidden = !visible;
+    wrapper.setAttribute('aria-hidden', String(!visible));
+  };
+  const revealFullProduction = () => {
+    ['stage','lighting'].forEach((key) => setProfileFieldVisibility(key, true));
+    ['stage_plan','lighting_plan'].forEach(clearAutoValue);
+    if (productionProfile) {
+      productionProfile.innerHTML = '<span>Expanded production profile</span><strong>Stage, audio, lighting and power questions are all active.</strong>';
+      productionProfile.classList.add('expanded');
+    }
+    calc();
+  };
+  const applyProductionProfile = () => {
+    const type = eventType?.value || '';
+    const full = !type || fullProductionPattern.test(type);
+    if (full) {
+      ['stage','audio','lighting','power'].forEach((key) => setProfileFieldVisibility(key, true));
+      ['stage_plan','lighting_plan'].forEach(clearAutoValue);
+      if (productionIntro) productionIntro.textContent = type ? 'Tell us what the show needs technically.' : 'Choose an event type first; the production questions will adapt to your project.';
+      if (productionProfile) productionProfile.innerHTML = type
+        ? '<span>Full show-production profile</span><strong>Stage · audio · lighting · power</strong>'
+        : '<span>Adaptive intake</span><strong>Questions change with your event type.</strong>';
+    } else {
+      setProfileFieldVisibility('stage', false);
+      setProfileFieldVisibility('lighting', false);
+      setProfileFieldVisibility('audio', true);
+      setProfileFieldVisibility('power', true);
+      setAutoValue('stage_plan', 'Not sure yet');
+      setAutoValue('lighting_plan', 'Not sure yet');
+      const copy = profileCopy[type] || profileCopy.Other;
+      if (productionIntro) productionIntro.textContent = copy[1];
+      if (productionProfile) productionProfile.innerHTML = `<span>${copy[0]}</span><strong>Audio · power first</strong><button class="production-profile-toggle" type="button" data-expand-production>Show stage + lighting questions</button>`;
+    }
+    if (advancedProduction && fullProductionPattern.test(type)) advancedProduction.open = false;
+    calc();
+  };
+
   const calc = () => {
     let score = 0;
     const attendance = Number(val('expected_attendance') || 0);
@@ -54,7 +124,7 @@ if (form) {
     if (complexityInput) complexityInput.value = complexityLabel;
   };
 
-  const showStep = (next) => {
+  const showStep = (next, { scroll = true } = {}) => {
     current = Math.max(0, Math.min(next, steps.length - 1));
     steps.forEach((step, index) => step.classList.toggle('active', index === current));
     progress.forEach((item, index) => {
@@ -64,7 +134,14 @@ if (form) {
       else item.removeAttribute('aria-current');
     });
     calc();
-    window.scrollTo({ top: Math.max(0, form.offsetTop - 110), behavior: 'smooth' });
+    if (scroll) {
+      window.scrollTo({ top: Math.max(0, form.offsetTop - 110), behavior: 'smooth' });
+      const heading = steps[current]?.querySelector('h2');
+      if (heading) {
+        heading.tabIndex = -1;
+        window.setTimeout(() => heading.focus({ preventScroll: true }), 220);
+      }
+    }
   };
   const validateStep = () => {
     const inputs = [...steps[current].querySelectorAll('input, select, textarea')].filter((input) => input.type !== 'hidden' && !input.disabled);
@@ -73,10 +150,17 @@ if (form) {
   };
   form.addEventListener('click', (event) => { const next = event.target.closest('[data-next]'); const back = event.target.closest('[data-back]'); if (next && validateStep()) showStep(current + 1); if (back) showStep(current - 1); });
   form.addEventListener('input', calc);
-  form.addEventListener('change', calc);
+  form.addEventListener('change', (event) => {
+    if (event.target === eventType) applyProductionProfile();
+    else calc();
+  });
+  form.addEventListener('click', (event) => {
+    if (event.target.closest('[data-expand-production]')) revealFullProduction();
+  });
   form.addEventListener('submit', calc);
   form.addEventListener('keydown', (event) => { if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA' && current < steps.length - 1) { event.preventDefault(); if (validateStep()) showStep(current + 1); } });
   const params = new URLSearchParams(window.location.search);
   ['utm_source','utm_medium','utm_campaign','utm_content'].forEach((key) => { const target = form.querySelector(`input[name="${key}"]`); if (target && params.get(key)) target.value = params.get(key); });
-  showStep(0);
+  applyProductionProfile();
+  showStep(0, { scroll: false });
 }
