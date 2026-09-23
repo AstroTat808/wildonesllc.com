@@ -40,6 +40,38 @@ for(const requiredSetting of ['Content-Security-Policy','/technical-packet.html'
   if(!config.includes(requiredSetting)) warnings.push('netlify.toml does not mention '+requiredSetting);
 }
 
+const sourceFiles=['dist','netlify','scripts','.github'].flatMap((base)=>{
+  if(!fs.existsSync(base)) return [];
+  return fs.readdirSync(base,{recursive:true})
+    .map((name)=>path.join(base,String(name)))
+    .filter((file)=>fs.existsSync(file)&&fs.statSync(file).isFile()&&/\.(html|js|mjs|ts|mts|toml|yml|yaml|md|xml|txt)$/.test(file));
+});
+for(const file of sourceFiles){
+  const text=fs.readFileSync(file,'utf8');
+  if(/WILD350/.test(text)) errors.push(file+': obsolete shared producer access code found');
+}
+
+const book=fs.readFileSync(path.join(root,'book.html'),'utf8');
+if(!book.includes('name="wild-ones-production-inquiry"')||!book.includes('data-secure-form')) errors.push('book.html: secure production inquiry wiring missing');
+const tours=fs.readFileSync(path.join(root,'tours.html'),'utf8');
+if(!tours.includes('name="wild-ones-site-tour-request"')||!tours.includes('data-secure-form')) errors.push('tours.html: secure site-tour wiring missing');
+const producerAccess=fs.readFileSync(path.join(root,'producer-access.html'),'utf8');
+if(!producerAccess.includes('name="wild-ones-producer-packet-request"')||!producerAccess.includes('data-secure-form')) errors.push('producer-access.html: secure producer-access request wiring missing');
+const packet=fs.readFileSync(path.join(root,'technical-packet.html'),'utf8');
+if(!/name="robots"\s+content="noindex, nofollow, noarchive"/i.test(packet)) errors.push('technical-packet.html: noindex protection missing');
+if(packet.includes('data-packet-lock')) errors.push('technical-packet.html: obsolete client-side lock remains');
+
+for(const required of [
+  ['netlify/functions/wild-ones-inquiry.mts','TURNSTILE_SECRET_KEY'],
+  ['netlify/functions/wild-ones-inquiry.mts','WILD_ONES_INGEST_SECRET'],
+  ['netlify/functions/wild-ones-inquiry.mts','X-Wild-Ones-Signature'],
+  ['netlify/functions/producer-token.mts','PRODUCER_ACCESS_SECRET'],
+  ['netlify/edge-functions/producer-access.mts','HttpOnly; Secure; SameSite=Strict']
+]){
+  const text=fs.readFileSync(required[0],'utf8');
+  if(!text.includes(required[1])) errors.push(required[0]+': launch security marker missing: '+required[1]);
+}
+
 const scanFiles=['netlify.toml','README.md'].concat(htmlFiles);
 const secretPatterns=[
   [/TURNSTILE_SECRET\s*=\s*["'][^"']+/i,'Turnstile secret'],
