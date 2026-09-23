@@ -7,6 +7,21 @@ if (form) {
   const complexityInput = form.querySelector('input[name="production_complexity_preview"]');
   let current = 0;
 
+  const preferredDate = form.querySelector('#date');
+  const backupDate = form.querySelector('#backup');
+  const now = new Date();
+  const pad = (value) => String(value).padStart(2, '0');
+  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  if (preferredDate) preferredDate.min = today;
+  if (backupDate) backupDate.min = today;
+  preferredDate?.addEventListener('change', () => {
+    const minimum = preferredDate.value || today;
+    if (backupDate) {
+      backupDate.min = minimum;
+      if (backupDate.value && backupDate.value < minimum) backupDate.value = '';
+    }
+  });
+
   const val = (name) => form.elements[name]?.value || '';
   const has = (name) => [...form.querySelectorAll(`[name="${name}"]:checked`)].length > 0;
   const calc = () => {
@@ -43,7 +58,7 @@ if (form) {
   const showStep = (next) => {
     current = Math.max(0, Math.min(next, steps.length - 1));
     steps.forEach((step, index) => step.classList.toggle('active', index === current));
-    progress.forEach((item, index) => { item.classList.toggle('active', index === current); item.classList.toggle('done', index < current); });
+    progress.forEach((item, index) => { item.classList.toggle('active', index === current); item.classList.toggle('done', index < current); if(index===current)item.setAttribute('aria-current','step'); else item.removeAttribute('aria-current'); });
     calc();
     window.scrollTo({ top: Math.max(0, form.offsetTop - 110), behavior: 'smooth' });
   };
