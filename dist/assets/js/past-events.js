@@ -1,6 +1,11 @@
 (() => {
-  const galleryRoots = [...document.querySelectorAll('[data-event-gallery]')];
-  if (!galleryRoots.length) return;
+  const roots = {
+    galleries: [...document.querySelectorAll('[data-event-gallery]')],
+    artists: [...document.querySelectorAll('[data-event-artists]')],
+    flyers: [...document.querySelectorAll('[data-event-flyers]')],
+    memorabilia: [...document.querySelectorAll('[data-event-memorabilia]')]
+  };
+  if (!Object.values(roots).some((list) => list.length)) return;
 
   const dialog = document.querySelector('[data-event-gallery-dialog]');
   const dialogImage = dialog?.querySelector('[data-event-dialog-image]');
@@ -8,71 +13,137 @@
   const dialogClose = dialog?.querySelector('[data-event-dialog-close]');
   let lastTrigger = null;
 
-  const makeEmptyState = (root) => {
+  const emptyState = (root, type) => {
+    const copy = {
+      gallery: ['Photo archive ready','Historical photos can be added here.','Once images are imported for this event, they appear automatically in the responsive gallery and lightbox.'],
+      artists: ['Lineup archive ready','Confirmed DJs and artists can be added here.','Names stay intentionally blank until supported by retained event records, flyers or media.'],
+      flyers: ['Creative archive ready','Original flyer artwork can be added here.','Promotional artwork, invitations and social graphics can be preserved at high resolution.'],
+      memorabilia: ['Memorabilia archive ready','Physical and digital artifacts can be cataloged here.','Tickets, passes, wristbands, merchandise, badges and other surviving event pieces can be documented.']
+    }[type];
     const empty = document.createElement('div');
-    empty.className = 'event-gallery-empty';
-    empty.innerHTML = '<span>Photo archive ready</span><strong>Historical photos can be added here.</strong><p>Once images are added to this event archive, they will appear in the same polished gallery and lightbox used for NOCTURNE.</p>';
+    empty.className = 'archive-empty';
+    empty.innerHTML = '<span>'+copy[0]+'</span><strong>'+copy[1]+'</strong><p>'+copy[2]+'</p>';
     root.replaceChildren(empty);
-    root.dataset.galleryReady = 'true';
+    root.dataset.archiveReady = 'true';
+  };
+
+  const mediaButton = (item, index, labelPrefix) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('data-event-photo', '');
+    button.setAttribute('data-full-src', item.full || item.thumb || item.src || '');
+    button.setAttribute('data-caption', item.caption || item.title || '');
+    button.setAttribute('data-alt', item.alt || '');
+    button.setAttribute('aria-label', 'Open '+labelPrefix+' '+(index+1)+': '+(item.alt || item.caption || item.title || 'archive image'));
+    const image = document.createElement('img');
+    image.src = item.thumb || item.src || item.full || '';
+    if (item.thumb && item.full && item.thumb !== item.full) {
+      image.srcset = item.thumb+' 900w, '+item.full+' 1800w';
+      image.sizes = '(max-width: 700px) 100vw, (max-width: 1000px) 50vw, 33vw';
+    }
+    image.alt = item.alt || '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    button.append(image);
+    return button;
   };
 
   const renderGallery = (root, photos) => {
-    if (!Array.isArray(photos) || photos.length === 0) {
-      makeEmptyState(root);
-      return;
-    }
-
+    if (!Array.isArray(photos) || photos.length === 0) return emptyState(root, 'gallery');
     const grid = document.createElement('div');
     grid.className = 'event-gallery-grid';
-
     photos.forEach((photo, index) => {
       const figure = document.createElement('figure');
-      figure.className = 'event-gallery-item ' + (photo.layout || 'standard');
-
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.setAttribute('data-event-photo', '');
-      button.setAttribute('data-full-src', photo.full || photo.thumb || '');
-      button.setAttribute('data-caption', photo.caption || '');
-      button.setAttribute('data-alt', photo.alt || '');
-      button.setAttribute('aria-label', 'Open photo ' + (index + 1) + ': ' + (photo.alt || photo.caption || 'event photo'));
-
-      const image = document.createElement('img');
-      image.src = photo.thumb || photo.full || '';
-      if (photo.thumb && photo.full && photo.thumb !== photo.full) {
-        image.srcset = photo.thumb + ' 900w, ' + photo.full + ' 1800w';
-        image.sizes = '(max-width: 700px) 100vw, (max-width: 1000px) 50vw, 33vw';
-      }
-      image.alt = photo.alt || '';
-      image.loading = 'lazy';
-      image.decoding = 'async';
-
+      figure.className = 'event-gallery-item '+(photo.layout || 'standard');
+      figure.append(mediaButton(photo,index,'photo'));
       const caption = document.createElement('figcaption');
       caption.textContent = photo.caption || '';
-
-      button.append(image);
-      figure.append(button, caption);
+      figure.append(caption);
       grid.append(figure);
     });
-
     root.replaceChildren(grid);
-    root.dataset.galleryReady = 'true';
+    root.dataset.archiveReady = 'true';
+  };
+
+  const renderArtists = (root, artists) => {
+    if (!Array.isArray(artists) || artists.length === 0) return emptyState(root, 'artists');
+    const grid=document.createElement('div');
+    grid.className='archive-people-grid';
+    artists.forEach((artist)=>{
+      const card=document.createElement('article');
+      card.className='archive-person';
+      const name=document.createElement('strong');
+      name.textContent=artist.name || '';
+      const role=document.createElement('span');
+      role.textContent=artist.role || 'Artist / DJ';
+      card.append(name,role);
+      grid.append(card);
+    });
+    root.replaceChildren(grid);
+    root.dataset.archiveReady='true';
+  };
+
+  const renderFlyers = (root, flyers) => {
+    if (!Array.isArray(flyers) || flyers.length === 0) return emptyState(root, 'flyers');
+    const grid=document.createElement('div');
+    grid.className='archive-media-grid';
+    flyers.forEach((item,index)=>{
+      const figure=document.createElement('figure');
+      figure.className='archive-media-card '+(item.layout || (index===0?'wide':''));
+      figure.append(mediaButton(item,index,'flyer'));
+      const caption=document.createElement('figcaption');
+      const strong=document.createElement('strong');
+      strong.textContent=item.title || 'Event flyer';
+      const span=document.createElement('span');
+      span.textContent=item.caption || '';
+      caption.append(strong,span);
+      figure.append(caption);
+      grid.append(figure);
+    });
+    root.replaceChildren(grid);
+    root.dataset.archiveReady='true';
+  };
+
+  const renderMemorabilia = (root, items) => {
+    if (!Array.isArray(items) || items.length === 0) return emptyState(root, 'memorabilia');
+    const grid=document.createElement('div');
+    grid.className='archive-memorabilia-grid';
+    items.forEach((item,index)=>{
+      const card=document.createElement('article');
+      card.className='archive-memorabilia-card';
+      if(item.thumb || item.src || item.full) {
+        const button=mediaButton(item,index,'memorabilia image');
+        const image=button.querySelector('img');
+        button.replaceWith(image);
+        card.append(image);
+      }
+      const h=document.createElement('h3');
+      h.textContent=item.title || 'Archive artifact';
+      const p=document.createElement('p');
+      p.textContent=item.description || item.caption || '';
+      card.append(h,p);
+      grid.append(card);
+    });
+    root.replaceChildren(grid);
+    root.dataset.archiveReady='true';
   };
 
   fetch('assets/past-events/gallery-manifest.json', { credentials: 'same-origin' })
     .then((response) => {
-      if (!response.ok) throw new Error('Gallery manifest unavailable');
+      if (!response.ok) throw new Error('Event archive manifest unavailable');
       return response.json();
     })
     .then((manifest) => {
-      galleryRoots.forEach((root) => {
-        const key = root.getAttribute('data-event-gallery');
-        const event = manifest?.events?.[key];
-        renderGallery(root, event?.photos || []);
-      });
+      roots.galleries.forEach((root) => renderGallery(root, manifest?.events?.[root.getAttribute('data-event-gallery')]?.photos || []));
+      roots.artists.forEach((root) => renderArtists(root, manifest?.events?.[root.getAttribute('data-event-artists')]?.artists || []));
+      roots.flyers.forEach((root) => renderFlyers(root, manifest?.events?.[root.getAttribute('data-event-flyers')]?.flyers || []));
+      roots.memorabilia.forEach((root) => renderMemorabilia(root, manifest?.events?.[root.getAttribute('data-event-memorabilia')]?.memorabilia || []));
     })
     .catch(() => {
-      galleryRoots.forEach(makeEmptyState);
+      roots.galleries.forEach((root)=>emptyState(root,'gallery'));
+      roots.artists.forEach((root)=>emptyState(root,'artists'));
+      roots.flyers.forEach((root)=>emptyState(root,'flyers'));
+      roots.memorabilia.forEach((root)=>emptyState(root,'memorabilia'));
     });
 
   document.addEventListener('click', (event) => {
@@ -88,18 +159,30 @@
     dialogClose?.focus();
   });
 
-  const closeDialog = () => {
-    if (dialog?.open) dialog.close();
-  };
-
+  const closeDialog = () => { if (dialog?.open) dialog.close(); };
   dialogClose?.addEventListener('click', closeDialog);
-  dialog?.addEventListener('click', (event) => {
-    if (event.target === dialog) closeDialog();
-  });
+  dialog?.addEventListener('click', (event) => { if (event.target === dialog) closeDialog(); });
   dialog?.addEventListener('close', () => {
     dialogImage?.removeAttribute('src');
     if (dialogImage) dialogImage.alt = '';
     lastTrigger?.focus();
     lastTrigger = null;
   });
+
+  const evolution=document.querySelector('[data-event-evolution]');
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(evolution && !reduced){
+    let ticking=false;
+    const update=()=>{
+      const rect=evolution.getBoundingClientRect();
+      const travel=Math.max(1,rect.height-window.innerHeight);
+      const progress=Math.min(1,Math.max(0,-rect.top/travel));
+      evolution.style.setProperty('--evolution-progress',progress.toFixed(4));
+      ticking=false;
+    };
+    const request=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(update); } };
+    window.addEventListener('scroll',request,{passive:true});
+    window.addEventListener('resize',request,{passive:true});
+    update();
+  }
 })();
