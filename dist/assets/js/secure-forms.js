@@ -73,7 +73,7 @@
         const response=await fetch('/api/inquiry',{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}});
         const result=await response.json().catch(()=>({}));
         if(!response.ok) throw new Error(result.error||'Submission could not be accepted.');
-        const destination=new URL('/thank-you.html',location.origin);
+        const destination=new URL('/thank-you',location.origin);
         if(result.id) destination.searchParams.set('ref',result.id);
         location.assign(destination.toString());
       }catch(error){
