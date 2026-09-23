@@ -47,7 +47,7 @@ export default async (req: Request, context: Context) => {
   }
 
   if (queryToken) {
-    const cleanUrl = new URL('/technical-packet.html', req.url);
+    const cleanUrl = new URL('/technical-packet', req.url);
     const response = Response.redirect(cleanUrl, 302);
     response.headers.append(
       'Set-Cookie',
