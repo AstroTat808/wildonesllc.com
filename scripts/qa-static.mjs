@@ -32,7 +32,7 @@ for(const file of htmlFiles){
   if(/[ÂÃÊ]|â(?:€”|†’|€™|€œ|€)/u.test(text)) errors.push(rel+': mojibake / encoding artifact found');
 }
 
-for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','case-studies.html','past-events.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
+for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','case-studies.html','past-events.html','bass-babes-recruitment-2022.html','groove-cruise-2022.html','wild-ones-takes-flight-2022.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
 }
 
@@ -51,6 +51,16 @@ else {
           else if(!fs.existsSync(path.join(root,asset))) errors.push('past-event manifest '+eventKey+': missing asset '+asset);
         }
         if(!photo.alt) warnings.push('past-event manifest '+eventKey+': photo missing alt text');
+      }
+      if(!Array.isArray(event.artists)) errors.push('past-event manifest '+eventKey+': artists must be an array');
+      for(const collection of ['flyers','memorabilia']){
+        if(!Array.isArray(event[collection])) errors.push('past-event manifest '+eventKey+': '+collection+' must be an array');
+        for(const item of event[collection]||[]){
+          const asset=item.full||item.thumb||item.src;
+          if(!asset) errors.push('past-event manifest '+eventKey+': '+collection+' item missing image asset');
+          else if(!fs.existsSync(path.join(root,asset))) errors.push('past-event manifest '+eventKey+': missing asset '+asset);
+          if(!item.alt) warnings.push('past-event manifest '+eventKey+': '+collection+' item missing alt text');
+        }
       }
     }
   } catch(error) {
