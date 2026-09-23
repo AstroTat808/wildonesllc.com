@@ -28,7 +28,7 @@ for(const file of htmlFiles){
   for(const match of text.matchAll(/(?:href|src)="([^"]+)"/g)){
     if(!existsLocal(match[1],file)) errors.push(rel+': broken local reference '+match[1]);
   }
-  if(/WILD350/.test(text)) errors.push(rel+': prototype producer code found');
+  if(text.includes(['WILD','350'].join(''))) errors.push(rel+': prototype producer code found');
 }
 
 for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','gallery.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
@@ -48,7 +48,7 @@ const sourceFiles=['dist','netlify','scripts','.github'].flatMap((base)=>{
 });
 for(const file of sourceFiles){
   const text=fs.readFileSync(file,'utf8');
-  if(/WILD350/.test(text)) errors.push(file+': obsolete shared producer access code found');
+  if(text.includes(['WILD','350'].join(''))) errors.push(file+': obsolete shared producer access code found');
 }
 
 const book=fs.readFileSync(path.join(root,'book.html'),'utf8');
