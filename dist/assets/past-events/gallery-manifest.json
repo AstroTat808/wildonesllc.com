@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "events": {
+    "bass-babes-recruitment-2022": {
+      "title": "Bass Babes Recruitment Event",
+      "photos": []
+    },
+    "groove-cruise-2022": {
+      "title": "Wild Ones & Bass Babes Take a Groove Cruise",
+      "photos": []
+    },
+    "wild-ones-takes-flight-2022": {
+      "title": "Wild Ones Takes Flight Event featuring Bass Babes",
+      "photos": []
+    },
+    "nocturne-2026": {
+      "title": "NOCTURNE 2026",
+      "photos": [
+        {
+          "thumb": "assets/nocturne-2026/images/nocturne-dancefloor-wide-01-900.webp",
+          "full": "assets/nocturne-2026/images/nocturne-dancefloor-wide-01-1800.webp",
+          "alt": "NOCTURNE guests dancing in the covered pavilion under event lighting",
+          "caption": "Covered dance floor under live show lighting",
+          "layout": "wide"
+        },
+        {
+          "thumb": "assets/nocturne-2026/images/nocturne-dj-booth-dancefloor-900.webp",
+          "full": "assets/nocturne-2026/images/nocturne-dj-booth-dancefloor-1800.webp",
+          "alt": "DJ equipment in the foreground with the NOCTURNE dance floor beyond",
+          "caption": "DJ booth to dance-floor sightline",
+          "layout": "portrait"
+        },
+        {
+          "thumb": "assets/nocturne-2026/images/nocturne-dancefloor-blue-01-900.webp",
+          "full": "assets/nocturne-2026/images/nocturne-dancefloor-blue-01-1800.webp",
+          "alt": "NOCTURNE dance floor under saturated blue event lighting",
+          "caption": "Night lighting transforms the pavilion",
+          "layout": "standard"
+        },
+        {
+          "thumb": "assets/nocturne-2026/images/nocturne-dancefloor-warm-01-900.webp",
+          "full": "assets/nocturne-2026/images/nocturne-dancefloor-warm-01-1800.webp",
+          "alt": "NOCTURNE guests dancing under warm event lighting",
+          "caption": "Late-night audience environment",
+          "layout": "half"
+        },
+        {
+          "thumb": "assets/nocturne-2026/images/nocturne-dj-booth-crew-01-900.webp",
+          "full": "assets/nocturne-2026/images/nocturne-dj-booth-crew-01-1800.webp",
+          "alt": "People gathered near the NOCTURNE DJ booth under blue lighting",
+          "caption": "Performance zone under operating conditions",
+          "layout": "half"
+        },
+        {
+          "thumb": "assets/nocturne-2026/images/nocturne-performer-green-light-900.webp",
+          "full": "assets/nocturne-2026/images/nocturne-performer-green-light-1800.webp",
+          "alt": "NOCTURNE performer under green event lighting",
+          "caption": "Artist programming inside the nighttime environment",
+          "layout": "standard"
+        }
+      ]
+    }
+  }
+}
