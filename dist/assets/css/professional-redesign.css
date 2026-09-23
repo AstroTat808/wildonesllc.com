@@ -588,3 +588,29 @@ body{scroll-padding-top:110px}
   text-shadow:0 0 28px rgba(216,164,59,.10);
 }
 .wo-photo-hero--split .gradient-text{background:none!important;color:inherit!important}
+
+/* Visual QA UX review — mobile map + client-facing intake */
+.inquiry-next{margin-top:24px;padding:18px;border:1px solid rgba(216,164,59,.18);border-radius:18px;background:#0a0a0f}
+.inquiry-next>span{display:block;margin-bottom:10px;color:#f0cc73;font-size:.66rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+.inquiry-next ol{margin:0;padding-left:1.15rem;display:grid;gap:8px;color:rgba(221,229,245,.68);font-size:.82rem}
+.progress-item[aria-current="step"]{outline:1px solid rgba(216,164,59,.22);outline-offset:0}
+@media(max-width:700px){
+  .inquiry-next{display:none}
+  .map-mobile-hint{margin-bottom:12px!important;line-height:1.5}
+  .map-mobile-hint::before{content:"◎"!important}
+  .map-board-scroll{overflow:hidden!important;border-radius:18px!important}
+  .site-map-board{width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;aspect-ratio:4/3!important;border-radius:18px!important;touch-action:pan-y!important}
+  .site-map-board .zone{padding:6px!important;border-radius:9px!important;cursor:pointer!important}
+  .site-map-board .zone strong{font-size:.52rem!important;line-height:1.08!important;letter-spacing:.04em!important}
+  .site-map-board .zone span{display:none!important}
+  .property-label{font-size:.42rem!important;letter-spacing:.09em!important}
+  .emergency-route{font-size:.40rem!important;letter-spacing:.05em!important;border-width:1px!important}
+  .map-compass{transform:scale(.70);transform-origin:bottom right}
+  .map-controls .layer-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .map-controls .map-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .layer-list label{min-width:0;padding:8px 7px!important;font-size:.72rem!important}
+}
+@media(max-width:360px){
+  .map-controls .map-actions{grid-template-columns:1fr!important}
+  .site-map-board .zone strong{font-size:.48rem!important}
+}
