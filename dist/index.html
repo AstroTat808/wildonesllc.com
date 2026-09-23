@@ -37,7 +37,7 @@
 
 <main>
   <section class="wo-photo-hero">
-    <img class="wo-photo-hero__image" src="assets/media/venue-hero.webp" alt="Wild Ones event grounds and pavilion at sunset" fetchpriority="high" decoding="async" />
+    <img class="wo-photo-hero__image" src="assets/media/venue-hero.webp" alt="Wild Ones event grounds and pavilion at sunset" fetchpriority="high" decoding="sync" />
     <div class="wo-photo-hero__shade"></div>
     <div class="container wo-photo-hero__content">
       <div class="wo-photo-hero__copy">
@@ -69,8 +69,8 @@
   <section class="wo-section">
     <div class="container wo-split">
       <div class="wo-image-stack">
-        <figure class="wo-image-stack__primary"><img loading="lazy" decoding="async" src="assets/media/venue-day-lush.webp" alt="Lush daytime view of the Wild Ones pavilion" /></figure>
-        <figure class="wo-image-stack__secondary"><img loading="lazy" decoding="async" src="assets/media/venue-night-color.webp" alt="Pavilion illuminated with production lighting at night" /></figure>
+        <figure class="wo-image-stack__primary"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-day-lush.webp" alt="Lush daytime view of the Wild Ones pavilion" /></figure>
+        <figure class="wo-image-stack__secondary"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-night-color.webp" alt="Pavilion illuminated with production lighting at night" /></figure>
         <span class="wo-image-badge">Built to transform.</span>
       </div>
       <div class="wo-copy-block">
@@ -96,17 +96,17 @@
       </div>
       <div class="wo-experience-grid">
         <a class="wo-experience-card" href="events.html">
-          <img loading="lazy" decoding="async" src="assets/media/venue-night-color.webp" alt="Color-lit pavilion at night" />
+          <img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-night-color.webp" alt="Color-lit pavilion at night" />
           <span class="wo-card-number">01</span>
           <div><p class="eyebrow">Music + Nightlife</p><h3 class="display">Concerts, DJs + EDM</h3><p>High-energy programs with intentional audience flow, FOH, bar and backstage planning.</p></div>
         </a>
         <a class="wo-experience-card" href="events.html">
-          <img loading="lazy" decoding="async" src="assets/media/venue-twilight.webp" alt="Wild Ones pavilion at twilight" />
+          <img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-twilight.webp" alt="Wild Ones pavilion at twilight" />
           <span class="wo-card-number">02</span>
           <div><p class="eyebrow">Multi-Act Programs</p><h3 class="display">Festivals + showcases</h3><p>Flexible site planning for multiple artists, vendors, technical teams and extended operating windows.</p></div>
         </a>
         <a class="wo-experience-card" href="events.html">
-          <img loading="lazy" decoding="async" src="assets/media/cottage-exterior.webp" alt="Private support building on the property" />
+          <img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/cottage-exterior.webp" alt="Private support building on the property" />
           <span class="wo-card-number">03</span>
           <div><p class="eyebrow">Extended Use</p><h3 class="display">Retreats + activations</h3><p>Private-property use for immersive programs, branded experiences and multi-session gatherings.</p></div>
         </a>
@@ -127,7 +127,7 @@
         </div>
         <a class="btn btn-secondary" href="production.html">View Production Information</a>
       </div>
-      <figure class="wo-production-image"><img loading="lazy" decoding="async" src="assets/media/venue-welcome.webp" alt="Front view of the Wild Ones pavilion and grounds" /></figure>
+      <figure class="wo-production-image"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-welcome.webp" alt="Front view of the Wild Ones pavilion and grounds" /></figure>
     </div>
   </section>
 
@@ -138,11 +138,11 @@
         <a class="wo-link-arrow wo-link-gold" href="gallery.html">Open the full gallery →</a>
       </div>
       <div class="wo-lookbook">
-        <a class="wo-lookbook__large" href="gallery.html"><img loading="lazy" decoding="async" src="assets/media/venue-sunset-event.webp" alt="Wide sunset view of the venue" /></a>
-        <a href="gallery.html"><img loading="lazy" decoding="async" src="assets/media/venue-night-side.webp" alt="Side view of pavilion at night" /></a>
-        <a href="gallery.html"><img loading="lazy" decoding="async" src="assets/media/venue-day-lush.webp" alt="Daytime venue grounds" /></a>
-        <a href="gallery.html"><img loading="lazy" decoding="async" src="assets/media/venue-twilight.webp" alt="Venue at twilight" /></a>
-        <a href="gallery.html"><img loading="lazy" decoding="async" src="assets/media/venue-night-color.webp" alt="Production lighting at the pavilion" /></a>
+        <a class="wo-lookbook__large" href="gallery.html"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-sunset-event.webp" alt="Wide sunset view of the venue" /></a>
+        <a href="gallery.html"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-night-side.webp" alt="Side view of pavilion at night" /></a>
+        <a href="gallery.html"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-day-lush.webp" alt="Daytime venue grounds" /></a>
+        <a href="gallery.html"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-twilight.webp" alt="Venue at twilight" /></a>
+        <a href="gallery.html"><img loading="lazy" decoding="async" fetchpriority="low" src="assets/media/venue-night-color.webp" alt="Production lighting at the pavilion" /></a>
       </div>
     </div>
   </section>
