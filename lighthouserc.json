@@ -5,7 +5,9 @@
       "url": [
         "http://localhost/",
         "http://localhost/production.html",
-        "http://localhost/book.html"
+        "http://localhost/book.html",
+        "http://localhost/gallery.html",
+        "http://localhost/nocturne-2026.html"
       ],
       "numberOfRuns": 1
     },
