@@ -186,7 +186,7 @@ function payloadFor(form: FormData, formName: string, riderUrl: string) {
   };
 }
 
-export default async (req: Request, _context: Context) => {
+export default async (req: Request, context: Context) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
 
   let form: FormData;
@@ -220,7 +220,8 @@ export default async (req: Request, _context: Context) => {
   if (!ingestSecret) return Response.json({ error: 'CRM routing is not configured.' }, { status: 503 });
 
   const timestamp = String(Math.floor(Date.now() / 1000));
-  const sourceFingerprint = 'wildonesllc.com';
+  const clientIp = clean(context.ip || req.headers.get('x-nf-client-connection-ip') || req.headers.get('cf-connecting-ip'), 120);
+  const sourceFingerprint = ('wo-' + (await hmac(ingestSecret, 'ip|' + (clientIp || context.requestId))).slice(0, 36)).toLowerCase();
   const signature = await hmac(ingestSecret, 'v1|' + timestamp + '|' + sourceFingerprint + '|' + formName);
   const crmUrl = String(Netlify.env.get('KOA_CRM_INGEST_URL') || CRM_DEFAULT).trim();
 
