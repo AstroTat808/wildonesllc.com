@@ -1,0 +1,37 @@
+name: Manual GitHub Pages Preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: wild-ones-github-pages-preview
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Publish safe static preview
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare public-only preview artifact
+        run: |
+          cp -R dist preview-dist
+          rm -f preview-dist/technical-packet.html preview-dist/admin-crm.html
+          printf '%s\n' '<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>Producer packet unavailable in preview</title><p>Producer-only content is not published to the GitHub Pages preview.</p><p><a href="/producer-access.html">Return to Producer Access</a></p>' > preview-dist/technical-packet.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview-dist
+      - name: Deploy GitHub Pages preview
+        id: deployment
+        uses: actions/deploy-pages@v4
