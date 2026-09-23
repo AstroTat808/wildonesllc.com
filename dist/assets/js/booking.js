@@ -108,7 +108,7 @@ if (form) {
 
     if (operationsProfileInput) operationsProfileInput.value = label;
     if (durationInput) durationInput.value = timing.duration ? String(timing.duration) : '';
-    if (afterMidnightInput) afterMidnightInput.value = timing.afterMidnight ? 'Yes' : 'No';
+    if (afterMidnightInput) afterMidnightInput.value = timing.duration ? (timing.afterMidnight ? 'Yes' : 'No') : '';
 
     if (operationsProfile) {
       const summary = signals.length ? signals.join(' · ') : 'Essential commercial + planning questions';
