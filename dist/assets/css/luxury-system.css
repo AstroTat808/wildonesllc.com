@@ -13,3 +13,38 @@ input,select,textarea{min-height:52px;border-radius:12px;background:#0a0a0d;bord
 @media(max-width:430px){.container{width:min(calc(100% - 22px),1220px)}.brand-lockup img{width:145px!important}.navbar{min-height:68px}.mobile-toggle{min-height:44px}.nav-links{top:68px;left:10px;right:10px}.display{font-size:clamp(2.35rem,13vw,3.45rem)}.hero-actions .btn,.cta-band>.btn{width:100%}.hero-meta{gap:8px}.metric{padding:14px}.form-card{padding:20px}.site-map-board{min-height:410px}.case-study-feature figure,.case-study-feature-large figure{min-height:260px}.footer-bottom{gap:8px}}
 @media(max-width:340px){.container{width:min(calc(100% - 18px),1220px)}.brand-lockup img{width:132px!important}.display{font-size:2.25rem}.btn{padding-inline:15px}.card,.experience-card,.spec-card{padding:22px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn,.card,.experience-card,.spec-card,.case-study-feature figure img{transition:none!important;transform:none!important}}
+
+
+/* visual-QA remediation */
+.map-layout>*,.map-layout>div,.packet-doc,.crm-workspace>*,.split-story>*{min-width:0}
+.layer-list label{min-height:44px;padding:9px 10px;cursor:pointer}
+.layer-list input[type="checkbox"]{width:18px;height:18px;min-height:18px;accent-color:var(--luxury-gold)}
+.map-actions .btn{width:100%}
+.packet-table{display:block;width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.thank-card{width:min(100%,780px);padding:clamp(28px,7vw,50px)}
+.thank-card h1{font-size:clamp(2.25rem,10vw,3.6rem);overflow-wrap:anywhere}
+.brand-values{flex-wrap:wrap}
+.crm-detail-head{min-width:0}
+.crm-detail-head>div:first-child{min-width:0}
+.crm-detail-head h2{overflow-wrap:anywhere}
+@media(max-width:1100px){
+  .map-layout{grid-template-columns:1fr}
+  .map-controls{position:static}
+  .site-map-board{width:100%;max-width:100%}
+}
+@media(max-width:700px){
+  .site-map-board{aspect-ratio:auto;min-height:520px;width:100%;max-width:100%}
+  .map-section .container{min-width:0}
+  .map-controls,.map-detail{width:100%;max-width:100%;overflow:hidden}
+  .crm-detail-head{flex-direction:column}
+  .crm-field-preview>div{grid-template-columns:1fr}
+}
+@media(max-width:430px){
+  .site-map-board{min-height:470px}
+  .crm-list,.crm-detail{padding:16px}
+  .thank-card{padding:24px 18px}
+}
+@media(max-width:340px){
+  .site-map-board{min-height:440px}
+  .brand-values{gap:8px}
+}
