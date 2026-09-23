@@ -10,7 +10,16 @@
     },
     "groove-cruise-2022": {
       "title": "Wild Ones & Bass Babes Take a Groove Cruise",
-      "photos": [],
+      "photos": [
+        {
+          "thumb": "assets/past-events/groove-cruise-2022/groove-cruise-bass-babes-2022-10-23.webp",
+          "full": "assets/past-events/groove-cruise-2022/groove-cruise-bass-babes-2022-10-23.webp",
+          "alt": "Bass Babes Groove Cruise archival photo from October 23, 2022",
+          "caption": "Groove Cruise · October 23, 2022",
+          "layout": "wide",
+          "source": "2022-10-23-10_36_22.png"
+        }
+      ],
       "artists": [],
       "flyers": [],
       "memorabilia": []
