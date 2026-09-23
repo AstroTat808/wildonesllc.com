@@ -36,6 +36,28 @@ for(const rel of ['index.html','about.html','site-map.html','production.html','e
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
 }
 
+
+const pastEventManifestPath=path.join(root,'assets/past-events/gallery-manifest.json');
+if(!fs.existsSync(pastEventManifestPath)) errors.push('past-event gallery manifest missing');
+else {
+  try {
+    const manifest=JSON.parse(fs.readFileSync(pastEventManifestPath,'utf8'));
+    for(const [eventKey,event] of Object.entries(manifest.events||{})){
+      if(!Array.isArray(event.photos)) errors.push('past-event manifest '+eventKey+': photos must be an array');
+      for(const photo of event.photos||[]){
+        for(const field of ['thumb','full']){
+          const asset=photo[field];
+          if(!asset) errors.push('past-event manifest '+eventKey+': missing '+field);
+          else if(!fs.existsSync(path.join(root,asset))) errors.push('past-event manifest '+eventKey+': missing asset '+asset);
+        }
+        if(!photo.alt) warnings.push('past-event manifest '+eventKey+': photo missing alt text');
+      }
+    }
+  } catch(error) {
+    errors.push('past-event gallery manifest invalid JSON: '+error.message);
+  }
+}
+
 const transparentLogo=path.join(root,'assets/brand/wild-ones-horizontal-transparent.svg');
 if(!fs.existsSync(transparentLogo)) errors.push('transparent logo asset missing');
 else {
