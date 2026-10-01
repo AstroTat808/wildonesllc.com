@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: wild-ones-release-${{ github.workflow }}-${{ github.ref }}
@@ -33,6 +34,13 @@ jobs:
         run: npm run qa:static
       - name: Netlify functions and edge syntax audit
         run: npm run qa:functions
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wild-ones-static-${{ github.run_id }}
+          path: quality-results/static.json
+          retention-days: 30
+          if-no-files-found: ignore
 
   browser-qa:
     name: Desktop + mobile browser QA
@@ -77,6 +85,63 @@ jobs:
         run: npm run design:check
       - name: Full-site visual geometry + screenshot audit
         run: npm run qa:visual
+
+      - name: Resolve approved main visual baseline
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BASELINE_RUN_ID="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/release-certification.yml/runs?branch=main&status=success&event=push&per_page=20" --jq '.workflow_runs[0].id')"
+          test -n "$BASELINE_RUN_ID"
+          ARTIFACTS="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${BASELINE_RUN_ID}/artifacts?per_page=100")"
+          LEGACY_NAME="wild-ones-visual-qa-${BASELINE_RUN_ID}"
+          ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r '.artifacts[] | select(.name=="wild-ones-visual-baseline") | .id' | head -n 1)"
+          BASELINE_IS_LEGACY=false
+          if [ -z "$ARTIFACT_ID" ]; then
+            ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r --arg legacy "$LEGACY_NAME" '.artifacts[] | select(.name==$legacy) | .id' | head -n 1)"
+            BASELINE_IS_LEGACY=true
+          fi
+          test -n "$ARTIFACT_ID"
+          echo "BASELINE_RUN_ID=$BASELINE_RUN_ID" >> "$GITHUB_ENV"
+          echo "BASELINE_IS_LEGACY=$BASELINE_IS_LEGACY" >> "$GITHUB_ENV"
+          curl -L --fail --silent --show-error             -H "Authorization: Bearer ${GH_TOKEN}"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip"             -o /tmp/wild-ones-visual-baseline.zip
+          rm -rf visual-baseline
+          mkdir -p visual-baseline
+          unzip -q /tmp/wild-ones-visual-baseline.zip -d visual-baseline
+          if [ -d visual-baseline/screenshots ]; then
+            echo "BASELINE_DIR=visual-baseline/screenshots" >> "$GITHUB_ENV"
+          else
+            echo "BASELINE_DIR=visual-baseline" >> "$GITHUB_ENV"
+          fi
+
+      - name: Install visual regression comparator
+        if: github.event_name == 'pull_request'
+        run: python3 -m pip install --disable-pip-version-check --quiet pillow
+
+      - name: Compare candidate screenshots with approved main
+        id: visual_regression
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          ALLOW_VISUAL_CHANGES: ${{ contains(github.event.pull_request.labels.*.name, 'visual-approved') }}
+        run: |
+          EXTRA=""
+          if [ "$ALLOW_VISUAL_CHANGES" = "true" ]; then EXTRA="$EXTRA --allow-changes"; fi
+          if [ "${BASELINE_IS_LEGACY:-false}" = "true" ]; then EXTRA="$EXTRA --allow-added --legacy-bootstrap"; fi
+          python3 scripts/compare-visual-baseline.py \
+            --baseline "$BASELINE_DIR" \
+            --candidate visual-qa/screenshots \
+            --output visual-diff \
+            --pixel-threshold 18 \
+            --max-diff-ratio 0.005 \
+            $EXTRA
+
+      - name: Add visual regression summary
+        if: github.event_name == 'pull_request' && always()
+        run: |
+          if [ -f visual-diff/report.md ]; then cat visual-diff/report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -84,6 +149,29 @@ jobs:
           path: visual-qa
           retention-days: 30
           if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request' && always()
+        with:
+          name: wild-ones-visual-diff-${{ github.run_id }}
+          path: visual-diff
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        with:
+          name: wild-ones-visual-baseline
+          path: visual-qa/screenshots
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Enforce visual regression approval
+        if: github.event_name == 'pull_request' && steps.visual_regression.outcome == 'failure'
+        run: |
+          echo "Visual changes exceed the approved baseline. Inspect the visual diff artifact."
+          echo "If the change is intentional and approved, add the PR label: visual-approved"
+          exit 1
 
   lighthouse:
     name: Lighthouse quality gates
@@ -107,10 +195,72 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
+  quality-dashboard:
+    name: Executive Site Quality Dashboard
+    if: always()
+    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: wild-ones-static-${{ github.run_id }}
+          path: quality-input/static
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: wild-ones-playwright-${{ github.run_id }}
+          path: quality-input/browser
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: wild-ones-visual-qa-${{ github.run_id }}
+          path: quality-input/visual
+      - uses: actions/download-artifact@v4
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          name: wild-ones-visual-diff-${{ github.run_id }}
+          path: quality-input/diff
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: wild-ones-lighthouse-${{ github.run_id }}
+          path: quality-input/lighthouse
+
+      - name: Build executive quality dashboard
+        env:
+          STATIC_RESULT: ${{ needs.static-integrity.result }}
+          BROWSER_RESULT: ${{ needs.browser-qa.result }}
+          VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
+          LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+        run: npm run quality:build
+
+      - name: Add dashboard summary
+        if: always()
+        run: |
+          if [ -f quality-dashboard/SUMMARY.md ]; then cat quality-dashboard/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: site-quality-dashboard-${{ github.run_id }}
+          path: quality-dashboard
+          retention-days: 90
+          if-no-files-found: error
+
   release-certification:
     name: Release Certification - GO
     if: always()
-    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse]
+    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse, quality-dashboard]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -120,14 +270,17 @@ jobs:
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
+          QUALITY_RESULT: ${{ needs.quality-dashboard.result }}
         run: |
           echo "Static integrity: $STATIC_RESULT"
           echo "Browser QA:       $BROWSER_RESULT"
           echo "Lighthouse:       $LIGHTHOUSE_RESULT"
           echo "Visual design QA: $VISUAL_RESULT"
+          echo "Quality dashboard: $QUALITY_RESULT"
           test "$STATIC_RESULT" = "success"
           test "$BROWSER_RESULT" = "success"
           test "$LIGHTHOUSE_RESULT" = "success"
           test "$VISUAL_RESULT" = "success"
+          test "$QUALITY_RESULT" = "success"
           echo "GO - Wild Ones static integrity, browser QA, and Lighthouse gates passed."
           echo "This workflow performs no Netlify deployment."

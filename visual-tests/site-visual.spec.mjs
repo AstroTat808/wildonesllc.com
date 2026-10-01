@@ -6,7 +6,7 @@ const routes=[
   '/', '/about.html', '/site-map.html', '/production.html', '/events.html',
   '/case-studies.html', '/nocturne-2026.html', '/gallery.html', '/faq.html',
   '/tours.html', '/book.html', '/producer-access.html', '/technical-packet.html',
-  '/thank-you.html', '/admin-crm.html', '/404.html'
+  '/thank-you.html', '/admin-crm.html', '/quality-dashboard.html', '/404.html'
 ];
 
 const viewports=[
@@ -37,8 +37,22 @@ test('luxury visual QA across every public and operational page',async({page})=>
     for(const route of routes){
       const response=await page.goto(route,{waitUntil:'domcontentloaded'});
       await page.addStyleTag({content:'*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;caret-color:transparent!important}'});
-      await page.evaluate(()=>document.querySelectorAll('video').forEach((video)=>video.pause()));
-      await page.waitForTimeout(70);
+      await page.evaluate(async()=>{
+        document.querySelectorAll('video').forEach((video)=>{ video.pause(); try{ video.currentTime=0; }catch{} });
+        document.querySelectorAll('img').forEach((img)=>{ img.loading='eager'; });
+        if(document.fonts?.ready) await document.fonts.ready;
+        await Promise.all([...document.images].map(async(img)=>{
+          if(!img.complete){
+            await new Promise((resolve)=>{
+              img.addEventListener('load',resolve,{once:true});
+              img.addEventListener('error',resolve,{once:true});
+            });
+          }
+          if(img.decode){ try{ await img.decode(); }catch{} }
+        }));
+        window.scrollTo(0,0);
+      });
+      await page.waitForTimeout(120);
 
       const audit=await page.evaluate(({mobile,width})=>{
         const visible=(el)=>{
