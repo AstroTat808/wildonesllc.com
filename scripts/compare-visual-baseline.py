@@ -15,6 +15,7 @@ def parse_args():
     p.add_argument("--pixel-threshold", type=int, default=18)
     p.add_argument("--max-diff-ratio", type=float, default=0.005)
     p.add_argument("--allow-changes", action="store_true")
+    p.add_argument("--allow-added", action="store_true", help="Bootstrap new screenshots when migrating from a legacy baseline.")
     return p.parse_args()
 
 def pngs(root):
@@ -54,7 +55,8 @@ def main():
         rec={"file":key,"status":"same","diffRatio":0.0,"changedPixels":0,"totalPixels":0}
         if b is None:
             rec.update(status="added",diffRatio=1.0)
-            blocking.append(key)
+            if not a.allow_added:
+                blocking.append(key)
         elif c is None:
             rec.update(status="removed",diffRatio=1.0)
             blocking.append(key)
@@ -92,6 +94,7 @@ def main():
         "changedScreenshots":len(changed),
         "blockingScreenshots":len(blocking),
         "approvedOverride":bool(a.allow_changes),
+        "bootstrapAddedAllowed":bool(a.allow_added),
         "status":"APPROVED_CHANGE" if blocking and a.allow_changes else ("FAIL" if blocking else "PASS"),
         "records":records
     }
