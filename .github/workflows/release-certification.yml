@@ -96,9 +96,15 @@ jobs:
           test -n "$BASELINE_RUN_ID"
           ARTIFACTS="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${BASELINE_RUN_ID}/artifacts?per_page=100")"
           LEGACY_NAME="wild-ones-visual-qa-${BASELINE_RUN_ID}"
-          ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r --arg legacy "$LEGACY_NAME" '.artifacts[] | select(.name=="wild-ones-visual-baseline" or .name==$legacy) | .id' | head -n 1)"
+          ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r '.artifacts[] | select(.name=="wild-ones-visual-baseline") | .id' | head -n 1)"
+          BASELINE_IS_LEGACY=false
+          if [ -z "$ARTIFACT_ID" ]; then
+            ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r --arg legacy "$LEGACY_NAME" '.artifacts[] | select(.name==$legacy) | .id' | head -n 1)"
+            BASELINE_IS_LEGACY=true
+          fi
           test -n "$ARTIFACT_ID"
           echo "BASELINE_RUN_ID=$BASELINE_RUN_ID" >> "$GITHUB_ENV"
+          echo "BASELINE_IS_LEGACY=$BASELINE_IS_LEGACY" >> "$GITHUB_ENV"
           curl -L --fail --silent --show-error             -H "Authorization: Bearer ${GH_TOKEN}"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip"             -o /tmp/wild-ones-visual-baseline.zip
           rm -rf visual-baseline
           mkdir -p visual-baseline
@@ -121,8 +127,15 @@ jobs:
           ALLOW_VISUAL_CHANGES: ${{ contains(github.event.pull_request.labels.*.name, 'visual-approved') }}
         run: |
           EXTRA=""
-          if [ "$ALLOW_VISUAL_CHANGES" = "true" ]; then EXTRA="--allow-changes"; fi
-          python3 scripts/compare-visual-baseline.py             --baseline "$BASELINE_DIR"             --candidate visual-qa/screenshots             --output visual-diff             --pixel-threshold 18             --max-diff-ratio 0.005             $EXTRA
+          if [ "$ALLOW_VISUAL_CHANGES" = "true" ]; then EXTRA="$EXTRA --allow-changes"; fi
+          if [ "${BASELINE_IS_LEGACY:-false}" = "true" ]; then EXTRA="$EXTRA --allow-added"; fi
+          python3 scripts/compare-visual-baseline.py \
+            --baseline "$BASELINE_DIR" \
+            --candidate visual-qa/screenshots \
+            --output visual-diff \
+            --pixel-threshold 18 \
+            --max-diff-ratio 0.005 \
+            $EXTRA
 
       - name: Add visual regression summary
         if: github.event_name == 'pull_request' && always()
@@ -185,7 +198,7 @@ jobs:
   quality-dashboard:
     name: Executive Site Quality Dashboard
     if: always()
-    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse, quality-dashboard]
+    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -228,7 +241,6 @@ jobs:
           STATIC_RESULT: ${{ needs.static-integrity.result }}
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
-          QUALITY_RESULT: ${{ needs.quality-dashboard.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
         run: npm run quality:build
 
@@ -248,7 +260,7 @@ jobs:
   release-certification:
     name: Release Certification - GO
     if: always()
-    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse]
+    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse, quality-dashboard]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -258,6 +270,7 @@ jobs:
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
+          QUALITY_RESULT: ${{ needs.quality-dashboard.result }}
         run: |
           echo "Static integrity: $STATIC_RESULT"
           echo "Browser QA:       $BROWSER_RESULT"
