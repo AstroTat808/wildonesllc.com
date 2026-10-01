@@ -32,7 +32,7 @@ for(const file of htmlFiles){
   if(/[ÂÃÊ]|â(?:€”|†’|€™|€œ|€)/u.test(text)) errors.push(rel+': mojibake / encoding artifact found');
 }
 
-for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','case-studies.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html']){
+for(const rel of ['index.html','about.html','site-map.html','production.html','events.html','case-studies.html','gallery.html','nocturne-2026.html','faq.html','tours.html','book.html','producer-access.html','technical-packet.html','thank-you.html','quality-dashboard.html']){
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
 }
 
@@ -72,6 +72,8 @@ if(!producerAccess.includes('name="wild-ones-producer-packet-request"')||!produc
 const packet=fs.readFileSync(path.join(root,'technical-packet.html'),'utf8');
 if(!/name="robots"\s+content="noindex, nofollow, noarchive"/i.test(packet)) errors.push('technical-packet.html: noindex protection missing');
 if(packet.includes('data-packet-lock')) errors.push('technical-packet.html: obsolete client-side lock remains');
+const qualityDashboard=fs.readFileSync(path.join(root,'quality-dashboard.html'),'utf8');
+if(!/name="robots"\s+content="noindex, nofollow, noarchive"/i.test(qualityDashboard)) errors.push('quality-dashboard.html: noindex protection missing');
 
 for(const required of [
   ['netlify/functions/wild-ones-inquiry.mts','TURNSTILE_SECRET_KEY'],
@@ -96,6 +98,14 @@ for(const file of scanFiles){
     if(re.test(text)) errors.push(path.relative('.',file)+': possible committed '+label);
   }
 }
+
+fs.mkdirSync('quality-results',{recursive:true});
+fs.writeFileSync('quality-results/static.json',JSON.stringify({
+  generatedAt:new Date().toISOString(),
+  htmlPages:htmlFiles.length,
+  errors,
+  warnings
+},null,2)+'\n');
 
 for(const warning of warnings) console.log('WARN | '+warning);
 for(const error of errors) console.error('FAIL | '+error);

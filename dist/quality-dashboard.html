@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Site Quality Dashboard | Wild Ones LLC</title>
+  <meta name="description" content="Internal Wild Ones LLC site quality dashboard for release readiness, visual QA, Lighthouse, accessibility, SEO, browser testing and responsive coverage." />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <link rel="canonical" href="https://wildonesllc.com/quality-dashboard" />
+  <link rel="icon" type="image/svg+xml" href="assets/brand/wild-ones-horizontal-transparent.svg" />
+  <link rel="stylesheet" href="assets/css/quality-dashboard.css" />
+  <meta name="theme-color" content="#050505" />
+</head>
+<body>
+  <header class="qd-header">
+    <a class="qd-brand" href="index.html" aria-label="Wild Ones LLC home">
+      <img src="assets/brand/wild-ones-horizontal-transparent.svg" alt="Wild Ones LLC" />
+    </a>
+    <span class="qd-internal">Internal QA</span>
+  </header>
+  <main class="qd-shell">
+    <section class="qd-hero">
+      <div><p class="qd-eyebrow">Site Quality Dashboard</p><h1>Release confidence, <span>at a glance.</span></h1><p class="qd-lede">A single executive view of production readiness, visual integrity, responsive coverage, browser testing, Lighthouse, accessibility and SEO.</p></div>
+      <div class="qd-go" data-release-card><span>Release readiness</span><strong data-release-status>Loading</strong><small data-certified-at>Reading latest certified snapshot…</small></div>
+    </section>
+
+    <section class="qd-metrics" aria-label="Quality scores">
+      <article><span>Performance</span><strong data-score="performance">—</strong><small>Lighthouse median</small></article>
+      <article><span>Accessibility</span><strong data-score="accessibility">—</strong><small>Lighthouse median</small></article>
+      <article><span>Best Practices</span><strong data-score="bestPractices">—</strong><small>Lighthouse median</small></article>
+      <article><span>SEO</span><strong data-score="seo">—</strong><small>Lighthouse median</small></article>
+    </section>
+
+    <section class="qd-grid">
+      <article class="qd-panel qd-panel-wide">
+        <div class="qd-panel-head"><div><p class="qd-eyebrow">Certification lanes</p><h2>Everything required to ship.</h2></div><span class="qd-chip" data-run-number>Run —</span></div>
+        <div class="qd-lanes" data-lanes></div>
+      </article>
+
+      <article class="qd-panel">
+        <div class="qd-panel-head"><div><p class="qd-eyebrow">Responsive coverage</p><h2>Five target widths.</h2></div></div>
+        <div class="qd-viewports" data-viewports></div>
+        <dl class="qd-facts">
+          <div><dt>Routes</dt><dd data-visual-routes>—</dd></div>
+          <div><dt>Screenshots</dt><dd data-visual-screenshots>—</dd></div>
+          <div><dt>Visual defects</dt><dd data-visual-failures>—</dd></div>
+        </dl>
+      </article>
+
+      <article class="qd-panel">
+        <div class="qd-panel-head"><div><p class="qd-eyebrow">Visual regression</p><h2>Approved baseline control.</h2></div></div>
+        <div class="qd-regression" data-regression></div>
+        <p class="qd-note">Future PRs are compared pixel-by-pixel with the last successful <code>main</code> baseline. Material changes produce red diff overlays and block release unless explicitly approved.</p>
+      </article>
+
+      <article class="qd-panel">
+        <div class="qd-panel-head"><div><p class="qd-eyebrow">Code + browser health</p><h2>Structural confidence.</h2></div></div>
+        <dl class="qd-facts">
+          <div><dt>HTML pages audited</dt><dd data-static-pages>—</dd></div>
+          <div><dt>Broken local references</dt><dd data-broken-links>—</dd></div>
+          <div><dt>Static failures</dt><dd data-static-failures>—</dd></div>
+          <div><dt>Browser tests passed</dt><dd data-browser-passed>—</dd></div>
+          <div><dt>Browser tests failed</dt><dd data-browser-failed>—</dd></div>
+        </dl>
+      </article>
+
+      <article class="qd-panel qd-panel-wide">
+        <div class="qd-panel-head"><div><p class="qd-eyebrow">Lighthouse by page</p><h2>Where performance can still move.</h2></div><span class="qd-chip">Median of 3 runs</span></div>
+        <div class="qd-table-wrap"><table><thead><tr><th>Page</th><th>Performance</th><th>Accessibility</th><th>Best practices</th><th>SEO</th></tr></thead><tbody data-page-scores></tbody></table></div>
+      </article>
+    </section>
+
+    <footer class="qd-footer"><span data-source-commit>Commit —</span><a data-run-link href="#" rel="noreferrer">Open certification run ↗</a></footer>
+  </main>
+  <script src="assets/js/quality-dashboard.js"></script>
+</body>
+</html>

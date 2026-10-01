@@ -12,7 +12,8 @@
     "qa:functions": "node --experimental-strip-types scripts/qa-functions.mjs",
     "design:check": "node scripts/design-fixer.mjs --check",
     "design:fix": "node scripts/design-fixer.mjs --fix",
-    "qa:visual": "playwright test --config=playwright.visual.config.mjs"
+    "qa:visual": "playwright test --config=playwright.visual.config.mjs",
+    "quality:build": "node scripts/build-quality-dashboard.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "latest",

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html'];
+const pages=['/','/about.html','/site-map.html','/production.html','/events.html','/case-studies.html','/gallery.html','/nocturne-2026.html','/faq.html','/tours.html','/book.html','/producer-access.html','/quality-dashboard.html'];
 
 for(const route of pages){
   test('page renders without console errors: '+route, async({page})=>{
@@ -262,4 +262,15 @@ test('case-study library exposes NOCTURNE and production inquiry path',async({pa
   await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
   await page.goto('/nocturne-2026.html');
   await expect(page.locator('.nocturne-cinema-hero a[href="book.html"]')).toBeVisible();
+});
+
+
+test('executive quality dashboard renders certified metrics and remains noindex',async({page})=>{
+  await page.goto('/quality-dashboard.html',{waitUntil:'networkidle'});
+  await expect(page.locator('h1')).toContainText('Release confidence');
+  await expect(page.locator('[data-release-status]')).not.toHaveText('Loading');
+  await expect(page.locator('[data-score="performance"]')).not.toHaveText('—');
+  await expect(page.locator('[data-viewports] .qd-viewport')).toHaveCount(5);
+  const robots=await page.locator('meta[name="robots"]').getAttribute('content');
+  expect(robots||'').toContain('noindex');
 });

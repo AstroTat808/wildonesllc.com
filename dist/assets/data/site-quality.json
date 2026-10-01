@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-23T11:10:14Z",
+  "source": {
+    "branch": "main",
+    "commit": "dcda1d351f5d615fdcc247241fd116f37573b8db",
+    "runId": 35852437213,
+    "runNumber": 83,
+    "runUrl": "https://github.com/AstroTat808/wildonesllc.com/actions/runs/35852437213"
+  },
+  "release": {
+    "status": "GO",
+    "static": "PASS",
+    "browser": "PASS",
+    "visual": "PASS",
+    "lighthouse": "PASS"
+  },
+  "static": {
+    "htmlPages": 16,
+    "failures": 0,
+    "warnings": 0,
+    "brokenLinks": 0,
+    "status": "PASS"
+  },
+  "browser": {
+    "passed": 56,
+    "failed": 0,
+    "skipped": 0,
+    "status": "PASS"
+  },
+  "visual": {
+    "routes": 16,
+    "viewports": [
+      {
+        "name": "desktop-1440",
+        "width": 1440,
+        "height": 1000,
+        "mobile": false
+      },
+      {
+        "name": "tablet-1024",
+        "width": 1024,
+        "height": 900,
+        "mobile": false
+      },
+      {
+        "name": "mobile-430",
+        "width": 430,
+        "height": 932,
+        "mobile": true
+      },
+      {
+        "name": "mobile-390",
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      {
+        "name": "mobile-320",
+        "width": 320,
+        "height": 800,
+        "mobile": true
+      }
+    ],
+    "screenshots": 80,
+    "hardFailures": 0,
+    "warnings": 0,
+    "status": "PASS"
+  },
+  "visualRegression": {
+    "status": "BASELINE_READY",
+    "comparedScreenshots": 80,
+    "changedScreenshots": 0,
+    "blockingScreenshots": 0,
+    "approvedOverride": false,
+    "maxDiffRatio": 0.005,
+    "baselineRun": 83
+  },
+  "lighthouse": {
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 96,
+    "seo": 100,
+    "pages": [
+      {
+        "url": "/",
+        "performance": 99,
+        "accessibility": 99,
+        "bestPractices": 100,
+        "seo": 100
+      },
+      {
+        "url": "/book.html",
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 96,
+        "seo": 100
+      },
+      {
+        "url": "/case-studies.html",
+        "performance": 99,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100
+      },
+      {
+        "url": "/events.html",
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 96,
+        "seo": 100
+      },
+      {
+        "url": "/gallery.html",
+        "performance": 88,
+        "accessibility": 100,
+        "bestPractices": 96,
+        "seo": 100
+      },
+      {
+        "url": "/nocturne-2026.html",
+        "performance": 98,
+        "accessibility": 100,
+        "bestPractices": 100,
+        "seo": 100
+      },
+      {
+        "url": "/production.html",
+        "performance": 100,
+        "accessibility": 100,
+        "bestPractices": 96,
+        "seo": 100
+      }
+    ]
+  }
+}
