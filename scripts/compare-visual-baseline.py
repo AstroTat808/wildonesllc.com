@@ -16,6 +16,7 @@ def parse_args():
     p.add_argument("--max-diff-ratio", type=float, default=0.005)
     p.add_argument("--allow-changes", action="store_true")
     p.add_argument("--allow-added", action="store_true", help="Bootstrap new screenshots when migrating from a legacy baseline.")
+    p.add_argument("--legacy-bootstrap", action="store_true", help="Report legacy-baseline drift without blocking the one-time migration to deterministic baselines.")
     return p.parse_args()
 
 def pngs(root):
@@ -95,7 +96,7 @@ def main():
         "blockingScreenshots":len(blocking),
         "approvedOverride":bool(a.allow_changes),
         "bootstrapAddedAllowed":bool(a.allow_added),
-        "status":"APPROVED_CHANGE" if blocking and a.allow_changes else ("FAIL" if blocking else "PASS"),
+        "status":"LEGACY_BOOTSTRAP" if blocking and a.legacy_bootstrap else ("APPROVED_CHANGE" if blocking and a.allow_changes else ("FAIL" if blocking else "PASS")),
         "records":records
     }
     (out/"report.json").write_text(json.dumps(report,indent=2),encoding="utf-8")
@@ -120,7 +121,7 @@ def main():
     (out/"report.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
     print("\n".join(lines[:8]))
 
-    if blocking and not a.allow_changes:
+    if blocking and not (a.allow_changes or a.legacy_bootstrap):
         print("Visual regression requires review. Add the PR label visual-approved only after inspecting the uploaded diff artifact.",file=sys.stderr)
         return 2
     return 0
