@@ -128,7 +128,7 @@ jobs:
         run: |
           EXTRA=""
           if [ "$ALLOW_VISUAL_CHANGES" = "true" ]; then EXTRA="$EXTRA --allow-changes"; fi
-          if [ "${BASELINE_IS_LEGACY:-false}" = "true" ]; then EXTRA="$EXTRA --allow-added"; fi
+          if [ "${BASELINE_IS_LEGACY:-false}" = "true" ]; then EXTRA="$EXTRA --allow-added --legacy-bootstrap"; fi
           python3 scripts/compare-visual-baseline.py \
             --baseline "$BASELINE_DIR" \
             --candidate visual-qa/screenshots \
