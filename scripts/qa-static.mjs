@@ -64,7 +64,7 @@ function assertContainerLogo(text,rel,className){
 
 for(const file of htmlFiles){
   const text=fs.readFileSync(file,'utf8');
-  const rel=path.relative(root,file).replaceAll('\\\\','/');
+  const rel=path.relative(root,file).replaceAll('\\','/');
   if(text.includes('wild-ones-horizontal-approved.webp')) errors.push(rel+': opaque legacy logo reference found');
   for(const className of ['brand-lockup','footer-brand','brand-panel','packet-cover','packet-lock','qd-brand']){
     assertContainerLogo(text,rel,className);
