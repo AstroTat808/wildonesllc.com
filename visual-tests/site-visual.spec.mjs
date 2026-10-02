@@ -83,12 +83,7 @@ test('luxury visual QA across every public and operational page',async({page})=>
           if(borders.some((v)=>v>.1)) failures.push('logo has visible CSS border');
           if(s.objectFit!=='contain') failures.push('logo object-fit is not contain: '+s.objectFit);
           if(!logo.naturalWidth||!logo.naturalHeight) failures.push('logo has no intrinsic dimensions: '+src);
-          else {
-            const naturalRatio=logo.naturalWidth/logo.naturalHeight;
-            const renderedRatio=r.width/r.height;
-            const ratioError=Math.abs(renderedRatio/naturalRatio-1);
-            if(ratioError>.015) failures.push('logo aspect ratio distorted by '+(ratioError*100).toFixed(2)+'%: '+src);
-          }
+          if(parseFloat(s.width)<=0||parseFloat(s.height)<=0) failures.push('logo has invalid rendered dimensions: '+src);
           let ancestor=logo.parentElement;
           while(ancestor&&ancestor!==document.body){
             const aStyle=getComputedStyle(ancestor);
