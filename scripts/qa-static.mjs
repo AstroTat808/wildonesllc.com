@@ -36,15 +36,45 @@ for(const rel of ['index.html','about.html','site-map.html','production.html','e
   if(!fs.existsSync(path.join(root,rel))) errors.push('missing required page '+rel);
 }
 
-const transparentLogo=path.join(root,'assets/brand/wild-ones-horizontal-transparent.svg');
-if(!fs.existsSync(transparentLogo)) errors.push('transparent logo asset missing');
+const approvedHorizontalName='wild-ones-horizontal-transparent.svg';
+const approvedEmblemName='wild-ones-emblem-approved.svg';
+const transparentLogo=path.join(root,'assets/brand',approvedHorizontalName);
+const emblemLogo=path.join(root,'assets/brand',approvedEmblemName);
+if(!fs.existsSync(transparentLogo)) errors.push('approved horizontal logo asset missing');
 else {
   const logo=fs.readFileSync(transparentLogo,'utf8');
-  if(!/fill="none"/i.test(logo) || /<rect[^>]+fill="(?:#fff|white)"/i.test(logo)) errors.push('transparent logo asset does not appear to use a transparent canvas');
+  if(!/viewBox="0 0 480 160"/i.test(logo)) errors.push('approved horizontal logo viewBox changed');
+  if(!/fill="none"/i.test(logo) || /<rect[^>]+fill="(?:#fff|white)"/i.test(logo)) errors.push('approved horizontal logo does not preserve its transparent canvas');
+  if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved horizontal logo artwork payload missing');
+  if(/<text\b|linearGradient\s+id="gold"/i.test(logo)) errors.push('hand-built approximation detected in approved horizontal logo');
 }
+if(!fs.existsSync(emblemLogo)) errors.push('approved emblem asset missing');
+else {
+  const logo=fs.readFileSync(emblemLogo,'utf8');
+  if(!/viewBox="0 0 160 160"/i.test(logo)) errors.push('approved emblem viewBox changed');
+  if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved emblem artwork payload missing');
+}
+
+function assertContainerLogo(text,rel,className){
+  const re=new RegExp('<[^>]+class="[^"]*\\b'+className+'\\b[^"]*"[^>]*>[\\s\\S]{0,1200}?<img[^>]+src="([^"]+)"','gi');
+  for(const match of text.matchAll(re)){
+    if(!match[1].includes(approvedHorizontalName)) errors.push(rel+': '+className+' uses unapproved logo '+match[1]);
+  }
+}
+
 for(const file of htmlFiles){
   const text=fs.readFileSync(file,'utf8');
-  if(text.includes('wild-ones-horizontal-approved.webp')) errors.push(path.relative(root,file)+': opaque legacy logo reference found');
+  const rel=path.relative(root,file).replaceAll('\\\\','/');
+  if(text.includes('wild-ones-horizontal-approved.webp')) errors.push(rel+': opaque legacy logo reference found');
+  for(const className of ['brand-lockup','footer-brand','brand-panel','packet-cover','packet-lock','qd-brand']){
+    assertContainerLogo(text,rel,className);
+  }
+  for(const match of text.matchAll(/<img[^>]+class="[^"]*\berror-brand-lockup\b[^"]*"[^>]+src="([^"]+)"/gi)){
+    if(!match[1].includes(approvedHorizontalName)) errors.push(rel+': error-brand-lockup uses unapproved logo '+match[1]);
+  }
+  for(const match of text.matchAll(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/gi)){
+    if(!match[1].includes(approvedEmblemName)) errors.push(rel+': favicon uses unapproved emblem '+match[1]);
+  }
 }
 
 const config=fs.readFileSync('netlify.toml','utf8');
