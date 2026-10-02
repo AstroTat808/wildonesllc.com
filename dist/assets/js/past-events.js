@@ -3,7 +3,8 @@
     galleries: [...document.querySelectorAll('[data-event-gallery]')],
     artists: [...document.querySelectorAll('[data-event-artists]')],
     flyers: [...document.querySelectorAll('[data-event-flyers]')],
-    memorabilia: [...document.querySelectorAll('[data-event-memorabilia]')]
+    memorabilia: [...document.querySelectorAll('[data-event-memorabilia]')],
+    stories: [...document.querySelectorAll('[data-event-story]')]
   };
   if (!Object.values(roots).some((list) => list.length)) return;
 
@@ -63,6 +64,37 @@
     });
     root.replaceChildren(grid);
     root.dataset.archiveReady = 'true';
+  };
+
+  const renderStory = (root, photos) => {
+    if (!Array.isArray(photos) || photos.length === 0) return emptyState(root, 'gallery');
+    const sorted = [...photos].sort((a,b) => {
+      const at = Date.parse(a.capturedAt || '') || Number.MAX_SAFE_INTEGER;
+      const bt = Date.parse(b.capturedAt || '') || Number.MAX_SAFE_INTEGER;
+      return at - bt;
+    });
+    const timeline = document.createElement('div');
+    timeline.className = 'groove-photo-story';
+    sorted.forEach((photo,index) => {
+      const article = document.createElement('article');
+      article.className = 'groove-photo-story-item';
+      const meta = document.createElement('div');
+      meta.className = 'groove-photo-story-meta';
+      const date = document.createElement('strong');
+      date.textContent = photo.displayDate || photo.caption || ('Photo '+(index+1));
+      const time = document.createElement('span');
+      time.textContent = photo.displayTime || '';
+      meta.append(date,time);
+      const figure = document.createElement('figure');
+      figure.append(mediaButton(photo,index,'story photo'));
+      const caption = document.createElement('figcaption');
+      caption.textContent = photo.caption || '';
+      figure.append(caption);
+      article.append(meta,figure);
+      timeline.append(article);
+    });
+    root.replaceChildren(timeline);
+    root.dataset.archiveReady='true';
   };
 
   const renderArtists = (root, artists) => {
@@ -138,12 +170,14 @@
       roots.artists.forEach((root) => renderArtists(root, manifest?.events?.[root.getAttribute('data-event-artists')]?.artists || []));
       roots.flyers.forEach((root) => renderFlyers(root, manifest?.events?.[root.getAttribute('data-event-flyers')]?.flyers || []));
       roots.memorabilia.forEach((root) => renderMemorabilia(root, manifest?.events?.[root.getAttribute('data-event-memorabilia')]?.memorabilia || []));
+      roots.stories.forEach((root) => renderStory(root, manifest?.events?.[root.getAttribute('data-event-story')]?.photos || []));
     })
     .catch(() => {
       roots.galleries.forEach((root)=>emptyState(root,'gallery'));
       roots.artists.forEach((root)=>emptyState(root,'artists'));
       roots.flyers.forEach((root)=>emptyState(root,'flyers'));
       roots.memorabilia.forEach((root)=>emptyState(root,'memorabilia'));
+      roots.stories.forEach((root)=>emptyState(root,'gallery'));
     });
 
   document.addEventListener('click', (event) => {
