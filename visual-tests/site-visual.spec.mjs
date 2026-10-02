@@ -98,6 +98,7 @@ test('luxury visual QA across every public and operational page',async({page})=>
           }
         }
 
+        let headerLogoMetrics=null;
         const headerLogo=document.querySelector('.brand-lockup img');
         if(headerLogo&&visible(headerLogo)){
           const r=headerLogo.getBoundingClientRect();
@@ -107,10 +108,12 @@ test('luxury visual QA across every public and operational page',async({page})=>
           if(r.width<minWidth) failures.push('navbar logo undersized: '+Math.round(r.width)+'px < '+minWidth+'px');
           if(r.left<-1||r.right>width+1) failures.push('navbar logo exceeds viewport');
           if(header&&(r.top<header.top-1||r.bottom>header.bottom+1)) failures.push('navbar logo clipped by header');
+          let centerDelta=null;
           if(navbar){
-            const centerDelta=Math.abs((r.top+r.height/2)-(navbar.top+navbar.height/2));
+            centerDelta=Math.abs((r.top+r.height/2)-(navbar.top+navbar.height/2));
             if(centerDelta>2) failures.push('navbar logo vertically misaligned by '+centerDelta.toFixed(1)+'px');
           }
+          headerLogoMetrics={width:Number(r.width.toFixed(1)),height:Number(r.height.toFixed(1)),centerDelta:centerDelta===null?null:Number(centerDelta.toFixed(1)),src:headerLogo.getAttribute('src')||''};
         }
 
         const interactive=[...document.querySelectorAll('a,button,input,select,textarea,summary')].filter(visible);
@@ -161,12 +164,13 @@ test('luxury visual QA across every public and operational page',async({page})=>
           if(Number.isFinite(lh)&&Number.isFinite(fs)&&lh/fs<.85) warns.push('tight heading line-height: '+h.textContent.trim().slice(0,50));
         }
 
-        return {failures,warns,overflow,logos:logos.length,interactive:interactive.length};
+        return {failures,warns,overflow,logos:logos.length,interactive:interactive.length,headerLogo:headerLogoMetrics};
       },{mobile:vp.mobile,width:vp.width});
 
       for(const issue of audit.failures) hard.push(vp.name+' '+route+' | '+issue);
       for(const issue of audit.warns) warnings.push(vp.name+' '+route+' | '+issue);
       records.push({viewport:vp.name,route,status:response?.status()||0,...audit});
+      if(route==='/'&&audit.headerLogo) console.log('BRAND_QA '+vp.name+' '+JSON.stringify(audit.headerLogo));
 
       await page.screenshot({path:path.join(shotDir,slug(route)+'.png'),fullPage:true,animations:'disabled'});
     }
