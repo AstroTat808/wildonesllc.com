@@ -175,7 +175,7 @@ test('past events timeline connects 2022 history to NOCTURNE 2026',async({page})
   await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
   await expect(page.locator('[data-event-gallery="nocturne-2026"] .event-gallery-item')).toHaveCount(6);
   await expect(page.locator('[data-event-gallery="bass-babes-recruitment-2022"] .event-gallery-empty')).toBeVisible();
-  await expect(page.locator('[data-event-gallery="groove-cruise-2022"] .event-gallery-empty')).toBeVisible();
+  await expect(page.locator('[data-event-gallery="groove-cruise-2022"] .event-gallery-item')).toHaveCount(1);
   await expect(page.locator('[data-event-gallery="wild-ones-takes-flight-2022"] .event-gallery-empty')).toBeVisible();
 });
 
@@ -195,16 +195,17 @@ test('past event photo lightbox opens and restores focus',async({page})=>{
 
 test('historical event detail pages expose archive sections',async({page})=>{
   const routes=[
-    ['/bass-babes-recruitment-2022.html','Bass Babes Recruitment Event'],
-    ['/groove-cruise-2022.html','Wild Ones & Bass Babes Take a Groove Cruise'],
-    ['/wild-ones-takes-flight-2022.html','Wild Ones Takes Flight Event featuring Bass Babes']
+    ['/bass-babes-recruitment-2022.html','Bass Babes Recruitment Event',false],
+    ['/groove-cruise-2022.html','Wild Ones & Bass Babes Take a Groove Cruise',true],
+    ['/wild-ones-takes-flight-2022.html','Wild Ones Takes Flight Event featuring Bass Babes',false]
   ];
-  for(const [route,title] of routes){
+  for(const [route,title,hasPhotos] of routes){
     await page.goto(route,{waitUntil:'networkidle'});
     await expect(page.locator('h1')).toContainText(title);
     await expect(page.locator('[data-event-artists] .archive-empty')).toBeVisible();
     await expect(page.locator('[data-event-flyers] .archive-empty')).toBeVisible();
-    await expect(page.locator('[data-event-gallery] .archive-empty')).toBeVisible();
+    if(hasPhotos) await expect(page.locator('[data-event-gallery] .event-gallery-item')).toHaveCount(1);
+    else await expect(page.locator('[data-event-gallery] .archive-empty')).toBeVisible();
     await expect(page.locator('[data-event-memorabilia] .archive-empty')).toBeVisible();
   }
 });
