@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const root=path.resolve('dist');
 const htmlFiles=fs.readdirSync(root,{recursive:true})
@@ -38,11 +39,15 @@ for(const rel of ['index.html','about.html','site-map.html','production.html','e
 
 const approvedHorizontalName='wild-ones-horizontal-transparent.svg';
 const approvedEmblemName='wild-ones-emblem-approved.svg';
+const approvedHorizontalBlobSha='7a295a5e079ef62a95e1e26b3ced14f1a6dcc84f';
+const approvedEmblemBlobSha='da7054ac7e2fde3f0929157da60b71f19940b931';
+const gitBlobSha=(text)=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
 const transparentLogo=path.join(root,'assets/brand',approvedHorizontalName);
 const emblemLogo=path.join(root,'assets/brand',approvedEmblemName);
 if(!fs.existsSync(transparentLogo)) errors.push('approved horizontal logo asset missing');
 else {
   const logo=fs.readFileSync(transparentLogo,'utf8');
+  if(gitBlobSha(logo)!==approvedHorizontalBlobSha) errors.push('approved horizontal logo bytes changed');
   if(!/viewBox="0 0 480 160"/i.test(logo)) errors.push('approved horizontal logo viewBox changed');
   if(!/fill="none"/i.test(logo) || /<rect[^>]+fill="(?:#fff|white)"/i.test(logo)) errors.push('approved horizontal logo does not preserve its transparent canvas');
   if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved horizontal logo artwork payload missing');
@@ -51,6 +56,7 @@ else {
 if(!fs.existsSync(emblemLogo)) errors.push('approved emblem asset missing');
 else {
   const logo=fs.readFileSync(emblemLogo,'utf8');
+  if(gitBlobSha(logo)!==approvedEmblemBlobSha) errors.push('approved emblem bytes changed');
   if(!/viewBox="0 0 160 160"/i.test(logo)) errors.push('approved emblem viewBox changed');
   if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved emblem artwork payload missing');
 }
