@@ -219,3 +219,13 @@ test('past events timeline provides cinematic evolution with reduced-motion-safe
   await expect(page.locator('a[href="groove-cruise-2022.html"]')).toBeVisible();
   await expect(page.locator('a[href="wild-ones-takes-flight-2022.html"]')).toBeVisible();
 });
+
+
+test('Groove Cruise hero uses uploaded October 23 archive photo and chronological story',async({page})=>{
+  await page.goto('/groove-cruise-2022.html',{waitUntil:'networkidle'});
+  const hero=page.locator('.groove-cruise-hero-photo img');
+  await expect(hero).toHaveAttribute('src','assets/past-events/groove-cruise-2022/groove-cruise-bass-babes-2022-10-23.webp');
+  await expect(page.locator('[data-event-story="groove-cruise-2022"] .groove-photo-story-item')).toHaveCount(1);
+  await expect(page.getByText('October 23, 2022',{exact:true}).first()).toBeVisible();
+  await expect(page.getByText('10:36 AM',{exact:true}).first()).toBeVisible();
+});
