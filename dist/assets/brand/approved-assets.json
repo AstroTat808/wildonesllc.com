@@ -1,0 +1,20 @@
+{
+  "brand": "Wild Ones LLC",
+  "approved": {
+    "horizontal": {
+      "path": "/assets/brand/wild-ones-horizontal-transparent.svg",
+      "gitBlobSha": "7a295a5e079ef62a95e1e26b3ced14f1a6dcc84f",
+      "usage": ["navbar", "desktop footer", "wide lockups"]
+    },
+    "stacked": {
+      "path": "/assets/brand/wild-ones-stacked-approved.svg",
+      "gitBlobSha": "6362a3a4263e38fd64edf6fac849db45693b968e",
+      "usage": ["mobile footer", "brand panels", "document covers"]
+    },
+    "emblem": {
+      "path": "/assets/brand/wild-ones-emblem-approved.svg",
+      "gitBlobSha": "da7054ac7e2fde3f0929157da60b71f19940b931",
+      "usage": ["favicon", "PWA icon", "Apple touch icon", "mask icon", "very narrow navbar"]
+    }
+  }
+}
