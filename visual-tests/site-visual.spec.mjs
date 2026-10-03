@@ -72,10 +72,16 @@ test('luxury visual QA across every public and operational page',async({page})=>
           .map((img)=>img.getAttribute('src')||'(unknown)');
         if(broken.length) failures.push('broken images: '+broken.join(', '));
 
+        const approvedLogoNames=['wild-ones-horizontal-transparent.svg','wild-ones-stacked-approved.svg','wild-ones-emblem-approved.svg'];
+        const selectedLogoName=(logo)=>{
+          const src=logo.currentSrc||logo.getAttribute('src')||'';
+          return approvedLogoNames.find((name)=>src.includes(name))||'';
+        };
         const logos=[...document.querySelectorAll('.brand-lockup img,.footer-brand img,.brand-panel img,.error-brand-lockup,.packet-cover img,.packet-lock img,.qd-brand img')].filter(visible);
         for(const logo of logos){
-          const src=logo.getAttribute('src')||'';
-          if(!src.includes('wild-ones-horizontal-transparent.svg')) failures.push('unapproved visible logo source: '+src);
+          const selected=selectedLogoName(logo);
+          const src=logo.currentSrc||logo.getAttribute('src')||'';
+          if(!selected) failures.push('unapproved visible logo source: '+src);
           const s=getComputedStyle(logo);
           const r=logo.getBoundingClientRect();
           if(s.backgroundColor!=='rgba(0, 0, 0, 0)'&&s.backgroundColor!=='transparent') failures.push('logo has rendered background '+s.backgroundColor);
@@ -84,6 +90,23 @@ test('luxury visual QA across every public and operational page',async({page})=>
           if(s.objectFit!=='contain') failures.push('logo object-fit is not contain: '+s.objectFit);
           if(!logo.naturalWidth||!logo.naturalHeight) failures.push('logo has no intrinsic dimensions: '+src);
           if(parseFloat(s.width)<=0||parseFloat(s.height)<=0) failures.push('logo has invalid rendered dimensions: '+src);
+
+          if(logo.closest('.brand-lockup')){
+            const expected=width<=340?'wild-ones-emblem-approved.svg':'wild-ones-horizontal-transparent.svg';
+            if(selected!==expected) failures.push('navbar selected wrong responsive logo: '+selected+' expected '+expected);
+          }
+          if(logo.closest('.footer-brand')){
+            const expected=width<=700?'wild-ones-stacked-approved.svg':'wild-ones-horizontal-transparent.svg';
+            if(selected!==expected) failures.push('footer selected wrong responsive logo: '+selected+' expected '+expected);
+          }
+          if(logo.closest('.brand-panel')&&selected!=='wild-ones-stacked-approved.svg') failures.push('brand panel must use stacked logo');
+          if(logo.closest('.packet-cover')&&selected!=='wild-ones-stacked-approved.svg') failures.push('packet cover must use stacked logo');
+          if(logo.classList.contains('error-brand-lockup')&&selected!=='wild-ones-emblem-approved.svg') failures.push('404 must use emblem');
+          if(logo.closest('.qd-brand')){
+            const expected=width<=360?'wild-ones-emblem-approved.svg':'wild-ones-horizontal-transparent.svg';
+            if(selected!==expected) failures.push('quality dashboard selected wrong responsive logo: '+selected+' expected '+expected);
+          }
+
           let ancestor=logo.parentElement;
           while(ancestor&&ancestor!==document.body){
             const aStyle=getComputedStyle(ancestor);
@@ -104,7 +127,7 @@ test('luxury visual QA across every public and operational page',async({page})=>
           const r=headerLogo.getBoundingClientRect();
           const header=document.querySelector('.site-header')?.getBoundingClientRect();
           const navbar=document.querySelector('.navbar')?.getBoundingClientRect();
-          const minWidth=width>=1200?240:width>=1000?215:width>700?205:width>430?175:width>340?165:145;
+          const minWidth=width>=1200?240:width>=1000?215:width>700?205:width>430?175:width>340?165:52;
           if(r.width<minWidth) failures.push('navbar logo undersized: '+Math.round(r.width)+'px < '+minWidth+'px');
           if(r.left<-1||r.right>width+1) failures.push('navbar logo exceeds viewport');
           if(header&&(r.top<header.top-1||r.bottom>header.bottom+1)) failures.push('navbar logo clipped by header');
@@ -113,7 +136,7 @@ test('luxury visual QA across every public and operational page',async({page})=>
             centerDelta=Math.abs((r.top+r.height/2)-(navbar.top+navbar.height/2));
             if(centerDelta>2) failures.push('navbar logo vertically misaligned by '+centerDelta.toFixed(1)+'px');
           }
-          headerLogoMetrics={width:Number(r.width.toFixed(1)),height:Number(r.height.toFixed(1)),centerDelta:centerDelta===null?null:Number(centerDelta.toFixed(1)),src:headerLogo.getAttribute('src')||''};
+          headerLogoMetrics={width:Number(r.width.toFixed(1)),height:Number(r.height.toFixed(1)),centerDelta:centerDelta===null?null:Number(centerDelta.toFixed(1)),src:headerLogo.currentSrc||headerLogo.getAttribute('src')||''};
         }
 
         const interactive=[...document.querySelectorAll('a,button,input,select,textarea,summary')].filter(visible);

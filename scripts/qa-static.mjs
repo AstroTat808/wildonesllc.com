@@ -38,11 +38,15 @@ for(const rel of ['index.html','about.html','site-map.html','production.html','e
 }
 
 const approvedHorizontalName='wild-ones-horizontal-transparent.svg';
+const approvedStackedName='wild-ones-stacked-approved.svg';
 const approvedEmblemName='wild-ones-emblem-approved.svg';
 const approvedHorizontalBlobSha='7a295a5e079ef62a95e1e26b3ced14f1a6dcc84f';
+const approvedStackedBlobSha='6362a3a4263e38fd64edf6fac849db45693b968e';
 const approvedEmblemBlobSha='da7054ac7e2fde3f0929157da60b71f19940b931';
+const approvedBrandNames=new Set([approvedHorizontalName,approvedStackedName,approvedEmblemName]);
 const gitBlobSha=(text)=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
 const transparentLogo=path.join(root,'assets/brand',approvedHorizontalName);
+const stackedLogo=path.join(root,'assets/brand',approvedStackedName);
 const emblemLogo=path.join(root,'assets/brand',approvedEmblemName);
 if(!fs.existsSync(transparentLogo)) errors.push('approved horizontal logo asset missing');
 else {
@@ -53,6 +57,14 @@ else {
   if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved horizontal logo artwork payload missing');
   if(/<text\b|linearGradient\s+id="gold"/i.test(logo)) errors.push('hand-built approximation detected in approved horizontal logo');
 }
+if(!fs.existsSync(stackedLogo)) errors.push('approved stacked logo asset missing');
+else {
+  const logo=fs.readFileSync(stackedLogo,'utf8');
+  if(gitBlobSha(logo)!==approvedStackedBlobSha) errors.push('approved stacked logo bytes changed');
+  if(!/viewBox="0 0 640 760"/i.test(logo)) errors.push('approved stacked logo viewBox changed');
+  if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved stacked logo artwork payload missing');
+  if(/<text\b|linearGradient\s+id="gold"/i.test(logo)) errors.push('hand-built approximation detected in approved stacked logo');
+}
 if(!fs.existsSync(emblemLogo)) errors.push('approved emblem asset missing');
 else {
   const logo=fs.readFileSync(emblemLogo,'utf8');
@@ -61,25 +73,105 @@ else {
   if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved emblem artwork payload missing');
 }
 
-function assertContainerLogo(text,rel,className){
-  const re=new RegExp('<[^>]+class="[^"]*\\b'+className+'\\b[^"]*"[^>]*>[\\s\\S]{0,1200}?<img[^>]+src="([^"]+)"','gi');
+function assertContainerLogo(text,rel,className,allowedNames){
+  const re=new RegExp('<[^>]+class="[^"]*\\b'+className+'\\b[^"]*"[^>]*>[\\s\\S]{0,1600}?<img[^>]+src="([^"]+)"','gi');
   for(const match of text.matchAll(re)){
-    if(!match[1].includes(approvedHorizontalName)) errors.push(rel+': '+className+' uses unapproved logo '+match[1]);
+    if(!allowedNames.some((name)=>match[1].includes(name))) errors.push(rel+': '+className+' uses unapproved logo '+match[1]);
   }
 }
 
 for(const file of htmlFiles){
   const text=fs.readFileSync(file,'utf8');
   const rel=path.relative(root,file).replaceAll('\\','/');
-  if(text.includes('wild-ones-horizontal-approved.webp')) errors.push(rel+': opaque legacy logo reference found');
-  for(const className of ['brand-lockup','footer-brand','brand-panel','packet-cover','packet-lock','qd-brand']){
-    assertContainerLogo(text,rel,className);
+
+  for(const match of text.matchAll(/(?:src|srcset|href)="([^"]*assets\/brand\/wild-ones-[^"]+)"/gi)){
+    const fileName=match[1].split('/').pop().split('?')[0];
+    if(!approvedBrandNames.has(fileName)) errors.push(rel+': unapproved Wild Ones brand asset reference '+match[1]);
   }
+
+  assertContainerLogo(text,rel,'brand-lockup',[approvedHorizontalName]);
+  assertContainerLogo(text,rel,'footer-brand',[approvedHorizontalName]);
+  assertContainerLogo(text,rel,'brand-panel',[approvedStackedName]);
+  assertContainerLogo(text,rel,'packet-cover',[approvedStackedName]);
+  assertContainerLogo(text,rel,'packet-lock',[approvedHorizontalName,approvedStackedName]);
+  assertContainerLogo(text,rel,'qd-brand',[approvedHorizontalName]);
+
   for(const match of text.matchAll(/<img[^>]+class="[^"]*\berror-brand-lockup\b[^"]*"[^>]+src="([^"]+)"/gi)){
-    if(!match[1].includes(approvedHorizontalName)) errors.push(rel+': error-brand-lockup uses unapproved logo '+match[1]);
+    if(!match[1].includes(approvedEmblemName)) errors.push(rel+': error-brand-lockup does not use approved emblem '+match[1]);
   }
-  for(const match of text.matchAll(/<link[^>]+rel="icon"[^>]+href="([^"]+)"/gi)){
-    if(!match[1].includes(approvedEmblemName)) errors.push(rel+': favicon uses unapproved emblem '+match[1]);
+
+  for(const match of text.matchAll(/<source[^>]+srcset="([^"]*assets\/brand\/wild-ones-[^"]+)"/gi)){
+    const fileName=match[1].split('/').pop().split('?')[0];
+    if(!approvedBrandNames.has(fileName)) errors.push(rel+': responsive source uses unapproved logo '+match[1]);
+  }
+
+  const iconChecks=[
+    ['icon',approvedEmblemName],
+    ['apple-touch-icon',approvedEmblemName],
+    ['mask-icon',approvedEmblemName],
+    ['manifest','site.webmanifest']
+  ];
+  for(const [relName,required] of iconChecks){
+    const re=new RegExp('<link[^>]+rel="'+relName+'"[^>]+href="([^"]+)"','i');
+    const match=text.match(re);
+    if(!match) errors.push(rel+': missing '+relName+' brand hook');
+    else if(!match[1].includes(required)) errors.push(rel+': '+relName+' uses unexpected asset '+match[1]);
+  }
+  if(!/<meta[^>]+name="theme-color"[^>]+content="#050505"/i.test(text)) errors.push(rel+': theme color missing or changed');
+
+  const noindex=/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(text);
+  const canonical=(text.match(/<link\s+rel="canonical"\s+href="([^"]+)"/i)||[])[1];
+  if(canonical&&!noindex){
+    for(const marker of ['og:type','og:site_name','og:title','og:description','og:url','og:image','og:image:alt']){
+      if(!new RegExp('<meta[^>]+property="'+marker+'"','i').test(text)) errors.push(rel+': missing '+marker);
+    }
+    for(const marker of ['twitter:card','twitter:title','twitter:description','twitter:image']){
+      if(!new RegExp('<meta[^>]+name="'+marker+'"','i').test(text)) errors.push(rel+': missing '+marker);
+    }
+    for(const match of text.matchAll(/<meta[^>]+(?:property="og:image"|name="twitter:image")[^>]+content="([^"]+)"/gi)){
+      if(!match[1].startsWith('https://wildonesllc.com/')) errors.push(rel+': social image must be first-party '+match[1]);
+      const local=match[1].replace('https://wildonesllc.com/','');
+      if(!fs.existsSync(path.join(root,local))) errors.push(rel+': social image does not resolve '+match[1]);
+      if(/assets\/brand\//i.test(local)){
+        const fileName=local.split('/').pop().split('?')[0];
+        if(!approvedBrandNames.has(fileName)) errors.push(rel+': social image uses unapproved brand asset '+match[1]);
+      }
+    }
+  }
+}
+
+const manifestPath=path.join(root,'site.webmanifest');
+if(!fs.existsSync(manifestPath)) errors.push('site.webmanifest missing');
+else {
+  const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+  if(manifest.name!=='Wild Ones LLC') errors.push('site.webmanifest: unexpected app name');
+  const icons=Array.isArray(manifest.icons)?manifest.icons:[];
+  if(!icons.length) errors.push('site.webmanifest: icons missing');
+  for(const icon of icons){
+    if(!String(icon.src||'').includes(approvedEmblemName)) errors.push('site.webmanifest: unapproved icon '+String(icon.src||''));
+  }
+}
+
+const approvedAssetsPath=path.join(root,'assets/brand/approved-assets.json');
+if(!fs.existsSync(approvedAssetsPath)) errors.push('approved brand asset registry missing');
+
+const brandDir=path.join(root,'assets/brand');
+const allowedBrandFiles=new Set([
+  approvedHorizontalName,
+  approvedStackedName,
+  approvedEmblemName,
+  'wild-ones-horizontal-approved.webp',
+  'approved-assets.json'
+]);
+if(fs.existsSync(brandDir)){
+  for(const entry of fs.readdirSync(brandDir)){
+    if(/wild-ones|logo|emblem/i.test(entry)&&!allowedBrandFiles.has(entry)) errors.push('unapproved brand file remains in assets/brand: '+entry);
+  }
+}
+for(const file of htmlFiles){
+  const text=fs.readFileSync(file,'utf8');
+  for(const match of text.matchAll(/\/assets\/brand\/(wild-ones-[A-Za-z0-9._-]+)/g)){
+    if(!allowedBrandFiles.has(match[1])) errors.push(path.relative(root,file)+': unapproved brand reference outside markup '+match[1]);
   }
 }
 
@@ -97,6 +189,22 @@ const sourceFiles=['dist','netlify','scripts','.github'].flatMap((base)=>{
 for(const file of sourceFiles){
   const text=fs.readFileSync(file,'utf8');
   if(text.includes(['WILD','350'].join(''))) errors.push(file+': obsolete shared producer access code found');
+
+  for(const match of text.matchAll(/(?:src|srcset|href|content)=(?:["'])([^"']*assets\/brand\/wild-ones-[^"']+)(?:["'])/gi)){
+    const fileName=match[1].split('/').pop().split('?')[0];
+    if(!allowedBrandFiles.has(fileName)) errors.push(path.relative('.',file)+': unapproved Wild Ones brand reference '+match[1]);
+  }
+  if(/favicon(?:-\d+x\d+)?\.(?:ico|png)|apple-touch-icon|browserconfig|site\.webmanifest/i.test(text)){
+    for(const match of text.matchAll(/(?:src|srcset|href|content)=(?:["'])([^"']+)(?:["'])/gi)){
+      const value=match[1];
+      if(/favicon|apple-touch-icon|assets\/brand\/wild-ones-/i.test(value)){
+        const local=value.replace(/^https:\/\/wildonesllc\.com\//,'').replace(/^\//,'');
+        if(local && !local.startsWith('assets/brand/') && local!=='site.webmanifest'){
+          warnings.push(path.relative('.',file)+': nonstandard browser-brand reference '+value);
+        }
+      }
+    }
+  }
 }
 
 const book=fs.readFileSync(path.join(root,'book.html'),'utf8');

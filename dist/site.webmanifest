@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Wild Ones LLC",
+  "short_name": "Wild Ones",
+  "description": "Hawaiʻi Island production grounds for concerts, EDM events, festivals, retreats and large-format experiences.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/assets/brand/wild-ones-emblem-approved.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
