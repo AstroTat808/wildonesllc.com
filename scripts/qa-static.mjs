@@ -189,6 +189,22 @@ const sourceFiles=['dist','netlify','scripts','.github'].flatMap((base)=>{
 for(const file of sourceFiles){
   const text=fs.readFileSync(file,'utf8');
   if(text.includes(['WILD','350'].join(''))) errors.push(file+': obsolete shared producer access code found');
+
+  for(const match of text.matchAll(/(?:src|srcset|href|content)=(?:["'])([^"']*assets\/brand\/wild-ones-[^"']+)(?:["'])/gi)){
+    const fileName=match[1].split('/').pop().split('?')[0];
+    if(!allowedBrandFiles.has(fileName)) errors.push(path.relative('.',file)+': unapproved Wild Ones brand reference '+match[1]);
+  }
+  if(/favicon(?:-\d+x\d+)?\.(?:ico|png)|apple-touch-icon|browserconfig|site\.webmanifest/i.test(text)){
+    for(const match of text.matchAll(/(?:src|srcset|href|content)=(?:["'])([^"']+)(?:["'])/gi)){
+      const value=match[1];
+      if(/favicon|apple-touch-icon|assets\/brand\/wild-ones-/i.test(value)){
+        const local=value.replace(/^https:\/\/wildonesllc\.com\//,'').replace(/^\//,'');
+        if(local && !local.startsWith('assets/brand/') && local!=='site.webmanifest'){
+          warnings.push(path.relative('.',file)+': nonstandard browser-brand reference '+value);
+        }
+      }
+    }
+  }
 }
 
 const book=fs.readFileSync(path.join(root,'book.html'),'utf8');
