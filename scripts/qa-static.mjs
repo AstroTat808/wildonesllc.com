@@ -155,6 +155,26 @@ else {
 const approvedAssetsPath=path.join(root,'assets/brand/approved-assets.json');
 if(!fs.existsSync(approvedAssetsPath)) errors.push('approved brand asset registry missing');
 
+const brandDir=path.join(root,'assets/brand');
+const allowedBrandFiles=new Set([
+  approvedHorizontalName,
+  approvedStackedName,
+  approvedEmblemName,
+  'wild-ones-horizontal-approved.webp',
+  'approved-assets.json'
+]);
+if(fs.existsSync(brandDir)){
+  for(const entry of fs.readdirSync(brandDir)){
+    if(/wild-ones|logo|emblem/i.test(entry)&&!allowedBrandFiles.has(entry)) errors.push('unapproved brand file remains in assets/brand: '+entry);
+  }
+}
+for(const file of htmlFiles){
+  const text=fs.readFileSync(file,'utf8');
+  for(const match of text.matchAll(/\/assets\/brand\/(wild-ones-[A-Za-z0-9._-]+)/g)){
+    if(!allowedBrandFiles.has(match[1])) errors.push(path.relative(root,file)+': unapproved brand reference outside markup '+match[1]);
+  }
+}
+
 const config=fs.readFileSync('netlify.toml','utf8');
 for(const requiredSetting of ['Content-Security-Policy','/technical-packet.html','producer-access']){
   if(!config.includes(requiredSetting)) warnings.push('netlify.toml does not mention '+requiredSetting);
