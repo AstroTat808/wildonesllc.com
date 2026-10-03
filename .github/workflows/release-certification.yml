@@ -91,29 +91,65 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
-          BASELINE_RUN_ID="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/release-certification.yml/runs?branch=main&status=success&event=push&per_page=20" --jq '.workflow_runs[0].id')"
-          test -n "$BASELINE_RUN_ID"
-          ARTIFACTS="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${BASELINE_RUN_ID}/artifacts?per_page=100")"
-          LEGACY_NAME="wild-ones-visual-qa-${BASELINE_RUN_ID}"
-          ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r '.artifacts[] | select(.name=="wild-ones-visual-baseline") | .id' | head -n 1)"
+          set -u
+          BASELINE_RUN_ID="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/release-certification.yml/runs?branch=main&status=success&event=push&per_page=20" --jq '.workflow_runs[0].id' 2>/dev/null || true)"
+          ARTIFACT_ID=""
           BASELINE_IS_LEGACY=false
-          if [ -z "$ARTIFACT_ID" ]; then
-            ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r --arg legacy "$LEGACY_NAME" '.artifacts[] | select(.name==$legacy) | .id' | head -n 1)"
-            BASELINE_IS_LEGACY=true
+          if [ -n "$BASELINE_RUN_ID" ]; then
+            ARTIFACTS="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${BASELINE_RUN_ID}/artifacts?per_page=100" 2>/dev/null || printf '{"artifacts":[]}')"
+            LEGACY_NAME="wild-ones-visual-qa-${BASELINE_RUN_ID}"
+            ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r '.artifacts[] | select(.name=="wild-ones-visual-baseline") | .id' | head -n 1)"
+            if [ -z "$ARTIFACT_ID" ]; then
+              ARTIFACT_ID="$(printf '%s' "$ARTIFACTS" | jq -r --arg legacy "$LEGACY_NAME" '.artifacts[] | select(.name==$legacy) | .id' | head -n 1)"
+              if [ -n "$ARTIFACT_ID" ]; then BASELINE_IS_LEGACY=true; fi
+            fi
           fi
-          test -n "$ARTIFACT_ID"
           echo "BASELINE_RUN_ID=$BASELINE_RUN_ID" >> "$GITHUB_ENV"
           echo "BASELINE_IS_LEGACY=$BASELINE_IS_LEGACY" >> "$GITHUB_ENV"
-          curl -L --fail --silent --show-error             -H "Authorization: Bearer ${GH_TOKEN}"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip"             -o /tmp/wild-ones-visual-baseline.zip
-          rm -rf visual-baseline
-          mkdir -p visual-baseline
-          unzip -q /tmp/wild-ones-visual-baseline.zip -d visual-baseline
-          if [ -d visual-baseline/screenshots ]; then
-            echo "BASELINE_DIR=visual-baseline/screenshots" >> "$GITHUB_ENV"
-          else
-            echo "BASELINE_DIR=visual-baseline" >> "$GITHUB_ENV"
+          if [ -n "$ARTIFACT_ID" ]; then
+            if curl -L --fail --silent --show-error \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip" \
+              -o /tmp/wild-ones-visual-baseline.zip; then
+              rm -rf visual-baseline
+              mkdir -p visual-baseline
+              unzip -q /tmp/wild-ones-visual-baseline.zip -d visual-baseline
+              if [ -d visual-baseline/screenshots ]; then
+                echo "BASELINE_DIR=visual-baseline/screenshots" >> "$GITHUB_ENV"
+              else
+                echo "BASELINE_DIR=visual-baseline" >> "$GITHUB_ENV"
+              fi
+              echo "BASELINE_SOURCE=artifact" >> "$GITHUB_ENV"
+              exit 0
+            fi
           fi
+          echo "No reusable baseline artifact is available; regenerating from the PR base commit."
+          echo "BASELINE_NEEDS_GENERATION=true" >> "$GITHUB_ENV"
+          echo "BASELINE_IS_LEGACY=false" >> "$GITHUB_ENV"
+
+      - name: Regenerate visual baseline from PR base
+        if: github.event_name == 'pull_request' && env.BASELINE_NEEDS_GENERATION == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/wild-ones-main visual-baseline
+          mkdir -p /tmp/wild-ones-main visual-baseline
+          curl -L --fail --silent --show-error \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/tarball/${BASE_SHA}" \
+            -o /tmp/wild-ones-main.tar.gz
+          tar -xzf /tmp/wild-ones-main.tar.gz --strip-components=1 -C /tmp/wild-ones-main
+          ln -s "${GITHUB_WORKSPACE}/node_modules" /tmp/wild-ones-main/node_modules
+          cd /tmp/wild-ones-main
+          "${GITHUB_WORKSPACE}/node_modules/.bin/playwright" test --config=playwright.visual.config.mjs
+          cd "${GITHUB_WORKSPACE}"
+          cp -a /tmp/wild-ones-main/visual-qa/screenshots/. visual-baseline/
+          echo "BASELINE_DIR=visual-baseline" >> "$GITHUB_ENV"
+          echo "BASELINE_SOURCE=regenerated-main" >> "$GITHUB_ENV"
 
       - name: Install visual regression comparator
         if: github.event_name == 'pull_request'

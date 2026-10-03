@@ -72,14 +72,48 @@ test('luxury visual QA across every public and operational page',async({page})=>
           .map((img)=>img.getAttribute('src')||'(unknown)');
         if(broken.length) failures.push('broken images: '+broken.join(', '));
 
-        const logos=[...document.querySelectorAll('.brand-lockup img,.footer-brand img,.brand-panel img,.error-brand-lockup')].filter(visible);
+        const logos=[...document.querySelectorAll('.brand-lockup img,.footer-brand img,.brand-panel img,.error-brand-lockup,.packet-cover img,.packet-lock img,.qd-brand img')].filter(visible);
         for(const logo of logos){
           const src=logo.getAttribute('src')||'';
-          if(!src.includes('wild-ones-horizontal-transparent.svg')) failures.push('non-transparent logo source: '+src);
+          if(!src.includes('wild-ones-horizontal-transparent.svg')) failures.push('unapproved visible logo source: '+src);
           const s=getComputedStyle(logo);
+          const r=logo.getBoundingClientRect();
           if(s.backgroundColor!=='rgba(0, 0, 0, 0)'&&s.backgroundColor!=='transparent') failures.push('logo has rendered background '+s.backgroundColor);
           const borders=[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth].map(parseFloat);
           if(borders.some((v)=>v>.1)) failures.push('logo has visible CSS border');
+          if(s.objectFit!=='contain') failures.push('logo object-fit is not contain: '+s.objectFit);
+          if(!logo.naturalWidth||!logo.naturalHeight) failures.push('logo has no intrinsic dimensions: '+src);
+          if(parseFloat(s.width)<=0||parseFloat(s.height)<=0) failures.push('logo has invalid rendered dimensions: '+src);
+          let ancestor=logo.parentElement;
+          while(ancestor&&ancestor!==document.body){
+            const aStyle=getComputedStyle(ancestor);
+            if(['hidden','clip'].includes(aStyle.overflow)||['hidden','clip'].includes(aStyle.overflowX)||['hidden','clip'].includes(aStyle.overflowY)){
+              const ar=ancestor.getBoundingClientRect();
+              if(r.left<ar.left-1||r.right>ar.right+1||r.top<ar.top-1||r.bottom>ar.bottom+1){
+                failures.push('logo clipped by ancestor: '+(ancestor.className||ancestor.tagName));
+                break;
+              }
+            }
+            ancestor=ancestor.parentElement;
+          }
+        }
+
+        let headerLogoMetrics=null;
+        const headerLogo=document.querySelector('.brand-lockup img');
+        if(headerLogo&&visible(headerLogo)){
+          const r=headerLogo.getBoundingClientRect();
+          const header=document.querySelector('.site-header')?.getBoundingClientRect();
+          const navbar=document.querySelector('.navbar')?.getBoundingClientRect();
+          const minWidth=width>=1200?240:width>=1000?215:width>700?205:width>430?175:width>340?165:145;
+          if(r.width<minWidth) failures.push('navbar logo undersized: '+Math.round(r.width)+'px < '+minWidth+'px');
+          if(r.left<-1||r.right>width+1) failures.push('navbar logo exceeds viewport');
+          if(header&&(r.top<header.top-1||r.bottom>header.bottom+1)) failures.push('navbar logo clipped by header');
+          let centerDelta=null;
+          if(navbar){
+            centerDelta=Math.abs((r.top+r.height/2)-(navbar.top+navbar.height/2));
+            if(centerDelta>2) failures.push('navbar logo vertically misaligned by '+centerDelta.toFixed(1)+'px');
+          }
+          headerLogoMetrics={width:Number(r.width.toFixed(1)),height:Number(r.height.toFixed(1)),centerDelta:centerDelta===null?null:Number(centerDelta.toFixed(1)),src:headerLogo.getAttribute('src')||''};
         }
 
         const interactive=[...document.querySelectorAll('a,button,input,select,textarea,summary')].filter(visible);
@@ -130,12 +164,13 @@ test('luxury visual QA across every public and operational page',async({page})=>
           if(Number.isFinite(lh)&&Number.isFinite(fs)&&lh/fs<.85) warns.push('tight heading line-height: '+h.textContent.trim().slice(0,50));
         }
 
-        return {failures,warns,overflow,logos:logos.length,interactive:interactive.length};
+        return {failures,warns,overflow,logos:logos.length,interactive:interactive.length,headerLogo:headerLogoMetrics};
       },{mobile:vp.mobile,width:vp.width});
 
       for(const issue of audit.failures) hard.push(vp.name+' '+route+' | '+issue);
       for(const issue of audit.warns) warnings.push(vp.name+' '+route+' | '+issue);
       records.push({viewport:vp.name,route,status:response?.status()||0,...audit});
+      if(route==='/'&&audit.headerLogo) console.log('BRAND_QA '+vp.name+' '+JSON.stringify(audit.headerLogo));
 
       await page.screenshot({path:path.join(shotDir,slug(route)+'.png'),fullPage:true,animations:'disabled'});
     }
