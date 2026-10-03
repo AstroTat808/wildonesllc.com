@@ -160,7 +160,15 @@ fs.mkdirSync(path.join(outputRoot,'assets/brand'),{recursive:true});
 fs.copyFileSync('dist/quality-dashboard.html',path.join(outputRoot,'index.html'));
 fs.copyFileSync('dist/assets/css/quality-dashboard.css',path.join(outputRoot,'assets/css/quality-dashboard.css'));
 fs.copyFileSync('dist/assets/js/quality-dashboard.js',path.join(outputRoot,'assets/js/quality-dashboard.js'));
-fs.copyFileSync('dist/assets/brand/wild-ones-horizontal-transparent.svg',path.join(outputRoot,'assets/brand/wild-ones-horizontal-transparent.svg'));
+for(const brandFile of [
+  'wild-ones-horizontal-transparent.svg',
+  'wild-ones-stacked-approved.svg',
+  'wild-ones-emblem-approved.svg',
+  'approved-assets.json'
+]){
+  fs.copyFileSync(path.join('dist','assets','brand',brandFile),path.join(outputRoot,'assets','brand',brandFile));
+}
+fs.copyFileSync('dist/site.webmanifest',path.join(outputRoot,'site.webmanifest'));
 fs.writeFileSync(path.join(outputRoot,'assets/data/site-quality.json'),JSON.stringify(data,null,2)+'\n');
 
 const summary=[
