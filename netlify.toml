@@ -1,5 +1,6 @@
 [build]
   publish = "dist"
+  command = "npm run qa:netlify"
 
 [build.environment]
   NODE_VERSION = "22"

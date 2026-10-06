@@ -40,7 +40,7 @@ jobs:
         with:
           name: wild-ones-static-${{ github.run_id }}
           path: quality-results/static.json
-          retention-days: 30
+          retention-days: 3
           if-no-files-found: ignore
 
   browser-qa:
@@ -64,7 +64,7 @@ jobs:
         with:
           name: wild-ones-playwright-${{ github.run_id }}
           path: test-results/results.json
-          retention-days: 7
+          retention-days: 3
           if-no-files-found: ignore
 
   visual-design-qa:
@@ -186,7 +186,8 @@ jobs:
           path: |
             visual-qa/report.json
             visual-qa/report.md
-          retention-days: 14
+            visual-qa/brand-system.json
+          retention-days: 3
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
@@ -195,17 +196,9 @@ jobs:
         with:
           name: wild-ones-visual-diff-${{ github.run_id }}
           path: visual-diff
-          retention-days: 30
+          retention-days: 3
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
-        continue-on-error: true
-        with:
-          name: wild-ones-visual-baseline
-          path: visual-qa/screenshots
-          retention-days: 30
-          if-no-files-found: error
 
       - name: Enforce visual regression approval
         if: github.event_name == 'pull_request' && steps.visual_regression.outcome == 'failure'
@@ -234,7 +227,7 @@ jobs:
         with:
           name: wild-ones-lighthouse-${{ github.run_id }}
           path: lighthouse-results/*.report.json
-          retention-days: 14
+          retention-days: 3
           if-no-files-found: ignore
 
   quality-dashboard:
@@ -297,7 +290,7 @@ jobs:
         with:
           name: site-quality-dashboard-${{ github.run_id }}
           path: quality-dashboard
-          retention-days: 30
+          retention-days: 3
           if-no-files-found: error
 
   release-certification:

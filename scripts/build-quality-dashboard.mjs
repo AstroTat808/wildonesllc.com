@@ -164,6 +164,7 @@ for(const brandFile of [
   'wild-ones-horizontal-transparent.svg',
   'wild-ones-stacked-approved.svg',
   'wild-ones-emblem-approved.svg',
+  'wild-ones-social-card.svg',
   'approved-assets.json'
 ]){
   fs.copyFileSync(path.join('dist','assets','brand',brandFile),path.join(outputRoot,'assets','brand',brandFile));
