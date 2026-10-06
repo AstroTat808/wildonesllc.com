@@ -4,7 +4,8 @@
     artists: [...document.querySelectorAll('[data-event-artists]')],
     flyers: [...document.querySelectorAll('[data-event-flyers]')],
     memorabilia: [...document.querySelectorAll('[data-event-memorabilia]')],
-    stories: [...document.querySelectorAll('[data-event-story]')]
+    stories: [...document.querySelectorAll('[data-event-story]')],
+    cardMedia: [...document.querySelectorAll('[data-event-card-media]')]
   };
   if (!Object.values(roots).some((list) => list.length)) return;
 
@@ -97,6 +98,44 @@
     root.dataset.archiveReady='true';
   };
 
+  const renderCardMedia = (root, photos) => {
+    const link = document.createElement('a');
+    link.className = 'past-event-card-media-link';
+    link.href = root.getAttribute('data-event-card-link') || '#';
+    const label = root.getAttribute('data-event-card-label') || 'Event archive';
+    const year = root.getAttribute('data-event-card-year') || '';
+
+    if (Array.isArray(photos) && photos.length) {
+      const photo = [...photos].sort((a,b) => {
+        const at = Date.parse(a.capturedAt || '') || Number.MAX_SAFE_INTEGER;
+        const bt = Date.parse(b.capturedAt || '') || Number.MAX_SAFE_INTEGER;
+        return at - bt;
+      })[0];
+      const image = document.createElement('img');
+      image.src = photo.thumb || photo.full || photo.src || '';
+      if (photo.thumb && photo.full && photo.thumb !== photo.full) {
+        image.srcset = photo.thumb+' 900w, '+photo.full+' 1800w';
+        image.sizes = '(max-width: 800px) 100vw, 34vw';
+      }
+      image.alt = photo.alt || (label+' archival photo');
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      const overlay = document.createElement('span');
+      overlay.className = 'past-event-card-media-caption';
+      overlay.innerHTML = '<small>Real archive media</small><strong>'+label+'</strong>';
+      link.append(image,overlay);
+      root.classList.add('has-photo');
+    } else {
+      const empty = document.createElement('span');
+      empty.className = 'past-event-card-media-empty';
+      empty.innerHTML = '<small>Historical media archive</small><strong>'+label+'</strong><em>'+year+'</em><span>Original event photography will appear here when added to the archive.</span>';
+      link.append(empty);
+      root.classList.add('awaiting-photo');
+    }
+    root.replaceChildren(link);
+    root.dataset.archiveReady='true';
+  };
+
   const renderArtists = (root, artists) => {
     if (!Array.isArray(artists) || artists.length === 0) return emptyState(root, 'artists');
     const grid=document.createElement('div');
@@ -171,6 +210,7 @@
       roots.flyers.forEach((root) => renderFlyers(root, manifest?.events?.[root.getAttribute('data-event-flyers')]?.flyers || []));
       roots.memorabilia.forEach((root) => renderMemorabilia(root, manifest?.events?.[root.getAttribute('data-event-memorabilia')]?.memorabilia || []));
       roots.stories.forEach((root) => renderStory(root, manifest?.events?.[root.getAttribute('data-event-story')]?.photos || []));
+      roots.cardMedia.forEach((root) => renderCardMedia(root, manifest?.events?.[root.getAttribute('data-event-card-media')]?.photos || []));
     })
     .catch(() => {
       roots.galleries.forEach((root)=>emptyState(root,'gallery'));
@@ -178,6 +218,7 @@
       roots.flyers.forEach((root)=>emptyState(root,'flyers'));
       roots.memorabilia.forEach((root)=>emptyState(root,'memorabilia'));
       roots.stories.forEach((root)=>emptyState(root,'gallery'));
+      roots.cardMedia.forEach((root)=>renderCardMedia(root,[]));
     });
 
   document.addEventListener('click', (event) => {
@@ -203,20 +244,4 @@
     lastTrigger = null;
   });
 
-  const evolution=document.querySelector('[data-event-evolution]');
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(evolution && !reduced){
-    let ticking=false;
-    const update=()=>{
-      const rect=evolution.getBoundingClientRect();
-      const travel=Math.max(1,rect.height-window.innerHeight);
-      const progress=Math.min(1,Math.max(0,-rect.top/travel));
-      evolution.style.setProperty('--evolution-progress',progress.toFixed(4));
-      ticking=false;
-    };
-    const request=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(update); } };
-    window.addEventListener('scroll',request,{passive:true});
-    window.addEventListener('resize',request,{passive:true});
-    update();
-  }
 })();
