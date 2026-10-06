@@ -171,12 +171,13 @@ test('past events timeline connects 2022 history to NOCTURNE 2026',async({page})
   await expect(page.getByRole('heading',{name:'Bass Babes Recruitment Event'})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Wild Ones & Bass Babes Take a Groove Cruise'})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Wild Ones Takes Flight Event featuring Bass Babes'})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'NOCTURNE 2026'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'NOCTURNE 2026'}).first()).toBeVisible();
   await expect(page.locator('a[href="nocturne-2026.html"]')).toBeVisible();
   await expect(page.locator('[data-event-gallery="nocturne-2026"] .event-gallery-item')).toHaveCount(6);
-  await expect(page.locator('[data-event-gallery="bass-babes-recruitment-2022"] .event-gallery-empty')).toBeVisible();
-  await expect(page.locator('[data-event-gallery="groove-cruise-2022"] .event-gallery-item')).toHaveCount(1);
-  await expect(page.locator('[data-event-gallery="wild-ones-takes-flight-2022"] .event-gallery-empty')).toBeVisible();
+  await expect(page.locator('[data-event-card-media]')).toHaveCount(3);
+  await expect(page.locator('[data-event-card-media="groove-cruise-2022"] img')).toBeVisible();
+  await expect(page.locator('[data-event-card-media="bass-babes-recruitment-2022"] .past-event-card-media-empty')).toBeVisible();
+  await expect(page.locator('[data-event-card-media="wild-ones-takes-flight-2022"] .past-event-card-media-empty')).toBeVisible();
 });
 
 test('past event photo lightbox opens and restores focus',async({page})=>{
