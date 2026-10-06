@@ -40,14 +40,17 @@ for(const rel of ['index.html','about.html','site-map.html','production.html','e
 const approvedHorizontalName='wild-ones-horizontal-transparent.svg';
 const approvedStackedName='wild-ones-stacked-approved.svg';
 const approvedEmblemName='wild-ones-emblem-approved.svg';
+const approvedSocialName='wild-ones-social-card.svg';
 const approvedHorizontalBlobSha='7a295a5e079ef62a95e1e26b3ced14f1a6dcc84f';
 const approvedStackedBlobSha='6362a3a4263e38fd64edf6fac849db45693b968e';
 const approvedEmblemBlobSha='da7054ac7e2fde3f0929157da60b71f19940b931';
-const approvedBrandNames=new Set([approvedHorizontalName,approvedStackedName,approvedEmblemName]);
+const approvedSocialBlobSha='6ccb55ade85c8f6b0c83d1167c621c0e902cc33d';
+const approvedBrandNames=new Set([approvedHorizontalName,approvedStackedName,approvedEmblemName,approvedSocialName]);
 const gitBlobSha=(text)=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
 const transparentLogo=path.join(root,'assets/brand',approvedHorizontalName);
 const stackedLogo=path.join(root,'assets/brand',approvedStackedName);
 const emblemLogo=path.join(root,'assets/brand',approvedEmblemName);
+const socialCard=path.join(root,'assets/brand',approvedSocialName);
 if(!fs.existsSync(transparentLogo)) errors.push('approved horizontal logo asset missing');
 else {
   const logo=fs.readFileSync(transparentLogo,'utf8');
@@ -71,6 +74,13 @@ else {
   if(gitBlobSha(logo)!==approvedEmblemBlobSha) errors.push('approved emblem bytes changed');
   if(!/viewBox="0 0 160 160"/i.test(logo)) errors.push('approved emblem viewBox changed');
   if(!/<image[^>]+data:image\/webp;base64,/i.test(logo)) errors.push('approved emblem artwork payload missing');
+}
+if(!fs.existsSync(socialCard)) errors.push('approved 1200x630 social card missing');
+else {
+  const card=fs.readFileSync(socialCard,'utf8');
+  if(gitBlobSha(card)!==approvedSocialBlobSha) errors.push('approved social card bytes changed');
+  if(!/width="1200"\s+height="630"/i.test(card) || !/viewBox="0 0 1200 630"/i.test(card)) errors.push('social card is not exactly 1200x630');
+  if(!/<image[^>]+data:image\/webp;base64,/i.test(card)) errors.push('social card is not built from approved logo artwork');
 }
 
 function assertContainerLogo(text,rel,className,allowedNames){
@@ -122,21 +132,30 @@ for(const file of htmlFiles){
   const noindex=/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(text);
   const canonical=(text.match(/<link\s+rel="canonical"\s+href="([^"]+)"/i)||[])[1];
   if(canonical&&!noindex){
-    for(const marker of ['og:type','og:site_name','og:title','og:description','og:url','og:image','og:image:alt']){
+    for(const marker of ['og:type','og:site_name','og:title','og:description','og:url','og:image','og:image:type','og:image:width','og:image:height','og:image:alt']){
       if(!new RegExp('<meta[^>]+property="'+marker+'"','i').test(text)) errors.push(rel+': missing '+marker);
     }
-    for(const marker of ['twitter:card','twitter:title','twitter:description','twitter:image']){
+    for(const marker of ['twitter:card','twitter:title','twitter:description','twitter:image','twitter:image:alt']){
       if(!new RegExp('<meta[^>]+name="'+marker+'"','i').test(text)) errors.push(rel+': missing '+marker);
     }
+    if(!/<meta[^>]+property="og:image:width"[^>]+content="1200"/i.test(text)) errors.push(rel+': og:image width must be 1200');
+    if(!/<meta[^>]+property="og:image:height"[^>]+content="630"/i.test(text)) errors.push(rel+': og:image height must be 630');
+    if(!/<meta[^>]+property="og:image:type"[^>]+content="image\/jpeg"/i.test(text)) errors.push(rel+': og:image type must be image/jpeg');
     for(const match of text.matchAll(/<meta[^>]+(?:property="og:image"|name="twitter:image")[^>]+content="([^"]+)"/gi)){
-      if(!match[1].startsWith('https://wildonesllc.com/')) errors.push(rel+': social image must be first-party '+match[1]);
-      const local=match[1].replace('https://wildonesllc.com/','');
-      if(!fs.existsSync(path.join(root,local))) errors.push(rel+': social image does not resolve '+match[1]);
-      if(/assets\/brand\//i.test(local)){
-        const fileName=local.split('/').pop().split('?')[0];
-        if(!approvedBrandNames.has(fileName)) errors.push(rel+': social image uses unapproved brand asset '+match[1]);
+      const normalized=match[1].replaceAll('&amp;','&');
+      if(!normalized.startsWith('https://wildonesllc.com/.netlify/images?')) errors.push(rel+': social image must use the dedicated first-party Image CDN card '+match[1]);
+      else {
+        const u=new URL(normalized);
+        const source=u.searchParams.get('url')||'';
+        if(source!=='/assets/brand/'+approvedSocialName) errors.push(rel+': social image source is not the approved card '+source);
+        if(u.searchParams.get('w')!=='1200'||u.searchParams.get('h')!=='630') errors.push(rel+': social image transform is not 1200x630');
+        if(u.searchParams.get('fit')!=='fill'||u.searchParams.get('fm')!=='jpg') errors.push(rel+': social image transform must render exact JPEG dimensions');
+        const local=source.replace(/^\//,'');
+        if(!fs.existsSync(path.join(root,local))) errors.push(rel+': social card source does not resolve '+source);
       }
     }
+    if(/nocturne-dancefloor-wide-01-1800\.webp/i.test(text.match(/<head[\s\S]*?<\/head>/i)?.[0]||'')) errors.push(rel+': NOCTURNE event photo remains in social metadata');
+
   }
 }
 
@@ -160,6 +179,7 @@ const allowedBrandFiles=new Set([
   approvedHorizontalName,
   approvedStackedName,
   approvedEmblemName,
+  approvedSocialName,
   'wild-ones-horizontal-approved.webp',
   'approved-assets.json'
 ]);
