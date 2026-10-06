@@ -144,7 +144,7 @@ const data={
     blockingScreenshots:regression.blockingScreenshots,
     approvedOverride:regression.approvedOverride,
     maxDiffRatio:regression.maxDiffRatio,
-    baselineRun:regression.baselineRun??seed.visualRegression?.baselineRun??null
+    baselineRun:regression.baselineRun??null
   }:(process.env.GITHUB_EVENT_NAME==='push'?{
     status:'BASELINE_CACHED',
     comparedScreenshots:0,
