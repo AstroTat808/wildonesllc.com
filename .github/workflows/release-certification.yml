@@ -30,6 +30,8 @@ jobs:
           node-version: '22'
       - name: Install QA dependencies
         run: npm install --no-audit --no-fund
+      - name: Build branded social assets
+        run: npm run build:brand-assets
       - name: Static route, SEO and secret audit
         run: npm run qa:static
       - name: Netlify functions and edge syntax audit
