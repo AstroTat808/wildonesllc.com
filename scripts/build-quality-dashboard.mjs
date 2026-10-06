@@ -143,11 +143,17 @@ const data={
     changedScreenshots:regression.changedScreenshots,
     blockingScreenshots:regression.blockingScreenshots,
     approvedOverride:regression.approvedOverride,
-    maxDiffRatio:regression.maxDiffRatio
-  }:{
-    ...(seed.visualRegression||{}),
-    status:process.env.GITHUB_EVENT_NAME==='push'?'BASELINE_PUBLISHED':(seed.visualRegression?.status||'BASELINE_READY')
-  },
+    maxDiffRatio:regression.maxDiffRatio,
+    baselineRun:regression.baselineRun??seed.visualRegression?.baselineRun??null
+  }:(process.env.GITHUB_EVENT_NAME==='push'?{
+    status:'BASELINE_CACHED',
+    comparedScreenshots:0,
+    changedScreenshots:0,
+    blockingScreenshots:0,
+    approvedOverride:false,
+    maxDiffRatio:seed.visualRegression?.maxDiffRatio??0.005,
+    baselineRun:runNumber?Number(runNumber):null
+  }:(seed.visualRegression||{status:'BASELINE_READY'})),
   lighthouse
 };
 

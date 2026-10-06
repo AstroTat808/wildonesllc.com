@@ -69,19 +69,25 @@ def main():
                 blocking.append(key)
             else:
                 diff=ImageChops.difference(bi,ci)
-                mask=changed_mask(diff,a.pixel_threshold)
-                ratio,changed,total=pixel_ratio(mask)
-                rec["diffRatio"]=ratio
-                rec["changedPixels"]=changed
-                rec["totalPixels"]=total
-                if changed:
-                    rec["status"]="changed" if ratio <= a.max_diff_ratio else "regression"
-                    diff_path=out/"diffs"/key
-                    diff_path.parent.mkdir(parents=True,exist_ok=True)
-                    diff_overlay(ci,mask).save(diff_path,optimize=True)
-                    rec["diffImage"]=str(diff_path.relative_to(out)).replace(os.sep,"/")
-                    if ratio > a.max_diff_ratio:
-                        blocking.append(key)
+                rec["totalPixels"]=ci.width*ci.height
+                # Most release-only PRs do not change rendered pixels. Pillow's
+                # getbbox() is implemented in C and lets us skip the expensive
+                # threshold-mask + histogram pass for byte-identical renders
+                # without weakening pixel-level coverage for changed images.
+                if diff.getbbox() is not None:
+                    mask=changed_mask(diff,a.pixel_threshold)
+                    ratio,changed,total=pixel_ratio(mask)
+                    rec["diffRatio"]=ratio
+                    rec["changedPixels"]=changed
+                    rec["totalPixels"]=total
+                    if changed:
+                        rec["status"]="changed" if ratio <= a.max_diff_ratio else "regression"
+                        diff_path=out/"diffs"/key
+                        diff_path.parent.mkdir(parents=True,exist_ok=True)
+                        diff_overlay(ci,mask).save(diff_path,optimize=True)
+                        rec["diffImage"]=str(diff_path.relative_to(out)).replace(os.sep,"/")
+                        if ratio > a.max_diff_ratio:
+                            blocking.append(key)
         records.append(rec)
 
     changed=[r for r in records if r["status"]!="same"]

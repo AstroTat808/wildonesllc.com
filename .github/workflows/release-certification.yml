@@ -12,11 +12,36 @@ permissions:
   contents: read
   actions: read
 
+env:
+  NPM_CONFIG_FETCH_RETRIES: '5'
+  NPM_CONFIG_FETCH_RETRY_MINTIMEOUT: '10000'
+  NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: '60000'
+
 concurrency:
   group: wild-ones-release-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  runner-canary:
+    name: Runner health · allocation canary
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Confirm GitHub-hosted runner allocation
+        run: |
+          echo "Runner allocated: ${RUNNER_NAME}"
+          echo "Runner OS/arch: ${RUNNER_OS}/${RUNNER_ARCH}"
+          echo "Image: ${ImageOS:-unknown} ${ImageVersion:-unknown}"
+          {
+            echo "### Runner allocation canary"
+            echo ""
+            echo "- Status: **PASS**"
+            echo "- Runner: \`${RUNNER_NAME}\`"
+            echo "- Platform: \`${RUNNER_OS}/${RUNNER_ARCH}\`"
+            echo ""
+            echo "A failed canary with no assigned runner and zero executed steps is a GitHub-hosted runner allocation failure, not a Wild Ones QA assertion failure."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   static-integrity:
     name: Static integrity + security config
     runs-on: ubuntu-latest
@@ -28,8 +53,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Restore npm download cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
       - name: Install QA dependencies
-        run: npm install --no-audit --no-fund
+        run: npm install --prefer-offline --no-audit --no-fund
       - name: Static route, SEO and secret audit
         run: npm run qa:static
       - name: Netlify functions and edge syntax audit
@@ -55,7 +87,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
+      - name: Restore npm download cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
+      - run: npm install --prefer-offline --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: |
+          node -e "console.log('version=' + require('@playwright/test/package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-chromium-webkit
+          restore-keys: |
+            ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run qa:browser
       - uses: actions/upload-artifact@v4
@@ -79,19 +129,66 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
+      - name: Restore npm download cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
+      - run: npm install --prefer-offline --no-audit --no-fund
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: |
+          node -e "console.log('version=' + require('@playwright/test/package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-chromium
+          restore-keys: |
+            ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-
       - run: npx playwright install --with-deps chromium
       - name: Luxury design-system guard
         run: npm run design:check
       - name: Full-site visual geometry + screenshot audit
         run: npm run qa:visual
 
+      - name: Stage approved main visual baseline cache
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          rm -rf visual-baseline
+          mkdir -p visual-baseline
+          cp -a visual-qa/screenshots/. visual-baseline/
+
+      - name: Cache approved main visual baseline
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: visual-baseline
+          key: wild-ones-visual-baseline-${{ github.sha }}
+
+      - name: Restore exact main visual baseline cache
+        id: visual-baseline-cache
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: visual-baseline
+          key: wild-ones-visual-baseline-${{ github.event.pull_request.base.sha }}
+
       - name: Resolve approved main visual baseline
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
+          VISUAL_BASELINE_CACHE_HIT: ${{ steps.visual-baseline-cache.outputs.cache-hit }}
         run: |
           set -u
+          if [ "${VISUAL_BASELINE_CACHE_HIT:-false}" = "true" ] && find visual-baseline -type f -name '*.png' -print -quit | grep -q .; then
+            echo "BASELINE_DIR=visual-baseline" >> "$GITHUB_ENV"
+            echo "BASELINE_SOURCE=cache" >> "$GITHUB_ENV"
+            echo "Using exact visual baseline cache for PR base ${{ github.event.pull_request.base.sha }}."
+            exit 0
+          fi
           BASELINE_RUN_ID="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/workflows/release-certification.yml/runs?branch=main&status=success&event=push&per_page=20" --jq '.workflow_runs[0].id' 2>/dev/null || true)"
           ARTIFACT_ID=""
           BASELINE_IS_LEGACY=false
@@ -116,12 +213,17 @@ jobs:
               mkdir -p visual-baseline
               unzip -q /tmp/wild-ones-visual-baseline.zip -d visual-baseline
               if [ -d visual-baseline/screenshots ]; then
-                echo "BASELINE_DIR=visual-baseline/screenshots" >> "$GITHUB_ENV"
+                BASELINE_CANDIDATE=visual-baseline/screenshots
               else
-                echo "BASELINE_DIR=visual-baseline" >> "$GITHUB_ENV"
+                BASELINE_CANDIDATE=visual-baseline
               fi
-              echo "BASELINE_SOURCE=artifact" >> "$GITHUB_ENV"
-              exit 0
+              if find "$BASELINE_CANDIDATE" -type f -name '*.png' -print -quit | grep -q .; then
+                echo "BASELINE_DIR=$BASELINE_CANDIDATE" >> "$GITHUB_ENV"
+                echo "BASELINE_SOURCE=artifact" >> "$GITHUB_ENV"
+                exit 0
+              fi
+              echo "Baseline artifact contains no screenshot PNGs; ignoring it and regenerating from the PR base."
+              rm -rf visual-baseline
             fi
           fi
           echo "No reusable baseline artifact is available; regenerating from the PR base commit."
@@ -219,7 +321,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
+      - name: Restore npm download cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
+      - run: npm install --prefer-offline --no-audit --no-fund
       - run: npm run qa:lighthouse
       - uses: actions/upload-artifact@v4
         if: always()
@@ -227,6 +336,86 @@ jobs:
         with:
           name: wild-ones-lighthouse-${{ github.run_id }}
           path: lighthouse-results/*.report.json
+          retention-days: 3
+          if-no-files-found: ignore
+
+  release-diagnostics:
+    name: Release diagnostics · runner vs QA
+    if: always()
+    needs: [runner-canary, static-integrity, browser-qa, visual-design-qa, lighthouse]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      classification: ${{ steps.classify.outputs.classification }}
+    steps:
+      - name: Classify infrastructure vs QA failures
+        id: classify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANARY_RESULT: ${{ needs.runner-canary.result }}
+          STATIC_RESULT: ${{ needs.static-integrity.result }}
+          BROWSER_RESULT: ${{ needs.browser-qa.result }}
+          VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
+          LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+        run: |
+          set -u
+          mkdir -p release-diagnostics
+          JOBS_JSON="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" 2>/dev/null || printf '{"jobs":[]}')"
+          INFRA_COUNT="$(printf '%s' "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion=="failure" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0))] | length')"
+          QA_COUNT="$(printf '%s' "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion=="failure" and (((.runner_id // 0)>0) or (((.steps // [])|length)>0)))] | length')"
+          CANCELLED_PRE_RUNNER="$(printf '%s' "$JOBS_JSON" | jq '[.jobs[] | select(.conclusion=="cancelled" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0))] | length')"
+
+          CLASSIFICATION=HEALTHY
+          if [ "$INFRA_COUNT" -gt 0 ]; then
+            CLASSIFICATION=RUNNER_INFRASTRUCTURE
+          elif [ "$QA_COUNT" -gt 0 ] || [ "$STATIC_RESULT" = "failure" ] || [ "$BROWSER_RESULT" = "failure" ] || [ "$VISUAL_RESULT" = "failure" ] || [ "$LIGHTHOUSE_RESULT" = "failure" ]; then
+            CLASSIFICATION=QA_OR_WORKFLOW
+          elif [ "$CANCELLED_PRE_RUNNER" -gt 0 ] || [ "$CANARY_RESULT" = "cancelled" ]; then
+            CLASSIFICATION=CANCELLED_BEFORE_ALLOCATION
+          elif [ "$CANARY_RESULT" != "success" ] || [ "$STATIC_RESULT" != "success" ] || [ "$BROWSER_RESULT" != "success" ] || [ "$VISUAL_RESULT" != "success" ] || [ "$LIGHTHOUSE_RESULT" != "success" ]; then
+            CLASSIFICATION=DEGRADED_OR_UNKNOWN
+          fi
+          echo "classification=$CLASSIFICATION" >> "$GITHUB_OUTPUT"
+
+          printf '%s' "$JOBS_JSON" | jq --arg classification "$CLASSIFICATION"             --arg canary "$CANARY_RESULT" --arg static "$STATIC_RESULT"             --arg browser "$BROWSER_RESULT" --arg visual "$VISUAL_RESULT"             --arg lighthouse "$LIGHTHOUSE_RESULT" '{
+              classification:$classification,
+              needs:{canary:$canary,static:$static,browser:$browser,visual:$visual,lighthouse:$lighthouse},
+              infrastructureFailures:[.jobs[] | select(.conclusion=="failure" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0)) | {name,conclusion,runner_id,runner_name,labels}],
+              qaOrWorkflowFailures:[.jobs[] | select(.conclusion=="failure" and (((.runner_id // 0)>0) or (((.steps // [])|length)>0))) | {name,conclusion,runner_id,runner_name,labels,failedSteps:[(.steps // [])[] | select(.conclusion=="failure") | .name]}],
+              cancelledBeforeAllocation:[.jobs[] | select(.conclusion=="cancelled" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0)) | {name,conclusion,labels}]
+            }' > release-diagnostics/runner-health.json
+
+          {
+            echo "### Release diagnostics"
+            echo ""
+            echo "Classification: **${CLASSIFICATION}**"
+            echo ""
+            echo "| Signal | Result |"
+            echo "| --- | --- |"
+            echo "| Runner canary | ${CANARY_RESULT} |"
+            echo "| Static integrity | ${STATIC_RESULT} |"
+            echo "| Browser QA | ${BROWSER_RESULT} |"
+            echo "| Visual QA | ${VISUAL_RESULT} |"
+            echo "| Lighthouse | ${LIGHTHOUSE_RESULT} |"
+            echo "| Failed jobs with no runner / zero steps | ${INFRA_COUNT} |"
+            echo "| Failed jobs that executed on a runner | ${QA_COUNT} |"
+            echo "| Cancelled before runner allocation | ${CANCELLED_PRE_RUNNER} |"
+            echo ""
+            if [ "$CLASSIFICATION" = "RUNNER_INFRASTRUCTURE" ]; then
+              echo "This failure signature points to GitHub-hosted runner infrastructure, not Wild Ones test code."
+            elif [ "$CLASSIFICATION" = "QA_OR_WORKFLOW" ]; then
+              echo "A failed job executed on a runner; inspect its failed step/log as a Wild Ones QA or workflow failure."
+            elif [ "$CLASSIFICATION" = "HEALTHY" ]; then
+              echo "All primary QA jobs and the runner canary completed normally."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        continue-on-error: true
+        with:
+          name: release-diagnostics-${{ github.run_id }}
+          path: release-diagnostics/runner-health.json
           retention-days: 3
           if-no-files-found: ignore
 
@@ -296,27 +485,34 @@ jobs:
   release-certification:
     name: Release Certification - GO
     if: always()
-    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse, quality-dashboard]
+    needs: [runner-canary, static-integrity, browser-qa, visual-design-qa, lighthouse, quality-dashboard, release-diagnostics]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Enforce required QA results
         env:
+          RUNNER_RESULT: ${{ needs.runner-canary.result }}
+          DIAGNOSTICS_RESULT: ${{ needs.release-diagnostics.result }}
+          DIAGNOSTIC_CLASS: ${{ needs.release-diagnostics.outputs.classification }}
           STATIC_RESULT: ${{ needs.static-integrity.result }}
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
           QUALITY_RESULT: ${{ needs.quality-dashboard.result }}
         run: |
+          echo "Runner canary:    $RUNNER_RESULT"
+          echo "Diagnostics:      $DIAGNOSTICS_RESULT ($DIAGNOSTIC_CLASS)"
           echo "Static integrity: $STATIC_RESULT"
           echo "Browser QA:       $BROWSER_RESULT"
           echo "Lighthouse:       $LIGHTHOUSE_RESULT"
           echo "Visual design QA: $VISUAL_RESULT"
           echo "Quality dashboard: $QUALITY_RESULT"
+          test "$RUNNER_RESULT" = "success"
+          test "$DIAGNOSTICS_RESULT" = "success"
           test "$STATIC_RESULT" = "success"
           test "$BROWSER_RESULT" = "success"
           test "$LIGHTHOUSE_RESULT" = "success"
           test "$VISUAL_RESULT" = "success"
           test "$QUALITY_RESULT" = "success"
-          echo "GO - Wild Ones static integrity, browser QA, and Lighthouse gates passed."
+          echo "GO - Wild Ones runner health, static integrity, browser QA, visual QA, Lighthouse, diagnostics, and quality dashboard gates passed."
           echo "This workflow performs no Netlify deployment."
