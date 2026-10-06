@@ -4,7 +4,9 @@ import path from 'node:path';
 
 const routes=[
   '/', '/about.html', '/site-map.html', '/production.html', '/events.html',
-  '/case-studies.html', '/nocturne-2026.html', '/gallery.html', '/faq.html',
+  '/case-studies.html', '/past-events.html', '/bass-babes-recruitment-2022.html',
+  '/groove-cruise-2022.html', '/wild-ones-takes-flight-2022.html',
+  '/nocturne-2026.html', '/gallery.html', '/faq.html',
   '/tours.html', '/book.html', '/producer-access.html', '/technical-packet.html',
   '/thank-you.html', '/admin-crm.html', '/quality-dashboard.html', '/404.html'
 ];

@@ -39,6 +39,7 @@ Primary pages:
 - Interactive Site Map
 - Production Specifications
 - Event Types
+- Past Events timeline and historical event archives
 - Gallery
 - FAQ
 - Site Tours
@@ -83,3 +84,10 @@ Wild Ones inquiries feed the existing Koa’s Events CRM as a separate business 
 ## Producer packet security
 
 The deployed technical-packet route is designed to require a signed, expiring link and then a Secure HttpOnly session cookie. There is no shared producer password. Because this GitHub repository is public, truly confidential security plans, access details, exact infrastructure vulnerabilities or other restricted production information must not be committed here; only appropriate producer-facing material belongs in the repository.
+
+
+## Historical event archive
+
+Past Events documents the Wild Ones timeline from 2022 California events through NOCTURNE 2026 on Hawaiʻi Island. The three 2022 milestones each have a dedicated archive page with manifest-driven sections for confirmed artists, flyer artwork, photography and memorabilia.
+
+Windows photo preparation is automated with `scripts/import-past-event-photos.bat`. See `docs/PAST_EVENT_PHOTO_ARCHIVE.md` for the batch folder structure, supported event keys and archive workflow.
