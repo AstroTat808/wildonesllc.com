@@ -14,12 +14,14 @@
     "design:fix": "node scripts/design-fixer.mjs --fix",
     "qa:visual": "playwright test --config=playwright.visual.config.mjs",
     "quality:build": "node scripts/build-quality-dashboard.mjs",
-    "qa:netlify": "npm run design:check && npm run qa:static && npm run qa:functions"
+    "qa:netlify": "npm run design:check && npm run qa:static && npm run qa:functions",
+    "build:brand-assets": "node scripts/build-brand-assets.mjs"
   },
   "dependencies": {
     "@netlify/blobs": "latest",
     "@netlify/edge-functions": "latest",
-    "@netlify/functions": "latest"
+    "@netlify/functions": "latest",
+    "sharp": "^0.34.4"
   },
   "devDependencies": {
     "@lhci/cli": "^0.15.1",
