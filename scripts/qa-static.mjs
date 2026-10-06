@@ -46,6 +46,17 @@ const approvedStackedBlobSha='6362a3a4263e38fd64edf6fac849db45693b968e';
 const approvedEmblemBlobSha='da7054ac7e2fde3f0929157da60b71f19940b931';
 const approvedSocialBlobSha='6ccb55ade85c8f6b0c83d1167c621c0e902cc33d';
 const approvedBrandNames=new Set([approvedHorizontalName,approvedStackedName,approvedEmblemName,approvedSocialName]);
+function brandFileName(value){
+  const decoded=String(value||'').replaceAll('&amp;','&');
+  try{
+    if(decoded.includes('/.netlify/images?')){
+      const u=new URL(decoded);
+      const source=u.searchParams.get('url')||'';
+      return source.split('/').pop().split('?')[0];
+    }
+  }catch{}
+  return decoded.split('/').pop().split('?')[0];
+}
 const gitBlobSha=(text)=>crypto.createHash('sha1').update('blob '+Buffer.byteLength(text)+'\0').update(text).digest('hex');
 const transparentLogo=path.join(root,'assets/brand',approvedHorizontalName);
 const stackedLogo=path.join(root,'assets/brand',approvedStackedName);
@@ -95,7 +106,7 @@ for(const file of htmlFiles){
   const rel=path.relative(root,file).replaceAll('\\','/');
 
   for(const match of text.matchAll(/(?:src|srcset|href)="([^"]*assets\/brand\/wild-ones-[^"]+)"/gi)){
-    const fileName=match[1].split('/').pop().split('?')[0];
+    const fileName=brandFileName(match[1]);
     if(!approvedBrandNames.has(fileName)) errors.push(rel+': unapproved Wild Ones brand asset reference '+match[1]);
   }
 
@@ -154,7 +165,9 @@ for(const file of htmlFiles){
         if(!fs.existsSync(path.join(root,local))) errors.push(rel+': social card source does not resolve '+source);
       }
     }
-    if(/nocturne-dancefloor-wide-01-1800\.webp/i.test(text.match(/<head[\s\S]*?<\/head>/i)?.[0]||'')) errors.push(rel+': NOCTURNE event photo remains in social metadata');
+    for(const match of text.matchAll(/<meta[^>]+(?:property="og:image"|name="twitter:image")[^>]+content="([^"]+)"/gi)){
+      if(/nocturne-dancefloor-wide-01-1800\.webp/i.test(match[1])) errors.push(rel+': NOCTURNE event photo remains in social metadata');
+    }
 
   }
 }
@@ -211,12 +224,13 @@ for(const file of sourceFiles){
   if(text.includes(['WILD','350'].join(''))) errors.push(file+': obsolete shared producer access code found');
 
   for(const match of text.matchAll(/(?:src|srcset|href|content)=(?:["'])([^"']*assets\/brand\/wild-ones-[^"']+)(?:["'])/gi)){
-    const fileName=match[1].split('/').pop().split('?')[0];
+    const fileName=brandFileName(match[1]);
     if(!allowedBrandFiles.has(fileName)) errors.push(path.relative('.',file)+': unapproved Wild Ones brand reference '+match[1]);
   }
   if(/favicon(?:-\d+x\d+)?\.(?:ico|png)|apple-touch-icon|browserconfig|site\.webmanifest/i.test(text)){
     for(const match of text.matchAll(/(?:src|srcset|href|content)=(?:["'])([^"']+)(?:["'])/gi)){
       const value=match[1];
+      if(value.includes('/.netlify/images?')) continue;
       if(/favicon|apple-touch-icon|assets\/brand\/wild-ones-/i.test(value)){
         const local=value.replace(/^https:\/\/wildonesllc\.com\//,'').replace(/^\//,'');
         if(local && !local.startsWith('assets/brand/') && local!=='site.webmanifest'){
