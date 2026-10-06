@@ -328,9 +328,9 @@ test('past events timeline provides cinematic evolution with reduced-motion-safe
   await expect(evolution).toBeVisible();
   await expect(evolution.getByText('California',{exact:true})).toBeVisible();
   await expect(evolution.getByText('Hawaiʻi Island',{exact:true})).toBeVisible();
-  await expect(page.locator('a[href="bass-babes-recruitment-2022.html"]')).toBeVisible();
-  await expect(page.locator('a[href="groove-cruise-2022.html"]')).toBeVisible();
-  await expect(page.locator('a[href="wild-ones-takes-flight-2022.html"]')).toBeVisible();
+  await expect(page.locator('a[href="bass-babes-recruitment-2022.html"]').first()).toBeVisible();
+  await expect(page.locator('a[href="groove-cruise-2022.html"]').first()).toBeVisible();
+  await expect(page.locator('a[href="wild-ones-takes-flight-2022.html"]').first()).toBeVisible();
 });
 
 
