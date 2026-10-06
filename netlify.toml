@@ -1,5 +1,6 @@
 [build]
   publish = "dist"
+  command = "npm run qa:netlify"
 
 [build.environment]
   NODE_VERSION = "22"
@@ -7,6 +8,30 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/assets/brand/wild-ones-emblem-approved.svg"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/favicon-32x32.png"
+  to = "/assets/brand/wild-ones-emblem-approved.svg"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/favicon-16x16.png"
+  to = "/assets/brand/wild-ones-emblem-approved.svg"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/apple-touch-icon.png"
+  to = "/assets/brand/wild-ones-emblem-approved.svg"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "https://www.wildonesllc.com/*"
