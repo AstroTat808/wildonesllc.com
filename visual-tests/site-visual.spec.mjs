@@ -218,3 +218,146 @@ test('luxury visual QA across every public and operational page',async({page})=>
 
   expect(hard,'Visual QA hard failures:\n'+hard.join('\n')).toEqual([]);
 });
+
+
+const brandSweepViewports=[
+  {name:'brand-1920',width:1920,height:1080},
+  {name:'brand-1440',width:1440,height:1000},
+  {name:'brand-1280',width:1280,height:900},
+  {name:'brand-1024',width:1024,height:900},
+  {name:'brand-768',width:768,height:900},
+  {name:'brand-430',width:430,height:932},
+  {name:'brand-390',width:390,height:844},
+  {name:'brand-320',width:320,height:800}
+];
+
+const brandSweepRoutes=['/','/about.html','/technical-packet.html','/quality-dashboard.html','/404.html'];
+
+test('brand-system responsive sweep · 320 through 1920',async({page})=>{
+  const failures=[];
+  const records=[];
+  const shotDir=path.join(outDir,'brand-sweep');
+  fs.mkdirSync(shotDir,{recursive:true});
+
+  for(const vp of brandSweepViewports){
+    await page.setViewportSize({width:vp.width,height:vp.height});
+
+    for(const route of brandSweepRoutes){
+      const response=await page.goto(route,{waitUntil:'domcontentloaded'});
+      await page.addStyleTag({content:'*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important}'});
+      await page.evaluate(async()=>{
+        if(document.fonts?.ready) await document.fonts.ready;
+        await Promise.all([...document.images].map(async(img)=>{if(img.decode){try{await img.decode();}catch{}}}));
+        window.scrollTo(0,0);
+      });
+
+      const audit=await page.evaluate(({width,route})=>{
+        const issues=[];
+        const visible=(el)=>{
+          if(!el) return false;
+          const s=getComputedStyle(el);
+          const r=el.getBoundingClientRect();
+          return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>0&&r.height>0;
+        };
+        const selected=(img)=>img?(img.currentSrc||img.getAttribute('src')||''):'';
+        const expectSrc=(selector,name,label)=>{
+          const img=document.querySelector(selector);
+          if(!visible(img)) return null;
+          const src=selected(img);
+          if(!src.includes(name)) issues.push(label+' selected '+src+' instead of '+name);
+          return img;
+        };
+        const horizontal='wild-ones-horizontal-transparent.svg';
+        const stacked='wild-ones-stacked-approved.svg';
+        const emblem='wild-ones-emblem-approved.svg';
+
+        const navExpected=width<=340?emblem:horizontal;
+        const footerExpected=width<=700?stacked:horizontal;
+        const qdExpected=width<=360?emblem:horizontal;
+
+        const nav=expectSrc('.brand-lockup img',navExpected,'navbar');
+        const footer=expectSrc('.footer-brand img',footerExpected,'footer');
+        const panel=expectSrc('.brand-panel img',stacked,'brand panel');
+        const packet=expectSrc('.packet-cover img',stacked,'packet cover');
+        const qd=expectSrc('.qd-brand img',qdExpected,'quality dashboard');
+        const error=expectSrc('.error-brand-lockup',emblem,'404');
+
+        for(const img of [nav,footer,panel,packet,qd,error].filter(Boolean)){
+          const r=img.getBoundingClientRect();
+          const style=getComputedStyle(img);
+          if(r.left<-1||r.right>width+1) issues.push('logo exceeds viewport on '+route);
+          if(!img.naturalWidth||!img.naturalHeight) issues.push('logo failed to decode on '+route);
+          if(style.objectFit!=='contain') issues.push('logo object-fit is '+style.objectFit+' on '+route);
+          let ancestor=img.parentElement;
+          while(ancestor&&ancestor!==document.body){
+            const a=getComputedStyle(ancestor);
+            if(['hidden','clip'].includes(a.overflow)||['hidden','clip'].includes(a.overflowX)||['hidden','clip'].includes(a.overflowY)){
+              const ar=ancestor.getBoundingClientRect();
+              if(r.left<ar.left-1||r.right>ar.right+1||r.top<ar.top-1||r.bottom>ar.bottom+1){
+                issues.push('logo clipped by '+(ancestor.className||ancestor.tagName)+' on '+route);
+                break;
+              }
+            }
+            ancestor=ancestor.parentElement;
+          }
+        }
+
+        if(nav){
+          const w=nav.getBoundingClientRect().width;
+          let min=52,max=60;
+          if(width>=1440){min=240;max=255;}
+          else if(width>=1200){min=220;max=245;}
+          else if(width>1000){min=215;max=230;}
+          else if(width>700){min=205;max=215;}
+          else if(width>430){min=175;max=185;}
+          else if(width>340){min=165;max=175;}
+          if(w<min-1||w>max+1) issues.push('navbar logo width '+w.toFixed(1)+'px outside '+min+'-'+max+'px at '+width);
+          const bar=document.querySelector('.navbar')?.getBoundingClientRect();
+          if(bar){
+            const r=nav.getBoundingClientRect();
+            const delta=Math.abs((r.top+r.height/2)-(bar.top+bar.height/2));
+            if(delta>2) issues.push('navbar logo vertical offset '+delta.toFixed(1)+'px at '+width);
+          }
+        }
+
+        if(footer){
+          const w=footer.getBoundingClientRect().width;
+          let min=220,max=365;
+          if(width<=340){min=155;max=165;}
+          else if(width<=430){min=170;max=180;}
+          else if(width<=700){min=185;max=195;}
+          if(w<min-1||w>max+1) issues.push('footer logo width '+w.toFixed(1)+'px outside '+min+'-'+max+'px at '+width);
+        }
+        if(panel&&panel.getBoundingClientRect().width>262) issues.push('brand-panel stacked logo oversized');
+        if(packet&&packet.getBoundingClientRect().width>252) issues.push('packet-cover stacked logo oversized');
+        if(error&&error.getBoundingClientRect().width>162) issues.push('404 emblem oversized');
+
+        const overflow=Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-document.documentElement.clientWidth;
+        if(overflow>1) issues.push('horizontal overflow '+overflow+'px on '+route);
+
+        return {
+          issues,
+          nav:nav?{src:selected(nav),width:Number(nav.getBoundingClientRect().width.toFixed(1)),height:Number(nav.getBoundingClientRect().height.toFixed(1))}:null,
+          footer:footer?{src:selected(footer),width:Number(footer.getBoundingClientRect().width.toFixed(1)),height:Number(footer.getBoundingClientRect().height.toFixed(1))}:null
+        };
+      },{width:vp.width,route});
+
+      for(const issue of audit.issues) failures.push(vp.name+' '+route+' | '+issue);
+      records.push({viewport:vp.name,route,status:response?.status()||0,...audit});
+
+      if(route==='/'){
+        await page.screenshot({path:path.join(shotDir,vp.name+'.png'),fullPage:true,animations:'disabled'});
+      }
+    }
+  }
+
+  fs.writeFileSync(path.join(outDir,'brand-system.json'),JSON.stringify({
+    generatedAt:new Date().toISOString(),
+    viewports:brandSweepViewports,
+    routes:brandSweepRoutes,
+    failures,
+    records
+  },null,2));
+
+  expect(failures,'Brand-system failures:\n'+failures.join('\n')).toEqual([]);
+});
