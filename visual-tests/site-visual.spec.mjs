@@ -249,7 +249,8 @@ test('brand-system responsive sweep · 320 through 1920',async({page})=>{
       await page.addStyleTag({content:'*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important}'});
       await page.evaluate(async()=>{
         if(document.fonts?.ready) await document.fonts.ready;
-        await Promise.all([...document.images].map(async(img)=>{if(img.decode){try{await img.decode();}catch{}}}));
+        const brandImages=[...document.querySelectorAll('.brand-lockup img,.footer-brand img,.brand-panel img,.packet-cover img,.error-brand-lockup,.qd-brand img')];
+        await Promise.all(brandImages.map(async(img)=>{if(img.decode){try{await img.decode();}catch{}}}));
         window.scrollTo(0,0);
       });
 
