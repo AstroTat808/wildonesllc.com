@@ -127,8 +127,10 @@
       root.classList.add('has-photo');
     } else {
       const empty = document.createElement('span');
+      const date = root.getAttribute('data-event-card-date') || '';
+      const index = root.getAttribute('data-event-card-index') || year;
       empty.className = 'past-event-card-media-empty';
-      empty.innerHTML = '<small>Historical media archive</small><strong>'+label+'</strong><em>'+year+'</em><span>Original event photography will appear here when added to the archive.</span>';
+      empty.innerHTML = '<small>Historical Event Archive · '+year+'</small><strong>'+label+'</strong><em>'+index+'</em><span>'+(date ? date+' · ' : '')+'Open the event record →</span>';
       link.append(empty);
       root.classList.add('awaiting-photo');
     }
