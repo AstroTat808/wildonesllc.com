@@ -119,6 +119,27 @@ test('operations profile stays focused for a short private event',async({page})=
   await expect(page.locator('[data-ops-field="staff"]')).toBeHidden();
 });
 
+test('homepage history teaser stays compact and links the 2022 archive to current production',async({page})=>{
+  await page.setViewportSize({width:1440,height:1000});
+  await page.goto('/',{waitUntil:'networkidle'});
+  const teaser=page.locator('.home-history-teaser');
+  await expect(teaser).toBeVisible();
+  await expect(teaser.getByRole('heading',{name:/four-year line/i})).toBeVisible();
+  await expect(teaser.locator('img')).toHaveCount(2);
+  await expect(teaser.locator('a[href="past-events.html"]')).toBeVisible();
+  const desktopBox=await teaser.boundingBox();
+  expect(desktopBox).not.toBeNull();
+  expect(desktopBox.height).toBeLessThan(420);
+
+  await page.setViewportSize({width:390,height:844});
+  await page.reload({waitUntil:'networkidle'});
+  const mobileBox=await teaser.boundingBox();
+  expect(mobileBox).not.toBeNull();
+  expect(mobileBox.height).toBeLessThan(560);
+  const overflow=await page.evaluate(()=>Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test('producer decision matrix distinguishes known facts from project review',async({page})=>{
   await page.goto('/');
   await expect(page.locator('#why-wild-ones')).toBeVisible();
@@ -287,8 +308,14 @@ test('past events timeline connects 2022 history to NOCTURNE 2026',async({page})
   await expect(page.locator('[data-event-gallery="nocturne-2026"] .event-gallery-item')).toHaveCount(6);
   await expect(page.locator('[data-event-card-media]')).toHaveCount(3);
   await expect(page.locator('[data-event-card-media="groove-cruise-2022"] img')).toBeVisible();
-  await expect(page.locator('[data-event-card-media="bass-babes-recruitment-2022"] .past-event-card-media-empty')).toBeVisible();
-  await expect(page.locator('[data-event-card-media="wild-ones-takes-flight-2022"] .past-event-card-media-empty')).toBeVisible();
+  const huntingtonPlate=page.locator('[data-event-card-media="bass-babes-recruitment-2022"] .past-event-card-media-empty');
+  const missionPlate=page.locator('[data-event-card-media="wild-ones-takes-flight-2022"] .past-event-card-media-empty');
+  await expect(huntingtonPlate).toBeVisible();
+  await expect(huntingtonPlate).toContainText('Historical Event Archive · 2022');
+  await expect(huntingtonPlate).toContainText('October 15 · Open the event record');
+  await expect(missionPlate).toBeVisible();
+  await expect(missionPlate).toContainText('November 11 · Open the event record');
+  await expect(page.getByText('Original event photography will appear here when added to the archive.')).toHaveCount(0);
 });
 
 test('past event photo lightbox opens and restores focus',async({page})=>{
