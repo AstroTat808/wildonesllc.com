@@ -206,3 +206,13 @@
   .past-event-card-media img{transition:none!important}
   .past-event-card-media.has-photo:hover img{transform:none!important}
 }
+
+
+/* production art-direction polish v3 */
+.past-event-card-media.awaiting-photo{border-color:rgba(216,164,59,.21)}
+.past-event-card-media.awaiting-photo .past-event-card-media-link::after{background:linear-gradient(180deg,transparent 54%,rgba(0,0,0,.42))}
+.past-event-card-media-empty span{color:#b8bbc3;font-size:.7rem;font-weight:720;letter-spacing:.025em}
+.past-event-card-media-empty em{color:rgba(241,213,141,.085);font-size:clamp(5rem,8vw,8rem)}
+.past-events-finale-head{align-items:center;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.07)}
+.past-events-finale-head>div h2{max-width:700px}
+@media(max-width:700px){.past-events-finale-head{padding-bottom:18px}.past-event-card-media-empty em{font-size:clamp(4.8rem,22vw,6.8rem)}}
