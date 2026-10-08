@@ -268,11 +268,11 @@ test.describe('NOCTURNE media integration', () => {
     for (let i = 0; i < await videos.count(); i += 1) {
       await expect(videos.nth(i)).toHaveAttribute('preload', 'none');
       await expect(videos.nth(i)).not.toHaveAttribute('autoplay', '');
-      await expect(videos.nth(i)).toHaveAttribute('data-poster', /assets\\/nocturne-2026\\/posters\\/.+\\.webp/);
+      await expect(videos.nth(i)).toHaveAttribute('data-poster', /assets\/nocturne-2026\/posters\/.+\.webp/);
       await expect(videos.nth(i)).not.toHaveAttribute('poster', /.+/);
     }
     await videos.first().scrollIntoViewIfNeeded();
-    await expect(videos.first()).toHaveAttribute('poster', /assets\\/nocturne-2026\\/posters\\/.+\\.webp/);
+    await expect(videos.first()).toHaveAttribute('poster', /assets\/nocturne-2026\/posters\/.+\.webp/);
 
     const leadPhoto = page.locator('.nocturne-photo-card img').first();
     await expect(leadPhoto).toHaveAttribute('loading', 'lazy');
