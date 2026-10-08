@@ -1,0 +1,35 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "./dist",
+      "url": [
+        "http://localhost/",
+        "http://localhost/about.html",
+        "http://localhost/site-map.html",
+        "http://localhost/production.html",
+        "http://localhost/events.html",
+        "http://localhost/case-studies.html",
+        "http://localhost/past-events.html",
+        "http://localhost/bass-babes-recruitment-2022.html",
+        "http://localhost/groove-cruise-2022.html",
+        "http://localhost/wild-ones-takes-flight-2022.html",
+        "http://localhost/gallery.html",
+        "http://localhost/nocturne-2026.html",
+        "http://localhost/faq.html",
+        "http://localhost/tours.html",
+        "http://localhost/book.html",
+        "http://localhost/producer-access.html",
+        "http://localhost/quality-dashboard.html",
+        "http://localhost/technical-packet.html",
+        "http://localhost/thank-you.html",
+        "http://localhost/admin-crm.html",
+        "http://localhost/404.html"
+      ],
+      "numberOfRuns": 1
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": "./lighthouse-full-results"
+    }
+  }
+}
