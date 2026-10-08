@@ -1,8 +1,7 @@
 name: Wild Ones Full Lighthouse Audit
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
