@@ -24,6 +24,33 @@
     });
   });
 
+  // Poster images sit several screens below the Gallery hero. Keep them out of the
+  // critical network path and hydrate them shortly before the user reaches video.
+  const posterVideos = [...document.querySelectorAll('video[data-poster]')];
+  const hydratePoster = (video) => {
+    const poster = video.getAttribute('data-poster');
+    if (!poster || video.getAttribute('poster')) return;
+    video.setAttribute('poster', poster);
+  };
+  if (posterVideos.length) {
+    if ('IntersectionObserver' in window) {
+      const posterObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          hydratePoster(entry.target);
+          posterObserver.unobserve(entry.target);
+        });
+      }, { rootMargin: '1000px 0px', threshold: 0 });
+      posterVideos.forEach((video) => posterObserver.observe(video));
+    } else {
+      posterVideos.forEach(hydratePoster);
+    }
+    posterVideos.forEach((video) => {
+      video.addEventListener('focus', () => hydratePoster(video), { once: true });
+      video.addEventListener('pointerenter', () => hydratePoster(video), { once: true });
+    });
+  }
+
   const dialog = document.querySelector('[data-nocturne-dialog]');
   if (!dialog || typeof dialog.showModal !== 'function') return;
 

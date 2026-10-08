@@ -119,6 +119,16 @@ test('operations profile stays focused for a short private event',async({page})=
   await expect(page.locator('[data-ops-field="staff"]')).toBeHidden();
 });
 
+test('homepage accessibility semantics preserve visible labels and native article roles',async({page})=>{
+  await page.goto('/');
+  await expect(page.locator('.hero-showcase')).not.toHaveAttribute('aria-label', /.+/);
+  await expect(page.locator('.producer-matrix')).not.toHaveAttribute('role', /.+/);
+  await expect(page.locator('.producer-matrix article[role]')).toHaveCount(0);
+  const footerLogo=page.locator('.footer-brand img');
+  await expect(footerLogo).toHaveAttribute('width','480');
+  await expect(footerLogo).toHaveAttribute('height','160');
+});
+
 test('homepage history teaser stays compact and links the 2022 archive to current production',async({page})=>{
   await page.setViewportSize({width:1440,height:1000});
   await page.goto('/',{waitUntil:'networkidle'});
@@ -223,7 +233,7 @@ test.describe('NOCTURNE media integration', () => {
         }
       }
       document.querySelectorAll('.nocturne-video-tile video').forEach((video) => {
-        const poster = video.getAttribute('poster');
+        const poster = video.getAttribute('poster') || video.getAttribute('data-poster');
         if (poster) urls.add(poster);
       });
       return [...urls];
@@ -258,7 +268,15 @@ test.describe('NOCTURNE media integration', () => {
     for (let i = 0; i < await videos.count(); i += 1) {
       await expect(videos.nth(i)).toHaveAttribute('preload', 'none');
       await expect(videos.nth(i)).not.toHaveAttribute('autoplay', '');
+      await expect(videos.nth(i)).toHaveAttribute('data-poster', /assets\/nocturne-2026\/posters\/.+\.webp/);
+      await expect(videos.nth(i)).not.toHaveAttribute('poster', /.+/);
     }
+    await videos.first().scrollIntoViewIfNeeded();
+    await expect(videos.first()).toHaveAttribute('poster', /assets\/nocturne-2026\/posters\/.+\.webp/);
+
+    const leadPhoto = page.locator('.nocturne-photo-card img').first();
+    await expect(leadPhoto).toHaveAttribute('loading', 'lazy');
+    await expect(leadPhoto).toHaveAttribute('fetchpriority', 'low');
   });
 
   for (const width of [320, 390, 430]) {
