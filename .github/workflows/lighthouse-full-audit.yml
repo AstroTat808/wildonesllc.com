@@ -1,0 +1,40 @@
+name: Wild Ones Full Lighthouse Audit
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse-all-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
+      - run: npm ci --prefer-offline --no-audit --no-fund
+      - run: npm run qa:lighthouse:all
+      - run: node scripts/summarize-lighthouse.mjs
+      - name: Add full-site audit summary
+        run: cat lighthouse-full-summary/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wild-ones-lighthouse-full-${{ github.run_id }}
+          path: |
+            lighthouse-full-results/*.report.json
+            lighthouse-full-summary
+          retention-days: 3
+          if-no-files-found: error
