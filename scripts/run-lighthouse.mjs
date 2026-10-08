@@ -114,7 +114,7 @@ try{
     }
   }
 } finally {
-  await chrome.kill().catch(()=>{});
+  try{ chrome.kill(); }catch{}
   server.kill('SIGTERM');
 }
 
