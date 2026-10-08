@@ -25,6 +25,7 @@
       ['Browser QA',data.release?.browser],
       ['Visual QA',data.release?.visual],
       ['Lighthouse',data.release?.lighthouse],
+      ['Full-site Lighthouse',data.release?.fullLighthouse],
       ['Regression',data.visualRegression?.status]
     ];
     $('[data-lanes]').innerHTML=lanes.map(([label,value])=>'<div class="qd-lane" data-state="'+esc(state(value))+'"><span>'+esc(label)+'</span><strong>'+esc(state(value))+'</strong></div>').join('');
@@ -44,11 +45,42 @@
     $('[data-browser-passed]').textContent=data.browser?.passed??'—';
     $('[data-browser-failed]').textContent=data.browser?.failed??'—';
 
-    const rows=data.lighthouse?.pages||[];
-    $('[data-page-scores]').innerHTML=rows.map((row)=>{
-      const cell=(v)=>'<td class="'+scoreClass(v)+'">'+(Number.isFinite(v)?v:'—')+'</td>';
-      return '<tr><td>'+esc(row.url||'/')+'</td>'+cell(row.performance)+cell(row.accessibility)+cell(row.bestPractices)+cell(row.seo)+'</tr>';
-    }).join('')||'<tr><td colspan="5">No page-level Lighthouse data available.</td></tr>';
+    const fullRows=data.fullLighthouse?.pages||[];
+    const auditChip=$('[data-full-audit-chip]');
+    if(auditChip){
+      const count=data.fullLighthouse?.pageCount??fullRows.length;
+      const opportunities=data.fullLighthouse?.opportunityCount??fullRows.reduce((sum,row)=>sum+(row.opportunities?.length||0),0);
+      auditChip.textContent=count+' pages · '+opportunities+' opportunities';
+    }
+    const scoreCell=(value,mark='')=>'<td class="'+scoreClass(value)+'">'+(Number.isFinite(value)?value+mark:'—')+'</td>';
+    const metricCell=(value,suffix,digits=0)=>{
+      const number=Number(value);
+      return '<td>'+(Number.isFinite(number)?number.toFixed(digits)+suffix:'—')+'</td>';
+    };
+    const opportunityText=(op)=>{
+      const savings=[];
+      if(Number(op.savingMs)>0) savings.push(Math.round(Number(op.savingMs))+' ms');
+      if(Number(op.savingBytes)>0) savings.push(Math.round(Number(op.savingBytes)/1024)+' KiB');
+      return '<span class="qd-opportunity"><strong>'+esc(op.title||op.id||'Optimization')+'</strong>'+(savings.length?'<small>'+esc(savings.join(' · '))+'</small>':'')+'</span>';
+    };
+    const fullBody=$('[data-full-page-scores]');
+    if(fullBody){
+      fullBody.innerHTML=fullRows.map((row)=>{
+        const ops=Array.isArray(row.opportunities)?row.opportunities:[];
+        const shown=ops.slice(0,2).map(opportunityText).join('');
+        const extra=ops.length>2?'<small class="qd-opportunity-more">+'+(ops.length-2)+' more</small>':'';
+        const opportunityCell='<td class="qd-opportunities">'+(shown||'<span class="qd-clean">None</span>')+extra+'</td>';
+        const seoMark=row.intentionalNoindex?'*':'';
+        return '<tr><td>'+esc(row.path||row.url||'/')+'</td>'
+          +scoreCell(row.performance)
+          +scoreCell(row.accessibility)
+          +scoreCell(row.bestPractices)
+          +scoreCell(row.seo,seoMark)
+          +metricCell(Number(row.lcp)/1000,'s',2)
+          +metricCell(row.cls,'',3)
+          +opportunityCell+'</tr>';
+      }).join('')||'<tr><td colspan="8">No full-site Lighthouse data available.</td></tr>';
+    }
 
     $('[data-source-commit]').textContent='Commit '+String(data.source?.commit||'—').slice(0,12);
     const run=$('[data-run-link]');
