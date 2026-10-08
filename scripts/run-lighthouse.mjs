@@ -5,7 +5,9 @@ import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 
 const configArgIndex=process.argv.indexOf('--config');
-const configPath=path.resolve(configArgIndex>=0?process.argv[configArgIndex+1]:'lighthouserc.json');
+const configEqualsArg=process.argv.find((arg)=>arg.startsWith('--config='));
+const configValue=configArgIndex>=0?process.argv[configArgIndex+1]:(configEqualsArg?configEqualsArg.slice('--config='.length):'lighthouserc.json');
+const configPath=path.resolve(configValue||'lighthouserc.json');
 const config=JSON.parse(fs.readFileSync(configPath,'utf8'));
 const ci=config.ci||{};
 const collect=ci.collect||{};
