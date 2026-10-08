@@ -45,12 +45,13 @@
     $('[data-browser-passed]').textContent=data.browser?.passed??'—';
     $('[data-browser-failed]').textContent=data.browser?.failed??'—';
 
-    const fullRows=data.fullLighthouse?.pages||[];
+    const hasFullAudit=Array.isArray(data.fullLighthouse?.pages)&&data.fullLighthouse.pages.length>0;
+    const fullRows=hasFullAudit?data.fullLighthouse.pages:(data.lighthouse?.pages||[]);
     const auditChip=$('[data-full-audit-chip]');
     if(auditChip){
-      const count=data.fullLighthouse?.pageCount??fullRows.length;
-      const opportunities=data.fullLighthouse?.opportunityCount??fullRows.reduce((sum,row)=>sum+(row.opportunities?.length||0),0);
-      auditChip.textContent=count+' pages · '+opportunities+' opportunities';
+      const count=hasFullAudit?(data.fullLighthouse?.pageCount??fullRows.length):fullRows.length;
+      const opportunities=hasFullAudit?(data.fullLighthouse?.opportunityCount??fullRows.reduce((sum,row)=>sum+(row.opportunities?.length||0),0)):0;
+      auditChip.textContent=hasFullAudit?(count+' pages · '+opportunities+' opportunities'):(count+' representative pages · full audit pending');
     }
     const scoreCell=(value,mark='')=>'<td class="'+scoreClass(value)+'">'+(Number.isFinite(value)?value+mark:'—')+'</td>';
     const metricCell=(value,suffix,digits=0)=>{
