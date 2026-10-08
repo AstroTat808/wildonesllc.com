@@ -19,10 +19,13 @@
     return turnstileReady;
   };
 
-  const configPromise=fetch('/api/public-config',{cache:'no-store'})
-    .then((response)=>response.ok?response.json():null)
-    .then((data)=>{siteKey=String(data?.turnstileSiteKey||'').trim();return siteKey;})
-    .catch(()=>'');
+  const isStaticPreview=['localhost','127.0.0.1','0.0.0.0'].includes(location.hostname);
+  const configPromise=isStaticPreview
+    ? Promise.resolve('')
+    : fetch('/api/public-config',{cache:'no-store'})
+        .then((response)=>response.ok?response.json():null)
+        .then((data)=>{siteKey=String(data?.turnstileSiteKey||'').trim();return siteKey;})
+        .catch(()=>'');
 
   const setStatus=(form,message,error=false)=>{
     const target=form.querySelector('[data-form-status]');
