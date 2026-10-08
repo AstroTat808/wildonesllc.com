@@ -31,7 +31,14 @@ for(const sourceName of sources){
       .webp({quality,effort:4,smartSubsample:true})
       .toFile(outputPath);
     written+=1;
+    if(base==='nocturne-dancefloor-wide-01'){
+      const avifPath=path.join(imageDir,`${base}-${width}.avif`);
+      await sharp(sourcePath)
+        .resize({width,withoutEnlargement:true})
+        .avif({quality:70,effort:4})
+        .toFile(avifPath);
+    }
   }
 }
 
-console.log(`Generated ${written} responsive NOCTURNE WebP derivatives at quality ${quality}.`);
+console.log(`Generated ${written} responsive NOCTURNE WebP derivatives at quality ${quality}, plus AVIF mobile hero derivatives.`);
