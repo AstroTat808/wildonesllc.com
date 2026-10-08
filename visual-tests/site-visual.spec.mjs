@@ -41,6 +41,17 @@ test('luxury visual QA across every public and operational page',async({page})=>
       await page.addStyleTag({content:'*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;caret-color:transparent!important}'});
       await page.evaluate(async()=>{
         document.querySelectorAll('video').forEach((video)=>{ video.pause(); try{ video.currentTime=0; }catch{} });
+        await Promise.all([...document.querySelectorAll('video[data-poster]')].map(async(video)=>{
+          const poster=video.getAttribute('data-poster');
+          if(!poster) return;
+          await new Promise((resolve)=>{
+            const preload=new Image();
+            preload.onload=resolve;
+            preload.onerror=resolve;
+            preload.src=poster;
+          });
+          video.setAttribute('poster',poster);
+        }));
         document.querySelectorAll('img').forEach((img)=>{ img.loading='eager'; });
         if(document.fonts?.ready) await document.fonts.ready;
         await Promise.all([...document.images].map(async(img)=>{
