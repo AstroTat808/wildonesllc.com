@@ -418,9 +418,9 @@ jobs:
           fi
           echo "classification=$CLASSIFICATION" >> "$GITHUB_OUTPUT"
 
-          printf '%s' "$JOBS_JSON" | jq --arg classification "$CLASSIFICATION"             --arg canary "$CANARY_RESULT" --arg static "$STATIC_RESULT"             --arg browser "$BROWSER_RESULT" --arg visual "$VISUAL_RESULT"             --arg lighthouse "$LIGHTHOUSE_RESULT" '{
+          printf '%s' "$JOBS_JSON" | jq --arg classification "$CLASSIFICATION"             --arg canary "$CANARY_RESULT" --arg static "$STATIC_RESULT"             --arg browser "$BROWSER_RESULT" --arg visual "$VISUAL_RESULT"             --arg lighthouse "$LIGHTHOUSE_RESULT" --arg lighthouseFull "$FULL_LIGHTHOUSE_RESULT" '{
               classification:$classification,
-              needs:{canary:$canary,static:$static,browser:$browser,visual:$visual,lighthouse:$lighthouse},
+              needs:{canary:$canary,static:$static,browser:$browser,visual:$visual,lighthouse:$lighthouse,lighthouseFull:$lighthouseFull},
               infrastructureFailures:[.jobs[] | select(.conclusion=="failure" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0)) | {name,conclusion,runner_id,runner_name,labels}],
               qaOrWorkflowFailures:[.jobs[] | select(.conclusion=="failure" and (((.runner_id // 0)>0) or (((.steps // [])|length)>0))) | {name,conclusion,runner_id,runner_name,labels,failedSteps:[(.steps // [])[] | select(.conclusion=="failure") | .name]}],
               cancelledBeforeAllocation:[.jobs[] | select(.conclusion=="cancelled" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0)) | {name,conclusion,labels}]
