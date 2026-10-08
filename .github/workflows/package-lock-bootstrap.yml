@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   package-lock:
@@ -15,13 +15,44 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          persist-credentials: false
+          ref: ${{ github.head_ref || github.ref_name }}
+          persist-credentials: true
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
-      - name: Generate deterministic npm lockfile
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Generate lockfile and pin direct dependency versions
+        run: |
+          set -euo pipefail
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          node <<'NODE'
+          const fs=require('node:fs');
+          const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
+          const lock=JSON.parse(fs.readFileSync('package-lock.json','utf8'));
+          const resolved=(name)=>lock.packages?.['node_modules/'+name]?.version;
+          for (const section of ['dependencies','devDependencies']) {
+            for (const name of Object.keys(pkg[section]||{})) {
+              const version=resolved(name);
+              if (!version) throw new Error('Missing resolved version for '+name);
+              pkg[section][name]=version;
+            }
+          }
+          fs.writeFileSync('package.json',JSON.stringify(pkg,null,2)+'\n');
+          NODE
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit deterministic dependency graph to PR branch
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "Dependency graph already deterministic."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Pin npm dependencies and add lockfile"
+          git push origin "HEAD:${{ github.head_ref || github.ref_name }}"
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: package-lock-bootstrap-${{ github.run_id }}
           path: package-lock.json
