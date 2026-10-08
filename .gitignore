@@ -7,3 +7,6 @@ node_modules/
 dist/assets/nocturne-2026/images/*-480.webp
 dist/assets/nocturne-2026/images/*-640.webp
 dist/assets/nocturne-2026/images/*-768.webp
+dist/assets/nocturne-2026/images/*-480.avif
+dist/assets/nocturne-2026/images/*-640.avif
+dist/assets/nocturne-2026/images/*-768.avif
