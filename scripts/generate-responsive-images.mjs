@@ -4,7 +4,7 @@ import sharp from 'sharp';
 
 const imageDir=path.resolve('dist/assets/nocturne-2026/images');
 const widths=[480,640,768];
-const quality=90;
+const quality=78;
 
 if(!fs.existsSync(imageDir)){
   console.log('NOCTURNE image directory not present; skipping responsive derivative generation.');
@@ -12,18 +12,18 @@ if(!fs.existsSync(imageDir)){
 }
 
 const sources=fs.readdirSync(imageDir)
-  .filter((name)=>/-1800\.webp$/i.test(name))
+  .filter((name)=>/-900\.webp$/i.test(name))
   .sort();
 
 if(!sources.length){
-  console.log('No NOCTURNE 1800px source images found; nothing to generate.');
+  console.log('No NOCTURNE 1800px 900px source images found; nothing to generate.');
   process.exit(0);
 }
 
 let written=0;
 for(const sourceName of sources){
   const sourcePath=path.join(imageDir,sourceName);
-  const base=sourceName.replace(/-1800\.webp$/i,'');
+  const base=sourceName.replace(/-900\.webp$/i,'');
   for(const width of widths){
     const outputPath=path.join(imageDir,`${base}-${width}.webp`);
     await sharp(sourcePath)
