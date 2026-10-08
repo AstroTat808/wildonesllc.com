@@ -5,6 +5,8 @@ on:
     branches: [main]
   push:
     branches: [main]
+    paths-ignore:
+      - 'dist/assets/data/site-quality.json'
   merge_group:
   workflow_dispatch:
 
@@ -339,10 +341,50 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
 
+
+  lighthouse-full:
+    name: Full-site Lighthouse audit · 21 pages
+    needs: static-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Restore npm download cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-npm-
+      - run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Audit all 21 site pages
+        run: npm run qa:lighthouse:all
+      - name: Build full-site Lighthouse summary
+        run: node scripts/summarize-lighthouse.mjs
+      - name: Add full-site audit summary
+        if: always()
+        run: |
+          if [ -f lighthouse-full-summary/SUMMARY.md ]; then cat lighthouse-full-summary/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        continue-on-error: true
+        with:
+          name: wild-ones-lighthouse-full-${{ github.run_id }}
+          path: |
+            lighthouse-full-results/*.report.json
+            lighthouse-full-summary
+          retention-days: 3
+          if-no-files-found: error
+
   release-diagnostics:
     name: Release diagnostics · runner vs QA
     if: always()
-    needs: [runner-canary, static-integrity, browser-qa, visual-design-qa, lighthouse]
+    needs: [runner-canary, static-integrity, browser-qa, visual-design-qa, lighthouse, lighthouse-full]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -357,6 +399,7 @@ jobs:
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+          FULL_LIGHTHOUSE_RESULT: ${{ needs.lighthouse-full.result }}
         run: |
           set -u
           mkdir -p release-diagnostics
@@ -368,18 +411,18 @@ jobs:
           CLASSIFICATION=HEALTHY
           if [ "$INFRA_COUNT" -gt 0 ]; then
             CLASSIFICATION=RUNNER_INFRASTRUCTURE
-          elif [ "$QA_COUNT" -gt 0 ] || [ "$STATIC_RESULT" = "failure" ] || [ "$BROWSER_RESULT" = "failure" ] || [ "$VISUAL_RESULT" = "failure" ] || [ "$LIGHTHOUSE_RESULT" = "failure" ]; then
+          elif [ "$QA_COUNT" -gt 0 ] || [ "$STATIC_RESULT" = "failure" ] || [ "$BROWSER_RESULT" = "failure" ] || [ "$VISUAL_RESULT" = "failure" ] || [ "$LIGHTHOUSE_RESULT" = "failure" ] || [ "$FULL_LIGHTHOUSE_RESULT" = "failure" ]; then
             CLASSIFICATION=QA_OR_WORKFLOW
           elif [ "$CANCELLED_PRE_RUNNER" -gt 0 ] || [ "$CANARY_RESULT" = "cancelled" ]; then
             CLASSIFICATION=CANCELLED_BEFORE_ALLOCATION
-          elif [ "$CANARY_RESULT" != "success" ] || [ "$STATIC_RESULT" != "success" ] || [ "$BROWSER_RESULT" != "success" ] || [ "$VISUAL_RESULT" != "success" ] || [ "$LIGHTHOUSE_RESULT" != "success" ]; then
+          elif [ "$CANARY_RESULT" != "success" ] || [ "$STATIC_RESULT" != "success" ] || [ "$BROWSER_RESULT" != "success" ] || [ "$VISUAL_RESULT" != "success" ] || [ "$LIGHTHOUSE_RESULT" != "success" ] || [ "$FULL_LIGHTHOUSE_RESULT" != "success" ]; then
             CLASSIFICATION=DEGRADED_OR_UNKNOWN
           fi
           echo "classification=$CLASSIFICATION" >> "$GITHUB_OUTPUT"
 
-          printf '%s' "$JOBS_JSON" | jq --arg classification "$CLASSIFICATION"             --arg canary "$CANARY_RESULT" --arg static "$STATIC_RESULT"             --arg browser "$BROWSER_RESULT" --arg visual "$VISUAL_RESULT"             --arg lighthouse "$LIGHTHOUSE_RESULT" '{
+          printf '%s' "$JOBS_JSON" | jq --arg classification "$CLASSIFICATION"             --arg canary "$CANARY_RESULT" --arg static "$STATIC_RESULT"             --arg browser "$BROWSER_RESULT" --arg visual "$VISUAL_RESULT"             --arg lighthouse "$LIGHTHOUSE_RESULT" --arg lighthouseFull "$FULL_LIGHTHOUSE_RESULT" '{
               classification:$classification,
-              needs:{canary:$canary,static:$static,browser:$browser,visual:$visual,lighthouse:$lighthouse},
+              needs:{canary:$canary,static:$static,browser:$browser,visual:$visual,lighthouse:$lighthouse,lighthouseFull:$lighthouseFull},
               infrastructureFailures:[.jobs[] | select(.conclusion=="failure" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0)) | {name,conclusion,runner_id,runner_name,labels}],
               qaOrWorkflowFailures:[.jobs[] | select(.conclusion=="failure" and (((.runner_id // 0)>0) or (((.steps // [])|length)>0))) | {name,conclusion,runner_id,runner_name,labels,failedSteps:[(.steps // [])[] | select(.conclusion=="failure") | .name]}],
               cancelledBeforeAllocation:[.jobs[] | select(.conclusion=="cancelled" and ((.runner_id // 0)==0) and (((.steps // [])|length)==0)) | {name,conclusion,labels}]
@@ -397,6 +440,7 @@ jobs:
             echo "| Browser QA | ${BROWSER_RESULT} |"
             echo "| Visual QA | ${VISUAL_RESULT} |"
             echo "| Lighthouse | ${LIGHTHOUSE_RESULT} |"
+            echo "| Full-site Lighthouse | ${FULL_LIGHTHOUSE_RESULT} |"
             echo "| Failed jobs with no runner / zero steps | ${INFRA_COUNT} |"
             echo "| Failed jobs that executed on a runner | ${QA_COUNT} |"
             echo "| Cancelled before runner allocation | ${CANCELLED_PRE_RUNNER} |"
@@ -422,7 +466,7 @@ jobs:
   quality-dashboard:
     name: Executive Site Quality Dashboard
     if: always()
-    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse]
+    needs: [static-integrity, browser-qa, visual-design-qa, lighthouse, lighthouse-full]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -459,6 +503,11 @@ jobs:
         with:
           name: wild-ones-lighthouse-${{ github.run_id }}
           path: quality-input/lighthouse
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: wild-ones-lighthouse-full-${{ github.run_id }}
+          path: quality-input/lighthouse-full
 
       - name: Build executive quality dashboard
         env:
@@ -466,6 +515,7 @@ jobs:
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+          FULL_LIGHTHOUSE_RESULT: ${{ needs.lighthouse-full.result }}
         run: npm run quality:build
 
       - name: Add dashboard summary
@@ -485,7 +535,7 @@ jobs:
   release-certification:
     name: Release Certification - GO
     if: always()
-    needs: [runner-canary, static-integrity, browser-qa, visual-design-qa, lighthouse, quality-dashboard, release-diagnostics]
+    needs: [runner-canary, static-integrity, browser-qa, visual-design-qa, lighthouse, lighthouse-full, quality-dashboard, release-diagnostics]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -497,6 +547,7 @@ jobs:
           STATIC_RESULT: ${{ needs.static-integrity.result }}
           BROWSER_RESULT: ${{ needs.browser-qa.result }}
           LIGHTHOUSE_RESULT: ${{ needs.lighthouse.result }}
+          FULL_LIGHTHOUSE_RESULT: ${{ needs.lighthouse-full.result }}
           VISUAL_RESULT: ${{ needs.visual-design-qa.result }}
           QUALITY_RESULT: ${{ needs.quality-dashboard.result }}
         run: |
@@ -505,6 +556,7 @@ jobs:
           echo "Static integrity: $STATIC_RESULT"
           echo "Browser QA:       $BROWSER_RESULT"
           echo "Lighthouse:       $LIGHTHOUSE_RESULT"
+          echo "Full Lighthouse:  $FULL_LIGHTHOUSE_RESULT"
           echo "Visual design QA: $VISUAL_RESULT"
           echo "Quality dashboard: $QUALITY_RESULT"
           test "$RUNNER_RESULT" = "success"
@@ -512,7 +564,8 @@ jobs:
           test "$STATIC_RESULT" = "success"
           test "$BROWSER_RESULT" = "success"
           test "$LIGHTHOUSE_RESULT" = "success"
+          test "$FULL_LIGHTHOUSE_RESULT" = "success"
           test "$VISUAL_RESULT" = "success"
           test "$QUALITY_RESULT" = "success"
-          echo "GO - Wild Ones runner health, static integrity, browser QA, visual QA, Lighthouse, diagnostics, and quality dashboard gates passed."
+          echo "GO - Wild Ones runner health, static integrity, browser QA, visual QA, representative and 21-page Lighthouse audits, diagnostics, and quality dashboard gates passed."
           echo "This workflow performs no Netlify deployment."

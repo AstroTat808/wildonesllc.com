@@ -23,6 +23,7 @@
     </a>
     <span class="qd-internal">Internal QA</span>
   </header>
+  <!-- Full-site Lighthouse dashboard expansion is an approved visual change. -->
   <main class="qd-shell">
     <section class="qd-hero">
       <div><p class="qd-eyebrow">Site Quality Dashboard</p><h1>Release confidence, <span>at a glance.</span></h1><p class="qd-lede">A single executive view of production readiness, visual integrity, responsive coverage, browser testing, Lighthouse, accessibility and SEO.</p></div>
@@ -70,8 +71,9 @@
       </article>
 
       <article class="qd-panel qd-panel-wide">
-        <div class="qd-panel-head"><div><p class="qd-eyebrow">Lighthouse by page</p><h2>Where performance can still move.</h2></div><span class="qd-chip">Median of 3 runs</span></div>
-        <div class="qd-table-wrap"><table><thead><tr><th>Page</th><th>Performance</th><th>Accessibility</th><th>Best practices</th><th>SEO</th></tr></thead><tbody data-page-scores></tbody></table></div>
+        <div class="qd-panel-head"><div><p class="qd-eyebrow">Full-site Lighthouse</p><h2>Every page, every quality signal.</h2><p class="qd-panel-copy">The exhaustive audit covers all 21 HTML routes and surfaces performance, accessibility, best practices, SEO, LCP, CLS, and the remaining optimization opportunities in one view.</p></div><span class="qd-chip" data-full-audit-chip>21-page audit</span></div>
+        <div class="qd-table-wrap"><table class="qd-full-table"><thead><tr><th>Page</th><th>Perf</th><th>A11y</th><th>Best</th><th>SEO</th><th>LCP</th><th>CLS</th><th>Remaining opportunities</th></tr></thead><tbody data-full-page-scores></tbody></table></div>
+        <p class="qd-note">SEO values marked <strong>*</strong> belong to intentionally non-indexed operational or confirmation pages.</p>
       </article>
     </section>
 

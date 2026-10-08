@@ -73,6 +73,19 @@ const lighthouse= lighthouseRuns.length ? {
   pages
 } : seed.lighthouse||{};
 
+const fullSummary=readJson(findOne(path.join(inputRoot,'lighthouse-full'),'report.json'),null);
+const fullPages=Array.isArray(fullSummary)?fullSummary:[];
+const fullLighthouse=fullPages.length?{
+  status:status(process.env.FULL_LIGHTHOUSE_RESULT),
+  pageCount:fullPages.length,
+  performance:Math.round(median(fullPages.map(r=>Number(r.performance)))??0),
+  accessibility:Math.round(median(fullPages.map(r=>Number(r.accessibility)))??0),
+  bestPractices:Math.round(median(fullPages.map(r=>Number(r.bestPractices)))??0),
+  seo:Math.round(median(fullPages.filter(r=>!r.intentionalNoindex).map(r=>Number(r.seo)))??0),
+  opportunityCount:fullPages.reduce((sum,row)=>sum+(Array.isArray(row.opportunities)?row.opportunities.length:0),0),
+  pages:fullPages
+}:(seed.fullLighthouse||{});
+
 let browser={...(seed.browser||{})};
 if(browserJson){
   let passed=0,failed=0,skipped=0;
@@ -95,7 +108,8 @@ const env={
   static:status(process.env.STATIC_RESULT),
   browser:status(process.env.BROWSER_RESULT),
   visual:status(process.env.VISUAL_RESULT),
-  lighthouse:status(process.env.LIGHTHOUSE_RESULT)
+  lighthouse:status(process.env.LIGHTHOUSE_RESULT),
+  fullLighthouse:status(process.env.FULL_LIGHTHOUSE_RESULT)
 };
 const releasePass=Object.values(env).every((v)=>v==='PASS');
 const runId=process.env.GITHUB_RUN_ID||seed.source?.runId||null;
@@ -119,7 +133,8 @@ const data={
     static:env.static==='UNKNOWN'?(seed.release?.static||'UNKNOWN'):env.static,
     browser:env.browser==='UNKNOWN'?(seed.release?.browser||'UNKNOWN'):env.browser,
     visual:env.visual==='UNKNOWN'?(seed.release?.visual||'UNKNOWN'):env.visual,
-    lighthouse:env.lighthouse==='UNKNOWN'?(seed.release?.lighthouse||'UNKNOWN'):env.lighthouse
+    lighthouse:env.lighthouse==='UNKNOWN'?(seed.release?.lighthouse||'UNKNOWN'):env.lighthouse,
+    fullLighthouse:env.fullLighthouse==='UNKNOWN'?(seed.release?.fullLighthouse||'UNKNOWN'):env.fullLighthouse
   },
   static:staticReport?{
     htmlPages:staticReport.htmlPages??null,
@@ -154,7 +169,8 @@ const data={
     maxDiffRatio:seed.visualRegression?.maxDiffRatio??0.005,
     baselineRun:runNumber?Number(runNumber):null
   }:(seed.visualRegression||{status:'BASELINE_READY'})),
-  lighthouse
+  lighthouse,
+  fullLighthouse
 };
 
 fs.rmSync(outputRoot,{recursive:true,force:true});
@@ -186,9 +202,11 @@ const summary=[
   'Browser QA: **'+data.release.browser+'**',
   'Visual QA: **'+data.release.visual+'**',
   'Lighthouse: **'+data.release.lighthouse+'**',
+  'Full-site Lighthouse: **'+data.release.fullLighthouse+'**',
   'Visual regression: **'+(data.visualRegression?.status||'UNKNOWN')+'**',
   '',
-  'Lighthouse median: Performance **'+(data.lighthouse?.performance??'—')+'**, Accessibility **'+(data.lighthouse?.accessibility??'—')+'**, Best Practices **'+(data.lighthouse?.bestPractices??'—')+'**, SEO **'+(data.lighthouse?.seo??'—')+'**.'
+  'Lighthouse median: Performance **'+(data.lighthouse?.performance??'—')+'**, Accessibility **'+(data.lighthouse?.accessibility??'—')+'**, Best Practices **'+(data.lighthouse?.bestPractices??'—')+'**, SEO **'+(data.lighthouse?.seo??'—')+'**.',
+  'Full-site audit: **'+(data.fullLighthouse?.pageCount??0)+' pages**, **'+(data.fullLighthouse?.opportunityCount??0)+' actionable opportunities**.'
 ].join('\n');
 fs.writeFileSync(path.join(outputRoot,'SUMMARY.md'),summary+'\n');
 console.log(summary);

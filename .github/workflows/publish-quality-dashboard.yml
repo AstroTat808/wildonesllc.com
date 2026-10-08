@@ -1,0 +1,61 @@
+name: Publish Certified Site Quality Snapshot
+
+on:
+  workflow_run:
+    workflows: ["Wild Ones Release Certification"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Download certified dashboard snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          SUBJECT="$(git show -s --format=%s "$SOURCE_SHA" 2>/dev/null || true)"
+          if [ "$SUBJECT" = "Update certified Site Quality Dashboard snapshot" ]; then
+            echo "Snapshot-only commit; nothing to republish."
+            echo "SKIP_PUBLISH=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          ARTIFACT_NAME="site-quality-dashboard-${RUN_ID}"
+          ARTIFACT_ID="$(gh api -X GET "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/artifacts?per_page=100"             --jq ".artifacts[] | select(.name==\"$ARTIFACT_NAME\") | .id" | head -n 1)"
+          test -n "$ARTIFACT_ID"
+
+          curl -L --fail --silent --show-error             -H "Authorization: Bearer ${GH_TOKEN}"             -H "X-GitHub-Api-Version: 2022-11-28"             "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}/zip"             -o /tmp/site-quality-dashboard.zip
+
+          mkdir -p dist/assets/data
+          unzip -p /tmp/site-quality-dashboard.zip assets/data/site-quality.json > dist/assets/data/site-quality.json
+
+          node -e "const d=require('./dist/assets/data/site-quality.json'); if(!Array.isArray(d.fullLighthouse?.pages)||d.fullLighthouse.pages.length!==21) throw new Error('Certified snapshot does not contain all 21 Lighthouse pages');"
+
+      - name: Publish snapshot to main
+        if: env.SKIP_PUBLISH != 'true'
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- dist/assets/data/site-quality.json; then
+            echo "Certified dashboard snapshot is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist/assets/data/site-quality.json
+          git commit -m "Update certified Site Quality Dashboard snapshot"
+          git push origin HEAD:main

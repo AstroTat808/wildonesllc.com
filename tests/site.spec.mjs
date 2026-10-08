@@ -310,6 +310,8 @@ test('executive quality dashboard renders certified metrics and remains noindex'
   await expect(page.locator('[data-release-status]')).not.toHaveText('Loading');
   await expect(page.locator('[data-score="performance"]')).not.toHaveText('—');
   await expect(page.locator('[data-viewports] .qd-viewport')).toHaveCount(5);
+  await expect(page.locator('[data-full-page-scores]')).toHaveCount(1);
+  await expect(page.locator('[data-full-audit-chip]')).not.toHaveText('21-page audit');
   const robots=await page.locator('meta[name="robots"]').getAttribute('content');
   expect(robots||'').toContain('noindex');
 });
