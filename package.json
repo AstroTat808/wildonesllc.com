@@ -14,7 +14,8 @@
     "design:fix": "node scripts/design-fixer.mjs --fix",
     "qa:visual": "playwright test --config=playwright.visual.config.mjs",
     "quality:build": "node scripts/build-quality-dashboard.mjs",
-    "qa:netlify": "npm run design:check && npm run qa:static && npm run qa:functions"
+    "qa:netlify": "npm run design:check && npm run qa:static && npm run qa:functions",
+    "qa:lighthouse:all": "node scripts/run-lighthouse.mjs --config=./lighthouserc.all.json"
   },
   "dependencies": {
     "@netlify/blobs": "11.1.3",
