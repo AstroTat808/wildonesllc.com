@@ -1,3 +1,10 @@
+document.querySelectorAll('link[data-deferred-stylesheet]').forEach((link) => {
+  const activate = () => { link.media = 'all'; };
+  if (link.sheet) activate();
+  else link.addEventListener('load', activate, { once: true });
+  window.setTimeout(activate, 3000);
+});
+
 function ensurePastEventsLinks() {
   const primaryNav = document.querySelector('[data-nav-links]');
   if (primaryNav && !primaryNav.querySelector('a[href="past-events.html"]')) {

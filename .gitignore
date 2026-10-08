@@ -4,3 +4,6 @@ node_modules/
 .env
 .env.*
 !.env.example
+dist/assets/nocturne-2026/images/*-480.webp
+dist/assets/nocturne-2026/images/*-640.webp
+dist/assets/nocturne-2026/images/*-768.webp
