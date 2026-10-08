@@ -7,6 +7,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: wild-ones-lighthouse-full-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lighthouse-all-pages:
     runs-on: ubuntu-latest
