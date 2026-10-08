@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const dir=path.resolve('lighthouse-full-results');
 const files=fs.existsSync(dir)?fs.readdirSync(dir).filter((name)=>name.endsWith('.report.json')):[];
-const intentionalNoindex=new Set(['/admin-crm.html','/technical-packet.html','/thank-you.html']);
+const intentionalNoindex=new Set(['/404.html','/admin-crm.html','/quality-dashboard.html','/technical-packet.html','/thank-you.html']);
 const rows=[];
 
 for(const name of files){
