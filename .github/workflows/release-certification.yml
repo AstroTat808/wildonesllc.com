@@ -47,26 +47,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - name: Restore npm download cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node22-npm-
       - name: Install QA dependencies
-        run: npm install --prefer-offline --no-audit --no-fund
+        run: npm ci --prefer-offline --no-audit --no-fund
       - name: Static route, SEO and secret audit
         run: npm run qa:static
       - name: Netlify functions and edge syntax audit
         run: npm run qa:functions
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         continue-on-error: true
         with:
@@ -81,26 +81,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - name: Restore npm download cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node22-npm-
-      - run: npm install --prefer-offline --no-audit --no-fund
+      - run: npm ci --prefer-offline --no-audit --no-fund
       - name: Resolve Playwright version
         id: playwright-version
         run: |
           node -e "console.log('version=' + require('@playwright/test/package.json').version)" >> "$GITHUB_OUTPUT"
       - name: Restore Playwright browser cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-chromium-webkit
@@ -108,7 +108,7 @@ jobs:
             ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run qa:browser
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         continue-on-error: true
         with:
@@ -123,26 +123,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - name: Restore npm download cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node22-npm-
-      - run: npm install --prefer-offline --no-audit --no-fund
+      - run: npm ci --prefer-offline --no-audit --no-fund
       - name: Resolve Playwright version
         id: playwright-version
         run: |
           node -e "console.log('version=' + require('@playwright/test/package.json').version)" >> "$GITHUB_OUTPUT"
       - name: Restore Playwright browser cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}-chromium
@@ -163,7 +163,7 @@ jobs:
 
       - name: Cache approved main visual baseline
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: visual-baseline
           key: wild-ones-visual-baseline-${{ github.sha }}
@@ -171,7 +171,7 @@ jobs:
       - name: Restore exact main visual baseline cache
         id: visual-baseline-cache
         if: github.event_name == 'pull_request'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: visual-baseline
           key: wild-ones-visual-baseline-${{ github.event.pull_request.base.sha }}
@@ -280,7 +280,7 @@ jobs:
         run: |
           if [ -f visual-diff/report.md ]; then cat visual-diff/report.md >> "$GITHUB_STEP_SUMMARY"; fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         continue-on-error: true
         with:
@@ -292,7 +292,7 @@ jobs:
           retention-days: 3
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: github.event_name == 'pull_request' && always()
         continue-on-error: true
         with:
@@ -315,22 +315,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
       - name: Restore npm download cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package.json') }}
+          key: ${{ runner.os }}-node22-npm-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node22-npm-
-      - run: npm install --prefer-offline --no-audit --no-fund
+      - run: npm ci --prefer-offline --no-audit --no-fund
       - run: npm run qa:lighthouse
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         continue-on-error: true
         with:
@@ -410,7 +410,7 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         continue-on-error: true
         with:
@@ -426,35 +426,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: wild-ones-static-${{ github.run_id }}
           path: quality-input/static
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: wild-ones-playwright-${{ github.run_id }}
           path: quality-input/browser
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: wild-ones-visual-qa-${{ github.run_id }}
           path: quality-input/visual
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         if: github.event_name == 'pull_request'
         continue-on-error: true
         with:
           name: wild-ones-visual-diff-${{ github.run_id }}
           path: quality-input/diff
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: wild-ones-lighthouse-${{ github.run_id }}
@@ -473,7 +473,7 @@ jobs:
         run: |
           if [ -f quality-dashboard/SUMMARY.md ]; then cat quality-dashboard/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"; fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         continue-on-error: true
         with:
