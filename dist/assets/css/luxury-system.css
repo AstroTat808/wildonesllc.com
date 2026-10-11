@@ -341,3 +341,62 @@ input,select,textarea{min-height:52px;border-radius:12px;background:#0a0a0d;bord
 }
 @media(max-width:360px){.home-history-image{min-height:138px}.home-history-image figcaption strong{font-size:1rem}.home-history-image figcaption small{font-size:.53rem}.home-history-center{padding:23px 18px}}
 @media(prefers-reduced-motion:reduce){.home-history-image img{transition:none!important}.home-history-band:hover .home-history-image img{transform:none!important}}
+
+/*
+ * Brand integration: the approved SVG wrappers embed the original black-backed
+ * WebP artwork. Screen compositing eliminates the raster's black rectangle on
+ * the site's dark surfaces while preserving the exact approved colored artwork.
+ * Do not add a drop-shadow to these opaque embedded images: their alpha bounds
+ * are rectangular and would recreate the visible black box.
+ */
+.brand-lockup img,
+.footer-brand img,
+.brand-panel img,
+.emblem-wrap img,
+.packet-lock img,
+.packet-cover img,
+.error-brand-lockup {
+  mix-blend-mode: screen;
+  filter: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  object-fit: contain !important;
+}
+.brand-lockup picture,
+.footer-brand picture { line-height: 0; }
+.brand-panel {
+  background:
+    radial-gradient(ellipse at 48% 38%, rgba(216,164,59,.095), transparent 52%),
+    radial-gradient(ellipse at 90% 88%, rgba(122,76,255,.07), transparent 48%),
+    linear-gradient(150deg,rgba(255,255,255,.038),rgba(255,255,255,.014));
+}
+.brand-panel img {
+  margin-inline: auto;
+  max-height: min(60vh, 410px);
+}
+.packet-cover {
+  padding: clamp(30px,5vw,54px);
+  border: 1px solid rgba(216,164,59,.24);
+  background:
+    radial-gradient(ellipse at 50% 14%,rgba(216,164,59,.13),transparent 57%),
+    radial-gradient(ellipse at 96% 95%,rgba(31,217,255,.045),transparent 48%),
+    linear-gradient(148deg,#100d14,#08080c 62%,#0d0d14);
+  box-shadow: 0 24px 64px rgba(0,0,0,.19), inset 0 1px 0 rgba(255,255,255,.045);
+  color: #f5f2ea;
+}
+.packet-cover h2 { color: #f7f1e4; }
+.packet-cover p { color: #c2c1c8; }
+.packet-cover img { margin-inline: auto; }
+@media print {
+  .packet-cover {
+    color: #111 !important;
+    background: #fff !important;
+    border-color: #aaa !important;
+    box-shadow: none !important;
+  }
+  .packet-cover h2 { color: #111 !important; }
+  .packet-cover p { color: #444 !important; }
+  /* Print an intentional dark logo rectangle rather than losing art on white. */
+  .packet-cover img { mix-blend-mode: normal !important; }
+}
