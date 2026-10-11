@@ -14,3 +14,14 @@ a{color:inherit}.qd-brand picture{display:block;line-height:0}.qd-header{height:
 @media(max-width:900px){.qd-hero{grid-template-columns:1fr}.qd-go{min-height:150px}.qd-metrics{grid-template-columns:1fr 1fr}.qd-grid{grid-template-columns:1fr}.qd-panel-wide{grid-column:auto}.qd-lanes{grid-template-columns:1fr 1fr 1fr}}
 @media(max-width:600px){.qd-shell{width:min(calc(100% - 24px),1240px);padding-top:44px}.qd-header{height:68px;padding-inline:12px}.qd-brand img{height:46px}.qd-internal{font-size:.58rem}.qd-hero{gap:26px;padding-bottom:34px}.qd-hero h1{font-size:clamp(2.65rem,15vw,4.1rem)}.qd-metrics{gap:8px}.qd-metrics article{padding:17px}.qd-metrics strong{font-size:2.1rem}.qd-panel{padding:20px;border-radius:18px}.qd-panel-head{flex-direction:column}.qd-lanes{grid-template-columns:1fr 1fr}.qd-regression{align-items:flex-start;flex-direction:column}.qd-footer{flex-direction:column}}
 @media(max-width:360px){.qd-shell{width:min(calc(100% - 18px),1240px)}.qd-metrics{grid-template-columns:1fr}.qd-lanes{grid-template-columns:1fr}.qd-brand img{width:46px;height:46px}}
+
+/* The approved logo SVG embeds black-backed artwork; screen blending is
+   intentionally limited to the dark dashboard header. */
+.qd-brand img {
+  mix-blend-mode: screen;
+  filter: none;
+  box-shadow: none;
+  background: transparent;
+  border: 0;
+}
+.qd-brand picture { isolation: auto; }
