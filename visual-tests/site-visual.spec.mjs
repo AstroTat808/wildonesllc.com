@@ -101,6 +101,10 @@ test('luxury visual QA across every public and operational page',async({page})=>
           const borders=[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth].map(parseFloat);
           if(borders.some((v)=>v>.1)) failures.push('logo has visible CSS border');
           if(s.objectFit!=='contain') failures.push('logo object-fit is not contain: '+s.objectFit);
+          // Our approved SVGs embed black-backed raster artwork. On dark
+          // surfaces screen compositing prevents opaque rectangular edges.
+          if(s.mixBlendMode!=='screen') failures.push('logo raster does not blend with dark surface: '+src);
+          if(s.filter!=='none') failures.push('logo filter may reveal the raster rectangle: '+src);
           if(!logo.naturalWidth||!logo.naturalHeight) failures.push('logo has no intrinsic dimensions: '+src);
           if(parseFloat(s.width)<=0||parseFloat(s.height)<=0) failures.push('logo has invalid rendered dimensions: '+src);
 
